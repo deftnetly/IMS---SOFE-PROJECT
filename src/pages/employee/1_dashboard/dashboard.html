@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../styles/content.css">
+</head>
+<body>
+    <div id="dashboard" class="content-section">
+        <h2>Dashboard</h2>
+
+        <!-- Cards Section -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>Total Products Available</h3>
+                <p id="totalProducts">150</p>
+            </div>
+            <div class="card">
+                <h3>Low Stock Alerts</h3>
+                <p id="lowStock">8</p>
+            </div>
+            <div class="card">
+                <h3>Today's Sales</h3>
+                <p id="todaysSales">₱12,500</p>
+            </div>
+        </div>
+
+        <!-- Product List (Read-Only) -->
+        <h2 style="margin-top: 40px;">Product List</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Stock</th>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>001</td><td>Wireless Mouse</td><td>120</td><td>Electronics</td></tr>
+                <tr><td>002</td><td>Office Chair</td><td>45</td><td>Furniture</td></tr>
+                <tr><td>003</td><td>Notebook</td><td>200</td><td>Office Supplies</td></tr>
+                <tr><td>004</td><td>USB Cable</td><td>15</td><td>Electronics</td></tr>
+                <tr><td>005</td><td>LED Lamp</td><td>8</td><td>Home Goods</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Quick Action -->
+        <div style="margin-top: 30px; text-align: right;">
+            <button class="submit-button" onclick="goToCheckout()">Go to Checkout</button>
+        </div>
+
+        <div style="height: 50px;"></div>
+    </div>
+
+    <script>
+        function goToCheckout() {
+            // Navigate to the employee's checkout page dynamically
+            if (typeof loadContent === 'function') {
+                loadContent('checkout', '3_checkout');
+            } else {
+                window.location.href = '../../../3_checkout/checkout.html';
+            }
+        }
+    </script>
+</body>
+</html>

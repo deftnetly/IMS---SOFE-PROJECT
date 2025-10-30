@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../styles/content.css">
+</head>
+<body>
+    <div class="content-section">
+        <h2>Employees</h2>
+        <button class="add-button" onclick="openEmployeeModal()">Add New Employee</button>
+
+        <!-- Modal -->
+        <div id="employeeModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEmployeeModal()">&times;</span>
+                <h2>Add New Employee</h2>
+                <form id="addEmployeeForm" onsubmit="return addEmployee(event)">
+                    <div class="form-group">
+                        <label for="employeeName">Full Name:</label>
+                        <input type="text" id="employeeName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="position">Position:</label>
+                        <select id="position" required>
+                            <option value="">Select Position</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Cashier">Cashier</option>
+                            <option value="Stock Clerk">Stock Clerk</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number:</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="password" required>
+                            <button type="button" id="togglePassword" onclick="togglePasswordInputVisibility()">👁 Show</button>
+                        </div>
+                        <small style="color:gray;">(Password must be at least 8 characters and include at least 1 uppercase letter)</small>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="button" class="cancel-button" onclick="closeEmployeeModal()">Cancel</button>
+                        <button type="submit" class="submit-button">Add Employee</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Employees Table -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Full Name</th>
+                    <th>Position</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Date Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be added dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../../../scripts/employees.js"></script>
+</body>
+</html>
