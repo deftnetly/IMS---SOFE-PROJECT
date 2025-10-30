@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../styles/content.css">
+</head>
+<body>
+    <div class="content-section">
+        <h2>Products</h2>
+        <button class="add-button" onclick="openProductModal()">Add New Product</button>
+
+        <!-- 🔹 Category List Display -->
+        <div class="category-list">
+            <h3>Available Categories</h3>
+            <ul id="categoryListDisplay">
+                <!-- Categories will be dynamically loaded here -->
+            </ul>
+        </div>
+
+        <!-- Modal -->
+        <div id="productModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeProductModal()">&times;</span>
+                <h2>Add New Product</h2>
+                <form id="addProductForm" onsubmit="return addProduct(event)">
+                    <div class="form-group">
+                        <label for="productName">Product Name:</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select id="category" required>
+                            <option value="">Select Category</option>
+                            <!-- Dynamic category options will be loaded here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price (₱):</label>
+                        <input type="number" id="price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock:</label>
+                        <input type="number" id="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select id="status" required>
+                            <option value="available">Available</option>
+                            <option value="unavailable">Unavailable</option>
+                        </select>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="cancel-button" onclick="closeProductModal()">Cancel</button>
+                        <button type="submit" class="submit-button">Add Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price (₱)</th>
+                    <th>Stock</th>
+                    <th>Date Added</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be added dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../../../scripts/products.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../styles/content.css">
+</head>
+<body>
+    <div class="content-section">
+        <h2>Transaction History</h2>
+        <p style="color: gray; margin-bottom: 15px;">This page displays your completed sales transactions.</p>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <input type="date" id="dateFilter" class="filter-input">
+            <button onclick="applyFilters()" class="filter-button">Apply Filter</button>
+        </div>
+
+        <!-- Transactions Table -->
+        <table class="data-table" id="transactionTable">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Transactions will load dynamically -->
+            </tbody>
+        </table>
+
+        <!-- Transaction Details Modal -->
+        <div id="transactionModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeTransactionModal()">&times;</span>
+                <h2>Transaction Details</h2>
+
+                <div id="transactionDetails">
+                    <div class="transaction-header">
+                        <p><strong>Transaction ID:</strong> <span id="modalTransactionId"></span></p>
+                        <p><strong>Date & Time:</strong> <span id="modalDateTime"></span></p>
+                    </div>
+
+                    <table class="details-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalItemsList">
+                            <!-- Items dynamically inserted -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                <td id="modalTotal"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 💾 Sample transaction data (temporary until backend is connected)
+        const transactions = [
+            {
+                id: "TXN001",
+                date: "2025-10-20 14:30",
+                total: 700,
+                items: [
+                    { name: "Wireless Mouse", qty: 2, price: 350 },
+                ]
+            },
+            {
+                id: "TXN002",
+                date: "2025-10-21 10:45",
+                total: 1550,
+                items: [
+                    { name: "Office Chair", qty: 1, price: 1250 },
+                    { name: "Notebook", qty: 3, price: 100 },
+                ]
+            },
+            {
+                id: "TXN003",
+                date: "2025-10-22 09:10",
+                total: 450,
+                items: [
+                    { name: "LED Lamp", qty: 1, price: 450 },
+                ]
+            }
+        ];
+
+        // 🧾 Render table
+        function renderTransactions(list) {
+            const tbody = document.querySelector("#transactionTable tbody");
+            tbody.innerHTML = "";
+
+            list.forEach(txn => {
+                const row = `
+                    <tr onclick="openTransactionModal('${txn.id}')">
+                        <td>${txn.id}</td>
+                        <td>${txn.date}</td>
+                        <td>₱${txn.total.toFixed(2)}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        // 🧭 Filter by date
+        function applyFilters() {
+            const selectedDate = document.getElementById("dateFilter").value;
+            if (!selectedDate) {
+                renderTransactions(transactions);
+                return;
+            }
+
+            const filtered = transactions.filter(txn => txn.date.startsWith(selectedDate));
+            renderTransactions(filtered);
+        }
+
+        // 📦 Open modal to view details
+        function openTransactionModal(id) {
+            const txn = transactions.find(t => t.id === id);
+            if (!txn) return;
+
+            document.getElementById("modalTransactionId").textContent = txn.id;
+            document.getElementById("modalDateTime").textContent = txn.date;
+
+            const tbody = document.getElementById("modalItemsList");
+            tbody.innerHTML = "";
+
+            txn.items.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.qty}</td>
+                        <td>₱${item.price.toFixed(2)}</td>
+                        <td>₱${(item.qty * item.price).toFixed(2)}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML("beforeend", row);
+            });
+
+            document.getElementById("modalTotal").textContent = `₱${txn.total.toFixed(2)}`;
+            document.getElementById("transactionModal").style.display = "block";
+        }
+
+        function closeTransactionModal() {
+            document.getElementById("transactionModal").style.display = "none";
+        }
+
+        // 🔄 Initialize
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTransactions(transactions);
+            console.log("Employee Transaction History loaded.");
+        });
+    </script>
+</body>
+</html>
