@@ -1,14 +1,15 @@
 # IMS---SOFE-PROJECT
 Project
 
+⚠️ Important Notice: Switch to the master Branch
 
-⚠️ Note: This repository uses the master branch as the default.
-If you’re currently on the main branch, please switch to master by running:
+Please ensure that you are viewing the master branch of this repository.
+If your current branch is set to main, kindly switch it to master using the branch selection dropdown located at the upper-left corner of the repository page on GitHub.
 
-* git checkout master
+Alternatively, you may switch branches locally by running the following commands in your terminal:
+
+git fetch origin
+git checkout master
 
 
-If you don’t have it yet, fetch all branches first:
-
-* git fetch origin
-* git checkout master
+This will ensure that you are accessing the latest and most updated version of the project.
