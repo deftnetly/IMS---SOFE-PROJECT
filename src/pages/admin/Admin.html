@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMS – Admin</title>
+    <title>IMS – Admin Panel</title>
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="../../styles/content.css">
+    <link rel="stylesheet" href="../../styles/logout-popup.css"> <!-- 🔹 NEW FILE -->
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
 </head>
 <body>
@@ -17,15 +18,25 @@
         <a href="#" onclick="loadContent('transactions', '5_transactions')"><img src="../../assets/transaction.white.png" alt="Transaction Icon">Transactions</a>
         <a href="#" onclick="loadContent('reports', '6_reports')"><img src="../../assets/report.white.png" alt="Report Icon">Reports</a>
         <a href="#" onclick="loadContent('settings', '7_settings')"><img src="../../assets/setting.white.png" alt="Setting Icon">Settings</a>
-        <a href="#" class="logout" onclick="logout()"><img src="../../assets/exit.white.png" alt="Logout Icon">Logout</a>
+        <a href="#" class="logout" onclick="showLogoutPopup()"><img src="../../assets/exit.white.png" alt="Logout Icon">Logout</a>
     </div>
 
     <div class="content" id="main-content">
         <!-- Content will be dynamically loaded here -->
     </div>
 
+    <!-- 🔹 Custom Logout Popup -->
+    <div class="logout-popup" id="logoutPopup">
+        <div class="logout-box">
+            <h3>Are you sure you want to log out?</h3>
+            <div class="logout-buttons">
+                <button class="yes" onclick="confirmLogout()">Yes</button>
+                <button class="no" onclick="closeLogoutPopup()">No</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Function to dynamically load content + its JS file
         async function loadContent(section, folder) {
             try {
                 document.getElementById('main-content').innerHTML = `
@@ -33,45 +44,36 @@
                         <h2>Loading ${section}...</h2>
                     </div>`;
 
-                console.log(`Loading ${section} from ${folder}...`);
-
-                // Fetch the HTML
                 const response = await fetch(`${folder}/${section}.html`);
-                if (!response.ok) {
-                    throw new Error(`Failed to load ${section}.html (status: ${response.status})`);
-                }
+                if (!response.ok) throw new Error(`Failed to load ${section}.html`);
 
                 const htmlContent = await response.text();
                 document.getElementById('main-content').innerHTML = htmlContent;
 
-                // Remove previously loaded section scripts
                 document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
-                // ✅ Load section-specific JS (from same folder as the HTML)
                 const sectionsWithJS = ['products', 'categories', 'employees', 'transactions', 'settings'];
                 if (sectionsWithJS.includes(section)) {
                     const script = document.createElement("script");
-                    script.src = `${folder}/${section}.js`; // <-- FIXED PATH HERE
+                    script.src = `${folder}/${section}.js`;
                     script.setAttribute("data-section", section);
 
-                    await new Promise((resolve, reject) => {
-                        script.onload = resolve;
-                        script.onerror = () => reject(new Error(`Failed to load JS for ${section}`));
-                        document.body.appendChild(script);
-                    });
+                    // Wait for script to load before initializing
+                    script.onload = () => {
+                        const initFuncName = `initialize${section.charAt(0).toUpperCase() + section.slice(1)}`;
+                        if (typeof window[initFuncName] === "function") {
+                            console.log(`✅ Running ${initFuncName}()`);
+                            window[initFuncName]();
+                        } else {
+                            console.warn(`⚠️ No init function found for ${section}`);
+                        }
+                    };
 
-                    // Run initialization function if it exists
-                    const initFuncName = `initialize${section.charAt(0).toUpperCase() + section.slice(1)}`;
-                    if (typeof window[initFuncName] === "function") {
-                        console.log(`Initializing ${initFuncName}()...`);
-                        window[initFuncName]();
-                    } else {
-                        console.warn(`No initialization function found for ${section}`);
-                    }
+                    document.body.appendChild(script);
                 }
 
+
             } catch (error) {
-                console.error("Error loading content:", error);
                 document.getElementById("main-content").innerHTML = `
                     <div class="content-section">
                         <h2>Error loading ${section}</h2>
@@ -80,24 +82,27 @@
             }
         }
 
-        // ✅ Load Dashboard by default
         document.addEventListener("DOMContentLoaded", () => {
             loadContent("dashboard", "1_dashboard");
         });
 
-        // ✅ Logout Function
-        function logout() {
-            const confirmLogout = confirm("Are you sure you want to log out?");
-            if (confirmLogout) {
-                document.body.style.transition = "opacity 0.5s ease";
-                document.body.style.opacity = 0;
+        // 🔹 Custom Logout Popup Functions
+        function showLogoutPopup() {
+            document.getElementById("logoutPopup").classList.add("active");
+        }
 
-                setTimeout(() => {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = "../../login/login.html";
-                }, 500);
-            }
+        function closeLogoutPopup() {
+            document.getElementById("logoutPopup").classList.remove("active");
+        }
+
+        function confirmLogout() {
+            document.body.style.transition = "opacity 0.5s ease";
+            document.body.style.opacity = 0;
+            setTimeout(() => {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = "../../login/login.html";
+            }, 500);
         }
     </script>
 </body>

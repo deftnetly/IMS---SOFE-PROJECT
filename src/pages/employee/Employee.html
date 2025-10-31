@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMS – Employee Panel</title>
+    <title>IMS – Employee Panel</title>
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="../../styles/content.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
@@ -50,12 +50,28 @@
                 document.querySelectorAll('script[data-section]').forEach(script => script.remove());
 
                 // Load JS specific to the section (if exists)
-                if (['products', 'checkout', 'transactions'].includes(section)) {
+                // Load JS specific to the section (if exists)
+                const sectionsWithJS = ['dashboard', 'products', 'checkout', 'transactions'];
+
+                if (sectionsWithJS.includes(section)) {
                     const script = document.createElement('script');
-                    script.src = `../../scripts/${section}.js`;
+                    script.src = `${folder}/${section}.js`;
                     script.setAttribute('data-section', section);
+
+                    script.onload = () => {
+                        const initFunc = `initialize${section.charAt(0).toUpperCase() + section.slice(1)}`;
+                        if (typeof window[initFunc] === "function") {
+                            console.log(`✅ Running ${initFunc}()`);
+                            window[initFunc]();
+                        } else {
+                            console.warn(`⚠️ No initialization function found for ${section}`);
+                        }
+                    };
+
                     document.body.appendChild(script);
                 }
+
+
             } catch (error) {
                 document.getElementById('main-content').innerHTML = `
                     <div class="content-section">
