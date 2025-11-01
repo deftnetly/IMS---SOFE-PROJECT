@@ -1,33 +1,37 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const darkModeToggle = document.getElementById("darkModeToggle");
+function initializeSettings() {
+    const darkModeButton = document.getElementById("darkModeButton");
 
-    // Always target the real Admin body
-    const rootBody = window.top.document.body;
-
-    // Get saved theme from localStorage
-    const savedTheme = localStorage.getItem("theme");
-
-    // Apply saved theme immediately
-    if (savedTheme === "dark") {
-        rootBody.classList.add("dark-mode");
-        darkModeToggle.checked = true;
-    } else {
-        rootBody.classList.remove("dark-mode");
-        darkModeToggle.checked = false;
+    // Stop if button isn't there yet
+    if (!darkModeButton) {
+        console.warn("Dark Mode button not found yet, retrying...");
+        setTimeout(initializeSettings, 100); // retry after 100ms
+        return;
     }
 
-    // Handle toggle
-    darkModeToggle.addEventListener("change", () => {
-        if (darkModeToggle.checked) {
-            rootBody.classList.add("dark-mode");
-            localStorage.setItem("theme", "dark");
-        } else {
-            rootBody.classList.remove("dark-mode");
-            localStorage.setItem("theme", "light");
-        }
+    const rootBody = document.body;
+
+    // === DARK MODE ===
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+        rootBody.classList.add("dark-mode");
+        darkModeButton.textContent = "Disable Dark Mode";
+    } else {
+        rootBody.classList.remove("dark-mode");
+        darkModeButton.textContent = "Enable Dark Mode";
+    }
+
+    darkModeButton.addEventListener("click", () => {
+        const isDark = rootBody.classList.toggle("dark-mode");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        darkModeButton.textContent = isDark ? "Disable Dark Mode" : "Enable Dark Mode";
     });
 
-    // === Store details below ===
+    // === STORE DETAILS ===
+    loadStoreDetails();
+}
+
+function loadStoreDetails() {
     const storeName = localStorage.getItem("storeName");
     const currency = localStorage.getItem("currency");
     const logo = localStorage.getItem("storeLogo");
@@ -35,15 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (storeName) document.getElementById("storeName").value = storeName;
     if (currency) document.getElementById("currency").value = currency;
 
+    const logoInput = document.getElementById("logo");
+    const existingPreview = document.getElementById("logoPreview");
+
+    // Remove old preview if any
+    if (existingPreview) existingPreview.remove();
+
     if (logo) {
         const preview = document.createElement("img");
+        preview.id = "logoPreview";
         preview.src = logo;
         preview.alt = "Store Logo";
         preview.style.maxWidth = "100px";
         preview.style.marginTop = "10px";
-        document.getElementById("logo").insertAdjacentElement("afterend", preview);
+        logoInput.insertAdjacentElement("afterend", preview);
     }
-});
+}
 
 function saveStoreSettings(event) {
     event.preventDefault();
@@ -57,15 +68,17 @@ function saveStoreSettings(event) {
         return false;
     }
 
+    // Save to localStorage
     localStorage.setItem("storeName", storeName);
     localStorage.setItem("currency", currency);
 
+    // Save logo if uploaded
     if (logoInput.files && logoInput.files[0]) {
         const reader = new FileReader();
         reader.onload = function (e) {
             localStorage.setItem("storeLogo", e.target.result);
             alert("Store details saved!");
-            location.reload();
+            loadStoreDetails(); // Reload preview without page refresh
         };
         reader.readAsDataURL(logoInput.files[0]);
     } else {

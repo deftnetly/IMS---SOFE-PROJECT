@@ -6,26 +6,55 @@
     <title>IMS – Admin Panel</title>
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="../../styles/content.css">
-    <link rel="stylesheet" href="../../styles/logout-popup.css"> <!-- 🔹 NEW FILE -->
+    <link rel="stylesheet" href="../../styles/logout-popup.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
 </head>
 <body>
+    <!-- === SIDEBAR === -->
+    <div class="sidebar-toggle" id="sidebarToggle">&#9776;</div>
+
     <div class="sidebar">
-        <a href="#" onclick="loadContent('dashboard', '1_dashboard')"><img src="../../assets/dashboard.white.png" alt="Dashboard Icon">Dashboard</a>
-        <a href="#" onclick="loadContent('categories', '2_categories')"><img src="../../assets/categories.white.png" alt="Categories Icon">Categories</a>
-        <a href="#" onclick="loadContent('products', '3_products')"><img src="../../assets/white.png" alt="Products Icon">Products</a>
-        <a href="#" onclick="loadContent('employees', '4_employees')"><img src="../../assets/employee.white.png" alt="Employee Icon">Employees</a>
-        <a href="#" onclick="loadContent('transactions', '5_transactions')"><img src="../../assets/transaction.white.png" alt="Transaction Icon">Transactions</a>
-        <a href="#" onclick="loadContent('reports', '6_reports')"><img src="../../assets/report.white.png" alt="Report Icon">Reports</a>
-        <a href="#" onclick="loadContent('settings', '7_settings')"><img src="../../assets/setting.white.png" alt="Setting Icon">Settings</a>
-        <a href="#" class="logout" onclick="showLogoutPopup()"><img src="../../assets/exit.white.png" alt="Logout Icon">Logout</a>
-    </div>
+    <a href="#" title="Dashboard" onclick="loadContent('dashboard', '1_dashboard')">
+        <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">
+        <span>Dashboard</span>
+    </a>
+    <a href="#" title="Categories" onclick="loadContent('categories', '2_categories')">
+        <img src="../../assets/categories.white.png" alt="Categories Icon">
+        <span>Categories</span>
+    </a>
+    <a href="#" title="Products" onclick="loadContent('products', '3_products')">
+        <img src="../../assets/white.png" alt="Products Icon">
+        <span>Products</span>
+    </a>
+    <a href="#" title="Employees" onclick="loadContent('employees', '4_employees')">
+        <img src="../../assets/employee.white.png" alt="Employee Icon">
+        <span>Employees</span>
+    </a>
+    <a href="#" title="Transactions" onclick="loadContent('transactions', '5_transactions')">
+        <img src="../../assets/transaction.white.png" alt="Transaction Icon">
+        <span>Transactions</span>
+    </a>
+    <a href="#" title="Reports" onclick="loadContent('reports', '6_reports')">
+        <img src="../../assets/report.white.png" alt="Report Icon">
+        <span>Reports</span>
+    </a>
+    <a href="#" title="Settings" onclick="loadContent('settings', '7_settings')">
+        <img src="../../assets/setting.white.png" alt="Setting Icon">
+        <span>Settings</span>
+    </a>
+    <a href="#" class="logout" title="Logout" onclick="showLogoutPopup()">
+        <img src="../../assets/exit.white.png" alt="Logout Icon">
+        <span>Logout</span>
+    </a>
+</div>
 
+
+    <!-- === CONTENT AREA === -->
     <div class="content" id="main-content">
-        <!-- Content will be dynamically loaded here -->
+        <!-- Dynamic content will load here -->
     </div>
 
-    <!-- 🔹 Custom Logout Popup -->
+    <!-- === LOGOUT POPUP === -->
     <div class="logout-popup" id="logoutPopup">
         <div class="logout-box">
             <h3>Are you sure you want to log out?</h3>
@@ -36,7 +65,9 @@
         </div>
     </div>
 
+    <!-- === JAVASCRIPT === -->
     <script>
+        // Load section content dynamically
         async function loadContent(section, folder) {
             try {
                 document.getElementById('main-content').innerHTML = `
@@ -50,28 +81,20 @@
                 const htmlContent = await response.text();
                 document.getElementById('main-content').innerHTML = htmlContent;
 
+                // Remove old section scripts
                 document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
+                // Load corresponding JS if needed
                 const sectionsWithJS = ['products', 'categories', 'employees', 'transactions', 'settings'];
                 if (sectionsWithJS.includes(section)) {
                     const script = document.createElement("script");
                     script.src = `${folder}/${section}.js`;
                     script.setAttribute("data-section", section);
-
-                    // Wait for script to load before initializing
-                    script.onload = () => {
-                        const initFuncName = `initialize${section.charAt(0).toUpperCase() + section.slice(1)}`;
-                        if (typeof window[initFuncName] === "function") {
-                            console.log(`✅ Running ${initFuncName}()`);
-                            window[initFuncName]();
-                        } else {
-                            console.warn(`⚠️ No init function found for ${section}`);
-                        }
-                    };
-
                     document.body.appendChild(script);
                 }
 
+                // Update active state
+                setActiveLink(section);
 
             } catch (error) {
                 document.getElementById("main-content").innerHTML = `
@@ -82,11 +105,12 @@
             }
         }
 
+        // Load Dashboard by default
         document.addEventListener("DOMContentLoaded", () => {
             loadContent("dashboard", "1_dashboard");
         });
 
-        // 🔹 Custom Logout Popup Functions
+        // === LOGOUT POPUP ===
         function showLogoutPopup() {
             document.getElementById("logoutPopup").classList.add("active");
         }
@@ -104,6 +128,54 @@
                 window.location.href = "../../login/login.html";
             }, 500);
         }
+
+        // === ACTIVE SIDEBAR ICON ===
+        const sidebarLinks = document.querySelectorAll('.sidebar a:not(.logout)');
+        function setActiveLink(sectionName) {
+            sidebarLinks.forEach(link => link.classList.remove('active'));
+            sidebarLinks.forEach(link => {
+                if (link.getAttribute('onclick').includes(sectionName)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+        // debug: confirm DOM ready
+        console.log('DOM ready - testing sidebar toggle');
+
+        // create toggle if missing (optional)
+        if (!document.getElementById('sidebarToggle')) {
+            const btn = document.createElement('div');
+            btn.id = 'sidebarToggle';
+            btn.className = 'sidebar-toggle';
+            btn.innerHTML = '&#9776;';
+            document.body.insertBefore(btn, document.querySelector('.sidebar'));
+        }
+
+        const toggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        console.log('toggle, sidebar', toggle, sidebar);
+
+        if (!toggle || !sidebar) {
+            console.error('Missing elements for toggle functionality.');
+            return;
+        }
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            console.log('toggled collapsed state:', sidebar.classList.contains('collapsed'));
+        });
+        });
+
+
     </script>
 </body>
 </html>

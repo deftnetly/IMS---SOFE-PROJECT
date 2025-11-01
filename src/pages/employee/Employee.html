@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
 </head>
 <body>
+    <div class="sidebar-toggle" id="sidebarToggle">&#9776;</div>
     <div class="sidebar">
         <a href="#" onclick="loadContent('dashboard', '1_dashboard')">
             <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">Dashboard
@@ -99,6 +100,34 @@
                 }, 500);
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+        // debug: confirm DOM ready
+        console.log('DOM ready - testing sidebar toggle');
+
+        // create toggle if missing (optional)
+        if (!document.getElementById('sidebarToggle')) {
+            const btn = document.createElement('div');
+            btn.id = 'sidebarToggle';
+            btn.className = 'sidebar-toggle';
+            btn.innerHTML = '&#9776;';
+            document.body.insertBefore(btn, document.querySelector('.sidebar'));
+        }
+
+        const toggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        console.log('toggle, sidebar', toggle, sidebar);
+
+        if (!toggle || !sidebar) {
+            console.error('Missing elements for toggle functionality.');
+            return;
+        }
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            console.log('toggled collapsed state:', sidebar.classList.contains('collapsed'));
+        });
+        });
     </script>
 </body>
 </html>
