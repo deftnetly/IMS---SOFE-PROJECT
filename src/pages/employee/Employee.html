@@ -6,128 +6,128 @@
     <title>IMS – Employee Panel</title>
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="../../styles/content.css">
+    <link rel="stylesheet" href="../../styles/logout-popup.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
+    <style>
+        /* Same fade animation as admin */
+        #main-content {
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #main-content.visible {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
+    <!-- === SIDEBAR TOGGLE === -->
     <div class="sidebar-toggle" id="sidebarToggle">&#9776;</div>
+
+    <!-- === SIDEBAR === -->
     <div class="sidebar">
         <a href="#" onclick="loadContent('dashboard', '1_dashboard')">
-            <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">Dashboard
+            <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">
+            <span>Dashboard</span>
         </a>
         <a href="#" onclick="loadContent('products', '2_products')">
-            <img src="../../assets/white.png" alt="Products Icon">Products
+            <img src="../../assets/white.png" alt="Products Icon">
+            <span>Products</span>
         </a>
         <a href="#" onclick="loadContent('checkout', '3_checkout')">
-            <img src="../../assets/checkout.white.png" alt="Checkout Icon">Checkout
+            <img src="../../assets/checkout.white.png" alt="Checkout Icon">
+            <span>Checkout</span>
         </a>
         <a href="#" onclick="loadContent('transactions', '4_transactions')">
-            <img src="../../assets/transaction.white.png" alt="Transactions Icon">Transaction History
+            <img src="../../assets/transaction.white.png" alt="Transactions Icon">
+            <span>Transaction History</span>
         </a>
-        <a href="#" class="logout" onclick="logout()">
-            <img src="../../assets/exit.white.png" alt="Logout Icon">Logout
+        <a href="#" onclick="loadContent('settings', '7_settings')">
+            <img src="../../assets/setting.white.png" alt="Setting Icon">
+            <span>Settings</span>
+        </a>
+        <a href="#" class="logout" onclick="showLogoutPopup()">
+            <img src="../../assets/exit.white.png" alt="Logout Icon">
+            <span>Logout</span>
         </a>
     </div>
 
-    <div class="content" id="main-content">
-        <!-- Dynamic content will load here -->
+    <!-- === MAIN CONTENT === -->
+    <div class="content" id="main-content"></div>
+
+    <!-- === LOGOUT POPUP === -->
+    <div class="logout-popup" id="logoutPopup">
+        <div class="logout-box">
+            <h3>Are you sure you want to log out?</h3>
+            <div class="logout-buttons">
+                <button class="yes" onclick="confirmLogout()">Yes</button>
+                <button class="no" onclick="closeLogoutPopup()">No</button>
+            </div>
+        </div>
     </div>
 
+    <!-- === JAVASCRIPT === -->
     <script>
-        // Load content dynamically
         async function loadContent(section, folder) {
+            const content = document.getElementById("main-content");
+            content.classList.remove("visible");
+            content.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
+
             try {
-                document.getElementById('main-content').innerHTML = `
-                    <div class="content-section">
-                        <h2>Loading ${section}...</h2>
-                    </div>`;
-
                 const response = await fetch(`${folder}/${section}.html`);
-                if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+                if (!response.ok) throw new Error(`Failed to load ${section}.html`);
+                const html = await response.text();
 
-                const content = await response.text();
-                document.getElementById('main-content').innerHTML = content;
+                // Smooth fade effect
+                content.style.opacity = 0;
+                setTimeout(() => {
+                    content.innerHTML = html;
+                    content.style.opacity = 1;
+                    content.classList.add("visible");
+                }, 200);
 
                 // Remove old section scripts
-                document.querySelectorAll('script[data-section]').forEach(script => script.remove());
+                document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
-                // Load JS specific to the section (if exists)
-                // Load JS specific to the section (if exists)
+                // Load section-specific JS if needed
                 const sectionsWithJS = ['dashboard', 'products', 'checkout', 'transactions'];
-
                 if (sectionsWithJS.includes(section)) {
-                    const script = document.createElement('script');
+                    const script = document.createElement("script");
                     script.src = `${folder}/${section}.js`;
-                    script.setAttribute('data-section', section);
-
-                    script.onload = () => {
-                        const initFunc = `initialize${section.charAt(0).toUpperCase() + section.slice(1)}`;
-                        if (typeof window[initFunc] === "function") {
-                            console.log(`✅ Running ${initFunc}()`);
-                            window[initFunc]();
-                        } else {
-                            console.warn(`⚠️ No initialization function found for ${section}`);
-                        }
-                    };
-
+                    script.setAttribute("data-section", section);
                     document.body.appendChild(script);
                 }
 
-
+                // Highlight active sidebar link
+                setActiveLink(section);
             } catch (error) {
-                document.getElementById('main-content').innerHTML = `
-                    <div class="content-section">
-                        <h2>Error loading ${section}</h2>
-                        <p>${error.message}</p>
-                    </div>`;
+                content.innerHTML = `<div class="content-section"><h2>Error loading ${section}</h2><p>${error.message}</p></div>`;
+                content.classList.add("visible");
             }
         }
 
-        // Default: Load Dashboard
-        document.addEventListener('DOMContentLoaded', () => {
-            loadContent('dashboard', '1_dashboard');
+        // Default load
+        document.addEventListener("DOMContentLoaded", () => {
+            loadContent("dashboard", "1_dashboard");
         });
 
-        // Logout
-        function logout() {
-            const confirmLogout = confirm("Are you sure you want to log out?");
-            if (confirmLogout) {
-                document.body.style.transition = "opacity 0.5s ease";
-                document.body.style.opacity = 0;
-                setTimeout(() => {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = "../../login/login.html";
-                }, 500);
-            }
+        // === LOGOUT POPUP ===
+        function showLogoutPopup() {
+            document.getElementById("logoutPopup").classList.add("active");
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-        // debug: confirm DOM ready
-        console.log('DOM ready - testing sidebar toggle');
-
-        // create toggle if missing (optional)
-        if (!document.getElementById('sidebarToggle')) {
-            const btn = document.createElement('div');
-            btn.id = 'sidebarToggle';
-            btn.className = 'sidebar-toggle';
-            btn.innerHTML = '&#9776;';
-            document.body.insertBefore(btn, document.querySelector('.sidebar'));
+        function closeLogoutPopup() {
+            document.getElementById("logoutPopup").classList.remove("active");
         }
-
-        const toggle = document.getElementById('sidebarToggle');
-        const sidebar = document.querySelector('.sidebar');
-        console.log('toggle, sidebar', toggle, sidebar);
-
-        if (!toggle || !sidebar) {
-            console.error('Missing elements for toggle functionality.');
-            return;
+        function confirmLogout() {
+            document.body.style.transition = "opacity 0.5s ease";
+            document.body.style.opacity = 0;
+            setTimeout(() => {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = "../../login/login.html";
+            }, 500);
         }
-
-        toggle.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            console.log('toggled collapsed state:', sidebar.classList.contains('collapsed'));
-        });
-        });
     </script>
+
+    <script src="../../scripts/sidebar.js"></script>
 </body>
 </html>

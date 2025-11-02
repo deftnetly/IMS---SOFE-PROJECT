@@ -8,51 +8,59 @@
     <link rel="stylesheet" href="../../styles/content.css">
     <link rel="stylesheet" href="../../styles/logout-popup.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
+    <style>
+        /* Same fade animation as employee */
+        #main-content {
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #main-content.visible {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-    <!-- === SIDEBAR === -->
+    <!-- === SIDEBAR TOGGLE === -->
     <div class="sidebar-toggle" id="sidebarToggle">&#9776;</div>
 
+    <!-- === SIDEBAR === -->
     <div class="sidebar">
-    <a href="#" title="Dashboard" onclick="loadContent('dashboard', '1_dashboard')">
-        <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">
-        <span>Dashboard</span>
-    </a>
-    <a href="#" title="Categories" onclick="loadContent('categories', '2_categories')">
-        <img src="../../assets/categories.white.png" alt="Categories Icon">
-        <span>Categories</span>
-    </a>
-    <a href="#" title="Products" onclick="loadContent('products', '3_products')">
-        <img src="../../assets/white.png" alt="Products Icon">
-        <span>Products</span>
-    </a>
-    <a href="#" title="Employees" onclick="loadContent('employees', '4_employees')">
-        <img src="../../assets/employee.white.png" alt="Employee Icon">
-        <span>Employees</span>
-    </a>
-    <a href="#" title="Transactions" onclick="loadContent('transactions', '5_transactions')">
-        <img src="../../assets/transaction.white.png" alt="Transaction Icon">
-        <span>Transactions</span>
-    </a>
-    <a href="#" title="Reports" onclick="loadContent('reports', '6_reports')">
-        <img src="../../assets/report.white.png" alt="Report Icon">
-        <span>Reports</span>
-    </a>
-    <a href="#" title="Settings" onclick="loadContent('settings', '7_settings')">
-        <img src="../../assets/setting.white.png" alt="Setting Icon">
-        <span>Settings</span>
-    </a>
-    <a href="#" class="logout" title="Logout" onclick="showLogoutPopup()">
-        <img src="../../assets/exit.white.png" alt="Logout Icon">
-        <span>Logout</span>
-    </a>
-</div>
-
-
-    <!-- === CONTENT AREA === -->
-    <div class="content" id="main-content">
-        <!-- Dynamic content will load here -->
+        <a href="#" onclick="loadContent('dashboard', '1_dashboard')">
+            <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">
+            <span>Dashboard</span>
+        </a>
+        <a href="#" onclick="loadContent('categories', '2_categories')">
+            <img src="../../assets/categories.white.png" alt="Categories Icon">
+            <span>Categories</span>
+        </a>
+        <a href="#" onclick="loadContent('products', '3_products')">
+            <img src="../../assets/white.png" alt="Products Icon">
+            <span>Products</span>
+        </a>
+        <a href="#" onclick="loadContent('employees', '4_employees')">
+            <img src="../../assets/employee.white.png" alt="Employee Icon">
+            <span>Employees</span>
+        </a>
+        <a href="#" onclick="loadContent('transactions', '5_transactions')">
+            <img src="../../assets/transaction.white.png" alt="Transaction Icon">
+            <span>Transactions</span>
+        </a>
+        <a href="#" onclick="loadContent('reports', '6_reports')">
+            <img src="../../assets/report.white.png" alt="Report Icon">
+            <span>Reports</span>
+        </a>
+        <a href="#" onclick="loadContent('settings', '7_settings')">
+            <img src="../../assets/setting.white.png" alt="Setting Icon">
+            <span>Settings</span>
+        </a>
+        <a href="#" class="logout" onclick="showLogoutPopup()">
+            <img src="../../assets/exit.white.png" alt="Logout Icon">
+            <span>Logout</span>
+        </a>
     </div>
+
+    <!-- === MAIN CONTENT === -->
+    <div class="content" id="main-content"></div>
 
     <!-- === LOGOUT POPUP === -->
     <div class="logout-popup" id="logoutPopup">
@@ -67,24 +75,28 @@
 
     <!-- === JAVASCRIPT === -->
     <script>
-        // Load section content dynamically
         async function loadContent(section, folder) {
-            try {
-                document.getElementById('main-content').innerHTML = `
-                    <div class="content-section">
-                        <h2>Loading ${section}...</h2>
-                    </div>`;
+            const content = document.getElementById("main-content");
+            content.classList.remove("visible");
+            content.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
+            try {
                 const response = await fetch(`${folder}/${section}.html`);
                 if (!response.ok) throw new Error(`Failed to load ${section}.html`);
+                const html = await response.text();
 
-                const htmlContent = await response.text();
-                document.getElementById('main-content').innerHTML = htmlContent;
+                // Smooth fade effect (same as employee)
+                content.style.opacity = 0;
+                setTimeout(() => {
+                    content.innerHTML = html;
+                    content.style.opacity = 1;
+                    content.classList.add("visible");
+                }, 200);
 
                 // Remove old section scripts
                 document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
-                // Load corresponding JS if needed
+                // Load section-specific JS
                 const sectionsWithJS = ['products', 'categories', 'employees', 'transactions', 'settings'];
                 if (sectionsWithJS.includes(section)) {
                     const script = document.createElement("script");
@@ -93,19 +105,15 @@
                     document.body.appendChild(script);
                 }
 
-                // Update active state
+                // Highlight sidebar
                 setActiveLink(section);
-
             } catch (error) {
-                document.getElementById("main-content").innerHTML = `
-                    <div class="content-section">
-                        <h2>Error loading ${section}</h2>
-                        <p>${error.message}</p>
-                    </div>`;
+                content.innerHTML = `<div class="content-section"><h2>Error loading ${section}</h2><p>${error.message}</p></div>`;
+                content.classList.add("visible");
             }
         }
 
-        // Load Dashboard by default
+        // Load Dashboard on start
         document.addEventListener("DOMContentLoaded", () => {
             loadContent("dashboard", "1_dashboard");
         });
@@ -114,11 +122,9 @@
         function showLogoutPopup() {
             document.getElementById("logoutPopup").classList.add("active");
         }
-
         function closeLogoutPopup() {
             document.getElementById("logoutPopup").classList.remove("active");
         }
-
         function confirmLogout() {
             document.body.style.transition = "opacity 0.5s ease";
             document.body.style.opacity = 0;
@@ -128,54 +134,8 @@
                 window.location.href = "../../login/login.html";
             }, 500);
         }
-
-        // === ACTIVE SIDEBAR ICON ===
-        const sidebarLinks = document.querySelectorAll('.sidebar a:not(.logout)');
-        function setActiveLink(sectionName) {
-            sidebarLinks.forEach(link => link.classList.remove('active'));
-            sidebarLinks.forEach(link => {
-                if (link.getAttribute('onclick').includes(sectionName)) {
-                    link.classList.add('active');
-                }
-            });
-        }
-
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                sidebarLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-        // debug: confirm DOM ready
-        console.log('DOM ready - testing sidebar toggle');
-
-        // create toggle if missing (optional)
-        if (!document.getElementById('sidebarToggle')) {
-            const btn = document.createElement('div');
-            btn.id = 'sidebarToggle';
-            btn.className = 'sidebar-toggle';
-            btn.innerHTML = '&#9776;';
-            document.body.insertBefore(btn, document.querySelector('.sidebar'));
-        }
-
-        const toggle = document.getElementById('sidebarToggle');
-        const sidebar = document.querySelector('.sidebar');
-        console.log('toggle, sidebar', toggle, sidebar);
-
-        if (!toggle || !sidebar) {
-            console.error('Missing elements for toggle functionality.');
-            return;
-        }
-
-        toggle.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            console.log('toggled collapsed state:', sidebar.classList.contains('collapsed'));
-        });
-        });
-
-
     </script>
+
+    <script src="../../scripts/sidebar.js"></script>
 </body>
 </html>
