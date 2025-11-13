@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../../styles/logout-popup.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
     <style>
-        /* Same fade animation as admin */
+        /* Same fade animation switching pages*/
         #main-content {
             opacity: 0;
             transition: opacity 0.4s ease;
@@ -83,6 +83,9 @@
                     content.innerHTML = html;
                     content.style.opacity = 1;
                     content.classList.add("visible");
+
+                    localStorage.setItem("currentSection", section);
+                    localStorage.setItem("currentFolder", folder);
                 }, 200);
 
                 // Remove old section scripts
@@ -107,7 +110,9 @@
 
         // Default load
         document.addEventListener("DOMContentLoaded", () => {
-            loadContent("dashboard", "1_dashboard");
+            const lastSection = localStorage.getItem("currentSection") || "dashboard";
+            const lastFolder = localStorage.getItem("currentFolder") || "1_dashboard";
+            loadContent(lastSection, lastFolder);
         });
 
         // === LOGOUT POPUP ===

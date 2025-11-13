@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMS – Admin Panel</title>
+
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="../../styles/content.css">
     <link rel="stylesheet" href="../../styles/logout-popup.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
+
     <style>
-        /* Same fade animation as employee */
         #main-content {
             opacity: 0;
             transition: opacity 0.4s ease;
@@ -19,50 +20,43 @@
         }
     </style>
 </head>
+
 <body>
-    <!-- === SIDEBAR TOGGLE === -->
+
+    <!-- Sidebar -->
     <div class="sidebar-toggle" id="sidebarToggle">&#9776;</div>
 
-    <!-- === SIDEBAR === -->
     <div class="sidebar">
-        <a href="#" onclick="loadContent('dashboard', '1_dashboard')">
-            <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">
-            <span>Dashboard</span>
+        <a href="#" onclick="openPage('dashboard','1_dashboard')">
+            <img src="../../assets/dashboard.white.png"><span>Dashboard</span>
         </a>
-        <a href="#" onclick="loadContent('categories', '2_categories')">
-            <img src="../../assets/categories.white.png" alt="Categories Icon">
-            <span>Categories</span>
+        <a href="#" onclick="openPage('categories','2_categories')">
+            <img src="../../assets/categories.white.png"><span>Categories</span>
         </a>
-        <a href="#" onclick="loadContent('products', '3_products')">
-            <img src="../../assets/white.png" alt="Products Icon">
-            <span>Products</span>
+        <a href="#" onclick="openPage('products','3_products')">
+            <img src="../../assets/white.png"><span>Products</span>
         </a>
-        <a href="#" onclick="loadContent('employees', '4_employees')">
-            <img src="../../assets/employee.white.png" alt="Employee Icon">
-            <span>Employees</span>
+        <a href="#" onclick="openPage('employees','4_employees')">
+            <img src="../../assets/employee.white.png"><span>Employees</span>
         </a>
-        <a href="#" onclick="loadContent('transactions', '5_transactions')">
-            <img src="../../assets/transaction.white.png" alt="Transaction Icon">
-            <span>Transactions</span>
+        <a href="#" onclick="openPage('transactions','5_transactions')">
+            <img src="../../assets/transaction.white.png"><span>Transactions</span>
         </a>
-        <a href="#" onclick="loadContent('reports', '6_reports')">
-            <img src="../../assets/report.white.png" alt="Report Icon">
-            <span>Reports</span>
+        <a href="#" onclick="openPage('reports','6_reports')">
+            <img src="../../assets/report.white.png"><span>Reports</span>
         </a>
-        <a href="#" onclick="loadContent('settings', '7_settings')">
-            <img src="../../assets/setting.white.png" alt="Setting Icon">
-            <span>Settings</span>
+        <a href="#" onclick="openPage('settings','7_settings')">
+            <img src="../../assets/setting.white.png"><span>Settings</span>
         </a>
         <a href="#" class="logout" onclick="showLogoutPopup()">
-            <img src="../../assets/exit.white.png" alt="Logout Icon">
-            <span>Logout</span>
+            <img src="../../assets/exit.white.png"><span>Logout</span>
         </a>
     </div>
 
-    <!-- === MAIN CONTENT === -->
+    <!-- Main Content -->
     <div class="content" id="main-content"></div>
 
-    <!-- === LOGOUT POPUP === -->
+    <!-- Logout Popup -->
     <div class="logout-popup" id="logoutPopup">
         <div class="logout-box">
             <h3>Are you sure you want to log out?</h3>
@@ -73,69 +67,97 @@
         </div>
     </div>
 
-    <!-- === JAVASCRIPT === -->
+    <!-- MAIN SCRIPT LOADER -->
     <script>
-        async function loadContent(section, folder) {
-            const content = document.getElementById("main-content");
-            content.classList.remove("visible");
-            content.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
-            try {
-                const response = await fetch(`${folder}/${section}.html`);
-                if (!response.ok) throw new Error(`Failed to load ${section}.html`);
-                const html = await response.text();
+    // Save last page visited
+    function saveLastPage(section, folder) {
+        localStorage.setItem("lastSection", section);
+        localStorage.setItem("lastFolder", folder);
+    }
 
-                // Smooth fade effect (same as employee)
-                content.style.opacity = 0;
-                setTimeout(() => {
-                    content.innerHTML = html;
-                    content.style.opacity = 1;
-                    content.classList.add("visible");
-                }, 200);
+    // Called when clicking sidebar links
+    function openPage(section, folder) {
+        saveLastPage(section, folder);
+        loadContent(section, folder);
+    }
 
-                // Remove old section scripts
-                document.querySelectorAll("script[data-section]").forEach(s => s.remove());
+    async function loadContent(section, folder) {
+    const container = document.getElementById("main-content");
+    container.classList.remove("visible");
+    container.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
-                // Load section-specific JS
-                const sectionsWithJS = ['products', 'categories', 'employees', 'transactions', 'settings'];
-                if (sectionsWithJS.includes(section)) {
-                    const script = document.createElement("script");
-                    script.src = `${folder}/${section}.js`;
-                    script.setAttribute("data-section", section);
-                    document.body.appendChild(script);
+    try {
+        // 1. REMOVE ALL previous section scripts BEFORE loading the new one
+        document.querySelectorAll("script[data-section]").forEach(s => s.remove());
+
+        // 2. Load HTML
+        const res = await fetch(`${folder}/${section}.html`);
+        if (!res.ok) throw new Error(`Failed to load ${section}.html`);
+        container.innerHTML = await res.text();
+
+        // 3. Load script for this section
+        const js = document.createElement("script");
+        js.src = `${folder}/${section}.js`;
+        js.setAttribute("data-section", section);
+
+        js.onload = () => {
+            console.log(section + " JS Loaded ✔");
+
+            // WAIT FOR SCRIPT TO FINISH EXECUTING
+            requestAnimationFrame(() => {
+                document.dispatchEvent(
+                    new CustomEvent("sectionLoaded", { detail: { section } })
+                );
+
+                if (section === "dashboard") {
+                    document.dispatchEvent(new Event("dashboardLoaded"));
                 }
 
-                // Highlight sidebar
-                setActiveLink(section);
-            } catch (error) {
-                content.innerHTML = `<div class="content-section"><h2>Error loading ${section}</h2><p>${error.message}</p></div>`;
-                content.classList.add("visible");
-            }
-        }
+                // Fade in after JS
+                setTimeout(() => container.classList.add("visible"), 10);
+            });
+        };
 
-        // Load Dashboard on start
-        document.addEventListener("DOMContentLoaded", () => {
+        document.body.appendChild(js);
+
+    } catch (err) {
+        container.innerHTML = `<p>Error loading section: ${err.message}</p>`;
+    }
+}
+
+
+    // On page refresh, load last opened section
+    document.addEventListener("DOMContentLoaded", () => {
+        const lastSection = localStorage.getItem("lastSection");
+        const lastFolder = localStorage.getItem("lastFolder");
+
+        if (lastSection && lastFolder) {
+            loadContent(lastSection, lastFolder);
+        } else {
             loadContent("dashboard", "1_dashboard");
-        });
+        }
+    });
 
-        // === LOGOUT POPUP ===
-        function showLogoutPopup() {
-            document.getElementById("logoutPopup").classList.add("active");
-        }
-        function closeLogoutPopup() {
-            document.getElementById("logoutPopup").classList.remove("active");
-        }
-        function confirmLogout() {
-            document.body.style.transition = "opacity 0.5s ease";
-            document.body.style.opacity = 0;
-            setTimeout(() => {
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = "../../login/login.html";
-            }, 500);
-        }
+    // Logout popup
+    function showLogoutPopup() {
+        document.getElementById("logoutPopup").classList.add("active");
+    }
+    function closeLogoutPopup() {
+        document.getElementById("logoutPopup").classList.remove("active");
+    }
+    function confirmLogout() {
+        document.body.style.opacity = 0;
+        setTimeout(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "../../login/Login.html";
+        }, 500);
+    }
     </script>
 
+    <!-- Sidebar script -->
     <script src="../../scripts/sidebar.js"></script>
+
 </body>
 </html>

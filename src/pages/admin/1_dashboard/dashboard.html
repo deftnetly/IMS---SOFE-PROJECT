@@ -29,7 +29,7 @@
             </div>
         </div>
 
-        <!-- Recent Transactions Section -->
+        <!-- Recent Transactions -->
         <h2 style="margin-top: 40px;">Recent Transactions</h2>
         <table class="data-table">
             <thead>
@@ -45,7 +45,7 @@
             </tbody>
         </table>
 
-        <!-- Monthly Sales Summary Section -->
+        <!-- Monthly Summary -->
         <h2 style="margin-top: 40px;">Monthly Sales Summary</h2>
         <div class="dashboard-cards">
             <div class="card">
@@ -60,13 +60,9 @@
                 <h3>Average Sale</h3>
                 <p id="averageSale">₱0.00</p>
             </div>
-            <div class="card">
-                <h3>Top Employee</h3>
-                <p id="topEmployee">N/A</p>
-            </div>
         </div>
 
-        <!-- Inventory Summary Section -->
+        <!-- Inventory Summary -->
         <h2 style="margin-top: 40px;">Inventory Summary</h2>
         <table class="data-table">
             <thead>
@@ -81,18 +77,28 @@
                 <tr><td colspan="4" style="text-align:center;">No data available</td></tr>
             </tbody>
         </table>
-
-        <div style="height: 50px;"></div>
     </div>
+
+    <!-- EMPTY DASHBOARD SCRIPT -->
     <script>
-        // Example of how dynamic data could be loaded later
-        document.addEventListener("DOMContentLoaded", () => {
-            // Placeholder values (these would be fetched from backend)
-            document.getElementById("totalProducts").textContent = 150;
-            document.getElementById("totalCategories").textContent = 12;
-            document.getElementById("totalEmployees").textContent = 25;
-            document.getElementById("todaysSales").textContent = "₱15,000";
+        // Only loads actual counts from localStorage, no fake numbers
+        document.addEventListener("dashboardLoaded", () => {
+
+            // Category Count (real)
+            const savedCategories = JSON.parse(localStorage.getItem("categoriesData")) || [];
+            document.getElementById("totalCategories").textContent = savedCategories.length;
+
+            // REAL products & employees can be added later if needed:
+            document.getElementById("totalProducts").textContent = "0";
+            document.getElementById("totalEmployees").textContent = "0";
+
+            // EMPTY VALUES
+            document.getElementById("todaysSales").textContent = "₱0.00";
+            document.getElementById("monthlySales").textContent = "₱0.00";
+            document.getElementById("monthlyTransactions").textContent = "0";
+            document.getElementById("averageSale").textContent = "₱0.00";
         });
     </script>
+
 </body>
 </html>

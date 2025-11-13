@@ -15,20 +15,12 @@
             <div class="modal-content">
                 <span class="close" onclick="closeEmployeeModal()">&times;</span>
                 <h2>Add New Employee</h2>
+
                 <form id="addEmployeeForm" onsubmit="return addEmployee(event)">
+                    
                     <div class="form-group">
                         <label for="employeeName">Full Name:</label>
                         <input type="text" id="employeeName" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="position">Position:</label>
-                        <select id="position" required>
-                            <option value="">Select Position</option>
-                            <option value="Manager">Manager</option>
-                            <option value="Cashier">Cashier</option>
-                            <option value="Stock Clerk">Stock Clerk</option>
-                        </select>
                     </div>
 
                     <div class="form-group">
@@ -52,7 +44,7 @@
                             <input type="password" id="password" required>
                             <button type="button" id="togglePassword" onclick="togglePasswordInputVisibility()">👁 Show</button>
                         </div>
-                        <small style="color:gray;">(Password must be at least 8 characters and include at least 1 uppercase letter)</small>
+                        <small style="color:gray;">(Password must be at least 8 characters and include an uppercase letter)</small>
                     </div>
 
                     <div class="form-buttons">
@@ -69,7 +61,6 @@
                 <tr>
                     <th>Employee ID</th>
                     <th>Full Name</th>
-                    <th>Position</th>
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Username</th>
@@ -78,12 +69,10 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Rows will be added dynamically -->
-            </tbody>
+            <tbody id="employeesTbody"></tbody>
         </table>
     </div>
 
-    <script src="../../../scripts/employees.js"></script>
+
 </body>
 </html>
