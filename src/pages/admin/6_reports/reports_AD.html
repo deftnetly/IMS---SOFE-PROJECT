@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Low Stock Manager</title>
+</head>
+<body>
+  <div class="content-section">
+    <h2>Low Stock Reports</h2>
+
+    <div class="filter-section" style="display:flex; gap:12px; align-items:center;">
+      <div>
+        <label for="startDate">From</label><br>
+        <input type="date" id="startDate" class="filter-input" />
+      </div>
+
+      <div>
+        <label for="endDate">To</label><br>
+        <input type="date" id="endDate" class="filter-input" />
+      </div>
+
+      <div>
+        <label>&nbsp;</label><br>
+        <button id="generateBtn" class="filter-button">Check Low Stock</button>
+      </div>
+    </div>
+
+    <div id="tableWrapper">
+      <table class="data-table" id="reportTable" aria-label="Low Stock Table">
+        <thead>
+          <tr id="reportTableHead"></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="reportModal" class="modal">
+      <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <h2 id="modalTitle">Product Details</h2>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./reports_AD.js"></script>
+</body>
+</html>

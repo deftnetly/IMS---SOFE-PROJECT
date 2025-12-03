@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>IMS – Admin Panel</title>
 
+    <!-- ===== Defensive MediaSession patch (must run BEFORE any other scripts) ===== -->
+    <script>
+    (function () {
+      try {
+        // Safe-wrap setActionHandler so injected unsupported actions won't throw
+        if ('mediaSession' in navigator && typeof navigator.mediaSession.setActionHandler === 'function') {
+          const original = navigator.mediaSession.setActionHandler.bind(navigator.mediaSession);
+          navigator.mediaSession.setActionHandler = function(action, handler) {
+            try {
+              original(action, handler);
+            } catch (err) {
+              console.warn('Ignored unsupported MediaSession action:', action);
+            }
+          };
+        }
+      } catch (e) {
+        console.warn('MediaSession safe-wrap failed', e);
+      }
+
+      // Suppress the specific autoPip injected error to avoid aborting other scripts
+      window.addEventListener('error', function (ev) {
+        try {
+          if (ev && ev.message && ev.message.indexOf('enterpictureinpicture') !== -1 && ev.message.indexOf('setActionHandler') !== -1) {
+            ev.preventDefault();
+            console.warn('Suppressed injected autoPip MediaSession error:', ev.message);
+            return true;
+          }
+        } catch (e) {}
+      }, true);
+    })();
+    </script>
+
+    <!-- Styles (fixed relative paths) -->
     <link rel="stylesheet" href="../../styles/sidebar.css">
-    <link rel="stylesheet" href="../../styles/content.css">
+    <link rel="stylesheet" href="/Smart-Inventory/src/styles/content.css">
     <link rel="stylesheet" href="../../styles/logout-popup.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
 
@@ -23,9 +56,10 @@
 
 <body>
 
-    <!-- Sidebar -->
+    <!-- Sidebar toggle -->
     <div class="sidebar-toggle" id="sidebarToggle">&#9776;</div>
 
+    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" onclick="openPage('dashboard','1_dashboard')">
             <img src="../../assets/dashboard.white.png"><span>Dashboard</span>
@@ -53,10 +87,10 @@
         </a>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main content -->
     <div class="content" id="main-content"></div>
 
-    <!-- Logout Popup -->
+    <!-- Logout popup -->
     <div class="logout-popup" id="logoutPopup">
         <div class="logout-box">
             <h3>Are you sure you want to log out?</h3>
@@ -69,65 +103,159 @@
 
     <!-- MAIN SCRIPT LOADER -->
     <script>
+    (function(){
+        try {
+            if ('mediaSession' in navigator && typeof navigator.mediaSession.setActionHandler === 'function') {
+            const orig = navigator.mediaSession.setActionHandler.bind(navigator.mediaSession);
+            navigator.mediaSession.setActionHandler = function(action, handler) {
+                try {
+                orig(action, handler);
+                } catch (err) {
+                console.warn('Ignored unsupported MediaSession action:', action);
+                }
+            };
+            }
+        } catch(e) {
+            console.warn('MediaSession patch failed', e);
+        }
+    })();
 
-    // Save last page visited
     function saveLastPage(section, folder) {
         localStorage.setItem("lastSection", section);
         localStorage.setItem("lastFolder", folder);
     }
 
-    // Called when clicking sidebar links
     function openPage(section, folder) {
         saveLastPage(section, folder);
         loadContent(section, folder);
     }
 
     async function loadContent(section, folder) {
-    const container = document.getElementById("main-content");
-    container.classList.remove("visible");
-    container.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
+        const container = document.getElementById("main-content");
+        container.classList.remove("visible");
+        container.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
-    try {
-        // 1. REMOVE ALL previous section scripts BEFORE loading the new one
+        // Remove old scripts
         document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
-        // 2. Load HTML
-        const res = await fetch(`${folder}/${section}.html`);
-        if (!res.ok) throw new Error(`Failed to load ${section}.html`);
-        container.innerHTML = await res.text();
+        // Try .html then .php (AD suffix preferred)
+        async function tryFetch(sec, ext) {
+            const res = await fetch(`${folder}/${sec}.${ext}`);
+            if (!res.ok) throw new Error(`Not found: ${folder}/${sec}.${ext}`);
+            return { html: await res.text(), usedSection: sec };
+        }
 
-        // 3. Load script for this section
-        const js = document.createElement("script");
-        js.src = `${folder}/${section}.js`;
-        js.setAttribute("data-section", section);
+        let result;
+
+        try {
+            try {
+                result = await tryFetch(section + "_AD", "html");
+            } catch {
+                container.innerHTML = `<p>Error loading ${section}.</p>`;
+                container.classList.add("visible");
+                return;
+            }
+
+            // Insert HTML/PHP output
+            container.innerHTML = result.html;
+
+            // =============================
+            //  Fixed & safe script loader
+            // =============================
+            (function loadSectionScript(folder, usedSection) {
+
+    // --- SPECIAL CASE: if we loaded the employees_AD HTML, force employees_AD.js ---
+    // This is minimal and isolated — it won't affect other pages.
+    if (usedSection === 'employees_AD') {
+        const scriptPath = `${folder}/employees_AD.js`;
+        const js = document.createElement('script');
+        js.src = scriptPath;
+        js.setAttribute('data-section', usedSection);
 
         js.onload = () => {
-            console.log(section + " JS Loaded ✔");
-
-            // WAIT FOR SCRIPT TO FINISH EXECUTING
+            console.log(scriptPath + " Loaded (employees override) ✔");
             requestAnimationFrame(() => {
-                document.dispatchEvent(
-                    new CustomEvent("sectionLoaded", { detail: { section } })
-                );
-
-                if (section === "dashboard") {
+                document.dispatchEvent(new CustomEvent("sectionLoaded", {
+                    detail: { section: usedSection }
+                }));
+                if (usedSection.startsWith("dashboard")) {
                     document.dispatchEvent(new Event("dashboardLoaded"));
                 }
-
-                // Fade in after JS
                 setTimeout(() => container.classList.add("visible"), 10);
             });
         };
 
+        js.onerror = () => {
+            console.error("Failed to load employees script:", scriptPath);
+            container.innerHTML = `<p>Error loading script: ${scriptPath}</p>`;
+            container.classList.add("visible");
+        };
+
         document.body.appendChild(js);
-
-    } catch (err) {
-        container.innerHTML = `<p>Error loading section: ${err.message}</p>`;
+        return; // do not run candidate logic for employees (we forced correct script)
     }
-}
 
+    // --- ORIGINAL CANDIDATE LOGIC (preserved exactly) ---
+    const candidates = [];
+    candidates.push(`${folder}/${usedSection}.js`);
 
-    // On page refresh, load last opened section
+    if (!usedSection.endsWith('_AD')) {
+        candidates.push(`${folder}/${usedSection}_AD.js`);
+    } else {
+        const base = usedSection.replace(/_AD$/, '');
+        candidates.push(`${folder}/${base}.js`);
+    }
+
+    let attempt = 0;
+
+    function loadNext() {
+        if (attempt >= candidates.length) {
+            container.innerHTML = `<p>Error loading script. Tried:<br>${candidates.join("<br>")}</p>`;
+            container.classList.add("visible");
+            console.error("All script loads failed", candidates);
+            return;
+        }
+
+        const src = candidates[attempt++];
+        const js = document.createElement("script");
+        js.src = src;
+        js.setAttribute("data-section", usedSection);
+
+        js.onload = () => {
+            console.log(src + " Loaded ✔");
+
+            requestAnimationFrame(() => {
+                document.dispatchEvent(new CustomEvent("sectionLoaded", {
+                    detail: { section: usedSection }
+                }));
+
+                if (usedSection.startsWith("dashboard")) {
+                    document.dispatchEvent(new Event("dashboardLoaded"));
+                }
+
+                setTimeout(() => container.classList.add("visible"), 10);
+            });
+        };
+
+        js.onerror = () => {
+            console.warn(src + " failed — trying next candidate...");
+            js.remove();
+            loadNext();
+        };
+
+        document.body.appendChild(js);
+    }
+
+    loadNext();
+
+})(folder, result.usedSection);
+
+        } catch (err) {
+            container.innerHTML = `<p>Error loading section: ${err.message}</p>`;
+            container.classList.add("visible");
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         const lastSection = localStorage.getItem("lastSection");
         const lastFolder = localStorage.getItem("lastFolder");
@@ -139,7 +267,6 @@
         }
     });
 
-    // Logout popup
     function showLogoutPopup() {
         document.getElementById("logoutPopup").classList.add("active");
     }
@@ -156,8 +283,7 @@
     }
     </script>
 
-    <!-- Sidebar script -->
     <script src="../../scripts/sidebar.js"></script>
-
+    <script src="/smart-inventory/src/pages/admin/5_transactions/transactions_AD.js"></script>
 </body>
 </html>

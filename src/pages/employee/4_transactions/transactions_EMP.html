@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Transaction History</title>
+
+<style>
+  /* Card */
+  .transactions-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+  }
+  .transactions-card h3 { margin:0; font-size:26px; color:#e65c00; }
+  .muted { color:#777; margin-top:4px; margin-bottom:20px; }
+
+  /* List table */
+  #transactionTable { width:100%; border-collapse:collapse; table-layout:fixed; }
+  #transactionTable colgroup col:nth-child(1) { width: 28%; } /* Transaction ID */
+  #transactionTable colgroup col:nth-child(2) { width: 32%; } /* Date */
+  #transactionTable colgroup col:nth-child(3) { width: 20%; } /* Total */
+  #transactionTable colgroup col:nth-child(4) { width: 20%; } /* Payment */
+
+  #transactionTable thead th {
+    background:#f3efe2;
+    padding:14px;
+    font-weight:600;
+    text-align:left;
+    border-bottom:1px solid #ddd;
+  }
+  #transactionTable tbody td {
+    padding:14px;
+    border-bottom:1px solid #f0f0f0;
+    font-size:15px;
+    vertical-align: middle;
+  }
+
+  /* alignment classes */
+  .td-amount { text-align:right; padding-right:16px; white-space:nowrap; }
+  .td-method { text-align:center; }
+
+  .td-method .view-btn {
+    padding:4px 8px;
+    font-size:13px;
+    min-width:60px;
+    box-sizing:border-box;
+    border-radius:4px;
+    border:1px solid #999;
+    background:#fff;
+    cursor:pointer;
+  }
+
+  /* Details modal */
+  #transactionModal {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  #transactionModal .modal-inner {
+    background:#fff;
+    border-radius:10px;
+    width:800px;
+    max-width:95%;
+    padding:20px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  }
+  .modal-header { display:flex; justify-content:space-between; align-items:center; }
+  .modal-close {
+    border:1px solid #ccc; background:#fafafa; padding:5px 10px; border-radius:6px; cursor:pointer;
+  }
+
+  /* Details table */
+  #detailsTable { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:14px; }
+  #detailsTable colgroup col:nth-child(1) { width:50%; }  /* Product */
+  #detailsTable colgroup col:nth-child(2) { width:12%; }  /* Qty */
+  #detailsTable colgroup col:nth-child(3) { width:18%; }  /* Price */
+  #detailsTable colgroup col:nth-child(4) { width:20%; }  /* Subtotal */
+
+  #detailsTable thead th {
+    background:#f7f7f7;
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    font-weight:600;
+    color:#e65c00;
+  }
+  #detailsTable tbody td { padding:10px; border-bottom:1px solid #eee; }
+
+  .th-product, .td-product { text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .th-qty, .td-qty { text-align:center; }
+  .th-price, .td-price { text-align:right; padding-right:12px; white-space:nowrap; }
+  .th-subtotal, .td-subtotal { text-align:right; padding-right:12px; white-space:nowrap; }
+
+  /* footer total alignment */
+  #detailsTable tfoot td { padding:10px; }
+  #detailsTable tfoot td:last-child { text-align:right; font-weight:600; }
+</style>
+</head>
+
+<body>
+<div class="transactions-card">
+  <h3>Transaction History</h3>
+  <p class="muted">This page displays your completed sales transactions.</p>
+
+  <div style="margin:12px 0;">
+    <input id="dateFilter" type="date" style="padding:6px 8px;" />
+    <button onclick="applyFilters()" style="margin-left:8px; padding:6px 12px; background:#4CAF50; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+      Apply Filter
+    </button>
+    <button onclick="clearFilters()" style="margin-left:8px; padding:6px 12px; background:#6094b3; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+    Reset
+    </button>
+  </div>
+
+  <div style="background:#fff; border-radius:8px;">
+    <table id="transactionTable" aria-describedby="transactions">
+      <colgroup>
+        <col> <col> <col> <col>
+      </colgroup>
+
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Date</th>
+          <th style="text-align:right;">Total Amount</th>
+          <th style="text-align:center;">Payment Method</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr><td colspan="4" style="text-align:center;color:gray;">Loading transactions...</td></tr>
+      </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="transactionModalLabel">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <div>
+        <h4 id="transactionModalLabel" style="margin:0; color:#e65c00;">Transaction Details</h4>
+        <div style="font-size:13px;color:#666;margin-top:6px">
+          <span id="modalTransactionId" style="font-weight:600"></span>
+          <span style="margin-left:10px;color:#999" id="modalDateTime"></span>
+        </div>
+      </div>
+      <div>
+        <button class="modal-close" onclick="closeTransactionModal()">Close</button>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <table id="detailsTable">
+        <colgroup>
+          <col> <col> <col> <col>
+        </colgroup>
+
+        <thead>
+            <tr>
+                 <th class="th-product">Product</th>
+                 <th class="th-qty">Quantity</th>
+                 <th class="th-price">Price</th>
+                 <th class="th-subtotal">Subtotal</th>
+            </tr>
+        </thead>
+
+        <tbody id="modalItemsList">
+          <tr><td colspan="4" style="text-align:center;color:gray">Loading items...</td></tr>
+        </tbody>
+
+        <tfoot>
+            <tr>
+                    <td colspan="3" style="text-align:right; font-weight:600;">Subtotal:</td>
+                    <td id="modalSubtotal" class="td-subtotal" style="font-weight:600;">₱0.00</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align:right; font-weight:600;">Tax(12%):</td>
+                    <td id="modalTax" class="td-subtotal" style="font-weight:600;">₱0.00</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align:right; font-weight:600;">Total:</td>
+                    <td id="modalTotal" class="td-subtotal" style="font-weight:600;">₱0.00</td>
+                </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="./transactions_EMP.js"></script>
+</body>
+</html>

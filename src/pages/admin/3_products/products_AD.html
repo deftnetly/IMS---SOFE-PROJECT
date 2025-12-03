@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Products - Admin</title>
+
+  <!-- KEEP your stock/status CSS exactly as you had it -->
+  <style>
+    .stock-cell { font-weight: 600; }
+    .stock-unavailable { color: #383434; }
+    .stock-low { color: #c62828; }
+    .stock-medium { color: #ff9800; }
+    .stock-high { color: #2e7d32; }
+
+    .status-available { color: #2e7d32; font-weight: 600; }
+    .status-unavailable { color: #c62828; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="content-section">
+    <h2>Products</h2>
+    <!-- This button calls the JS function expected by products_AD.js -->
+    <button class="add-button" onclick="openProductModal()">Add New Product</button>
+
+    <!-- Category list area (optional) -->
+    <div class="category-list" style="margin-bottom: 12px;">
+      <h3>Available Categories</h3>
+      <ul id="categoryListDisplay"></ul>
+    </div>
+
+    <!-- Modal: matches JS (form uses addProduct(event) and hidden productId exists) -->
+    <div id="productModal" class="modal" style="display:none;" aria-hidden="true">
+      <div class="modal-content">
+        <span class="close" onclick="closeProductModal()">&times;</span>
+        <h2 id="productModalTitle">Add New Product</h2>
+
+        <form id="addProductForm" onsubmit="return addProduct(event)">
+          <input type="hidden" id="productId" name="id" value="">
+
+          <div class="form-group">
+            <label for="productName">Product Name:</label>
+            <input type="text" id="productName" required>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" required></select>
+          </div>
+
+          <div class="form-group">
+            <label for="price">Price (₱):</label>
+            <input type="number" id="price" step="0.01" required>
+          </div>
+
+          <div class="form-group">
+            <label for="stock">Stock:</label>
+            <input type="number" id="stock" required>
+          </div>
+
+         
+
+          <div class="form-group form-buttons">
+            <button type="button" class="cancel-button" onclick="closeProductModal()">Cancel</button>
+            <button type="submit" class="submit-button" id="productSubmitBtn">Add Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Products Table (class and tbody id match the JS expectations) -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Price (₱)</th>
+          <th>Stock</th>
+          <th>Date Added</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="productsTbody"></tbody>
+    </table>
+  </div>
+
+  <!-- This script tag should load the products_AD.js that expects the structure above -->
+</body>
+</html>

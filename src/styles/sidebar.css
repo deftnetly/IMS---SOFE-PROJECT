@@ -82,7 +82,7 @@ html, body {
 
 /* === COLLAPSED SIDEBAR === */
 .sidebar.collapsed {
-  width: 80px !important;
+  width: 90px !important;
   transition: width 0.28s ease;
 }
 

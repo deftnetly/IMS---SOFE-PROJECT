@@ -3,29 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../../styles/content.css">
+
 </head>
 <body>
     <div class="content-section">
         <h2>Categories</h2>
-        <button class="add-button" onclick="openCategoryModal()">Add New Category</button>
+        <button class="add-button">Add New Category</button>
 
         <!-- Modal -->
-        <div id="categoryModal" class="modal">
+        <div id="categoryModal" class="modal" style="display:none;">
             <div class="modal-content">
-                <span class="close" onclick="closeCategoryModal()">&times;</span>
+                <span id="categoryModalClose" class="close">&times;</span>
                 <h3>Add New Category</h3>
-                <form id="addCategoryForm" onsubmit="return addCategory(event)">
+
+                <form id="addCategoryForm">
                     <div class="form-group">
                         <label for="categoryName">Category Name:</label>
                         <input type="text" id="categoryName" required>
                     </div>
+
                     <div class="form-group">
                         <label for="description">Description:</label>
                         <input type="text" id="description" required>
                     </div>
+
                     <div class="form-buttons">
-                        <button type="button" class="cancel-button" onclick="closeCategoryModal()">Cancel</button>
+                        <button type="button" class="cancel-button" id="categoryCancelBtn">Cancel</button>
                         <button type="submit" class="submit-button">Add Category</button>
                     </div>
                 </form>
@@ -45,7 +48,6 @@
             <tbody id="categoriesTbody"></tbody>
         </table>
     </div>
-
 
 </body>
 </html>

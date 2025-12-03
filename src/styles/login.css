@@ -100,3 +100,48 @@ body {
 .login-container button:hover {
     background-color: #b65d0b;
 }
+.password-wrapper {
+  position: relative !important;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Force small flat icon inside the input */
+.password-toggle {
+  position: absolute !important;
+  right: 8px !important;       /* horizontal: increase -> moves left, decrease -> moves right */
+  top: 50% !important;         /* vertical baseline */
+  transform: translateY(-50%) translateX(0) !important; /* baseline centering */
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  color: #111 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  border-radius: 0 !important;
+}
+
+/* Example adjustments you can use (pick one or tweak) */
+/* Move the icon further left (away from right edge) */
+.password-toggle.move-left { right: 18px !important; }
+
+/* Move the icon further right (closer to right edge) */
+.password-toggle.move-right { right: 4px !important; }
+
+/* Nudge icon up */
+.password-toggle.move-up { top: 45% !important; transform: translateY(-50%) translateX(0) !important; }
+
+/* Nudge icon down */
+.password-toggle.move-down { top: 55% !important; transform: translateY(-50%) translateX(0) !important; }
+
+/* Alternative: move using translateX for fine horizontal tweaks */
+.password-toggle.tweak-right-2px { transform: translateY(-50%) translateX(2px) !important; }
+.password-toggle.tweak-left-2px  { transform: translateY(-50%) translateX(-2px) !important; }
+

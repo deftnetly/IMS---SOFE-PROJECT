@@ -4,12 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMS – Employee Panel</title>
+
+    <!-- ===== MEDIASESSION SUPPRESSOR (MUST BE FIRST) ===== -->
+    <script>
+    (function () {
+      try {
+        if ('mediaSession' in navigator && typeof navigator.mediaSession.setActionHandler === 'function') {
+          const original = navigator.mediaSession.setActionHandler.bind(navigator.mediaSession);
+          navigator.mediaSession.setActionHandler = function(action, handler) {
+            try { original(action, handler); }
+            catch (e) { console.warn('Ignored unsupported MediaSession action:', action); }
+          };
+        }
+      } catch (e) {
+        console.warn('MediaSession safe-wrap failed', e);
+      }
+
+      window.addEventListener('error', function (ev) {
+        try {
+          if (ev && ev.message &&
+              ev.message.includes('enterpictureinpicture') &&
+              ev.message.includes('setActionHandler')) {
+            ev.preventDefault();
+            console.warn('Suppressed injected autoPip MediaSession error:', ev.message);
+            return true;
+          }
+        } catch (e) {}
+      }, true);
+    })();
+    </script>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="../../styles/content.css">
     <link rel="stylesheet" href="../../styles/logout-popup.css">
     <link rel="icon" type="image/png" href="../../assets/SIMS.png">
+
     <style>
-        /* Same fade animation switching pages*/
         #main-content {
             opacity: 0;
             transition: opacity 0.4s ease;
@@ -19,11 +50,12 @@
         }
     </style>
 </head>
+
 <body>
-    <!-- === SIDEBAR TOGGLE === -->
+    <!-- SIDEBAR TOGGLE -->
     <div class="sidebar-toggle" id="sidebarToggle">&#9776;</div>
 
-    <!-- === SIDEBAR === -->
+    <!-- SIDEBAR -->
     <div class="sidebar">
         <a href="#" onclick="loadContent('dashboard', '1_dashboard')">
             <img src="../../assets/dashboard.white.png" alt="Dashboard Icon">
@@ -39,7 +71,7 @@
         </a>
         <a href="#" onclick="loadContent('transactions', '4_transactions')">
             <img src="../../assets/transaction.white.png" alt="Transactions Icon">
-            <span>Transaction History</span>
+            <span>Transactions</span>
         </a>
         <a href="#" onclick="loadContent('settings', '7_settings')">
             <img src="../../assets/setting.white.png" alt="Setting Icon">
@@ -51,10 +83,10 @@
         </a>
     </div>
 
-    <!-- === MAIN CONTENT === -->
+    <!-- MAIN CONTENT -->
     <div class="content" id="main-content"></div>
 
-    <!-- === LOGOUT POPUP === -->
+    <!-- LOGOUT POPUP -->
     <div class="logout-popup" id="logoutPopup">
         <div class="logout-box">
             <h3>Are you sure you want to log out?</h3>
@@ -65,74 +97,180 @@
         </div>
     </div>
 
-    <!-- === JAVASCRIPT === -->
+    <!-- JAVASCRIPT: loader + helpers -->
     <script>
-        async function loadContent(section, folder) {
-            const content = document.getElementById("main-content");
-            content.classList.remove("visible");
-            content.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
+    async function loadContent(section, folder) {
 
-            try {
-                const response = await fetch(`${folder}/${section}.html`);
-                if (!response.ok) throw new Error(`Failed to load ${section}.html`);
-                const html = await response.text();
+        const content = document.getElementById("main-content");
+        content.classList.remove("visible");
+        content.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
-                // Smooth fade effect
-                content.style.opacity = 0;
-                setTimeout(() => {
-                    content.innerHTML = html;
-                    content.style.opacity = 1;
-                    content.classList.add("visible");
+        async function tryLoadHtml(secName) {
+            const res = await fetch(`${folder}/${secName}.html`);
+            if (!res.ok) throw new Error(secName);
+            return { html: await res.text(), usedSection: secName };
+        }
 
-                    localStorage.setItem("currentSection", section);
-                    localStorage.setItem("currentFolder", folder);
-                }, 200);
+        try {
+            let result;
+            try { result = await tryLoadHtml(section); }
+            catch { result = await tryLoadHtml(section + "_EMP"); }
 
-                // Remove old section scripts
-                document.querySelectorAll("script[data-section]").forEach(s => s.remove());
+            // Fade animation
+            content.style.opacity = 0;
+            setTimeout(() => {
+                content.innerHTML = result.html;
+                content.style.opacity = 1;
+                content.classList.add("visible");
 
-                // Load section-specific JS if needed
-                const sectionsWithJS = ['dashboard', 'products', 'checkout', 'transactions'];
-                if (sectionsWithJS.includes(section)) {
-                    const script = document.createElement("script");
-                    script.src = `${folder}/${section}.js`;
-                    script.setAttribute("data-section", section);
-                    document.body.appendChild(script);
+                // Persist state
+                localStorage.setItem("currentSection", result.usedSection);
+                localStorage.setItem("currentFolder", folder);
+
+                // Tell the employee loader to start watching again (resets internal tbody flag)
+                try {
+                if (typeof window.startWatchingEmployeeProducts === 'function') {
+                    // resets internal __tbodySeen to false and ensures MutationObserver is attached
+                    window.startWatchingEmployeeProducts();
+                } else {
+                    // best-effort fallback: dispatch a small custom event that the loader also listens for
+                    document.dispatchEvent(new CustomEvent('startWatchingEmployeeProducts'));
+                }
+                } catch (e) {
+                console.warn('startWatchingEmployeeProducts call failed', e);
                 }
 
-                // Highlight active sidebar link
-                setActiveLink(section);
-            } catch (error) {
-                content.innerHTML = `<div class="content-section"><h2>Error loading ${section}</h2><p>${error.message}</p></div>`;
-                content.classList.add("visible");
+                // Dispatch a sectionLoaded event so fragments and scripts know which section was inserted.
+                // Many fragments (including products_EMP.html) listen for this to trigger initialization.
+                try {
+                document.dispatchEvent(new CustomEvent('sectionLoaded', { detail: { section: result.usedSection } }));
+                } catch (e) {
+                console.warn('sectionLoaded dispatch failed', e);
+                }
+            }, 200);
+
+            // REMOVE old section scripts
+            document.querySelectorAll("script[data-section]").forEach(s => s.remove());
+
+            // Build script path
+            const scriptSrc = `${folder}/${result.usedSection}.js`;
+
+            // Check if script already exists (fixes duplicate loading + redeclare error)
+            let existing = document.querySelector(`script[data-section][src="${scriptSrc}"]`);
+
+            if (!existing) {
+                const script = document.createElement("script");
+                script.src = scriptSrc;
+                script.setAttribute("data-section", result.usedSection);
+
+                // When loaded, run product loader if needed
+                script.onload = () => {
+                setTimeout(() => {
+                    const sec = result.usedSection.toLowerCase();
+                    if (sec.includes("product")) {
+                    // Prefer telling the loader to start watching and react to the actual table insertion.
+                    if (typeof window.startWatchingEmployeeProducts === "function") {
+                        window.startWatchingEmployeeProducts();
+                    } else if (typeof window.loadEmployeeProducts === "function") {
+                        // fallback — if watcher not present, call load directly
+                        window.loadEmployeeProducts();
+                    }
+                    }
+                }, 80);
+                };
+
+                document.body.appendChild(script);
+            } else {
+                // Reuse existing script — prefer to reset/wait and let the observer load the table
+                setTimeout(() => {
+                    const sec = result.usedSection.toLowerCase();
+                    if (sec.includes("product")) {
+                        if (typeof window.startWatchingEmployeeProducts === "function") {
+                            // resets internal flags and schedules load when the table appears
+                            window.startWatchingEmployeeProducts();
+                        } else if (typeof window.loadEmployeeProducts === "function") {
+                            // fallback if watcher not available
+                            window.loadEmployeeProducts();
+                        }
+                    }
+                }, 80);
             }
-        }
 
-        // Default load
-        document.addEventListener("DOMContentLoaded", () => {
-            const lastSection = localStorage.getItem("currentSection") || "dashboard";
-            const lastFolder = localStorage.getItem("currentFolder") || "1_dashboard";
-            loadContent(lastSection, lastFolder);
-        });
+            // Sidebar UI highlight
+            if (typeof setActiveLink === 'function')
+                setActiveLink(result.usedSection);
 
-        // === LOGOUT POPUP ===
-        function showLogoutPopup() {
-            document.getElementById("logoutPopup").classList.add("active");
+        } catch (err) {
+            content.innerHTML =
+                `<div class="content-section"><h2>Error loading ${section}</h2><p>Missing file: ${err.message}.html</p></div>`;
+            content.classList.add("visible");
         }
-        function closeLogoutPopup() {
-            document.getElementById("logoutPopup").classList.remove("active");
+    }
+
+    // Default load
+    document.addEventListener("DOMContentLoaded", () => {
+        const lastSection = localStorage.getItem("currentSection") || "dashboard";
+        const lastFolder = localStorage.getItem("currentFolder") || "1_dashboard";
+        loadContent(lastSection, lastFolder);
+    });
+
+    // Logout popup controls
+    function showLogoutPopup() {
+        document.getElementById("logoutPopup").classList.add("active");
+    }
+    function closeLogoutPopup() {
+        document.getElementById("logoutPopup").classList.remove("active");
+    }
+    function confirmLogout() {
+        document.body.style.transition = "opacity 0.5s ease";
+        document.body.style.opacity = 0;
+        setTimeout(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "../../login/login.html";
+        }, 500);
+    }
+
+    // handle sectionLoaded events
+    function handleSectionLoaded(e) {
+      try {
+        const sec = e && e.detail && e.detail.section ? String(e.detail.section).toLowerCase() : '';
+        dlog("sectionLoaded:", sec);
+        if (sec.indexOf('product') !== -1) {
+          __tbodySeen = false; // allow observer to react to reinsertion
+          setTimeout(() => { 
+            if (document.querySelector('.data-table tbody')) {
+              scheduleLoad(40); // This should trigger loadEmployeeProducts
+            }
+          }, 40);
+        } else {
+          if (!__tbodySeen && document.querySelector('.data-table tbody')) { __tbodySeen = true; scheduleLoad(40); }
         }
-        function confirmLogout() {
-            document.body.style.transition = "opacity 0.5s ease";
-            document.body.style.opacity = 0;
-            setTimeout(() => {
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = "../../login/login.html";
-            }, 500);
-        }
+      } catch(e) { deerr("handleSectionLoaded error", e); }
+    }
+
+    // init
+    function init() {
+      if (window.__EMP_PRODUCTS_LOADER_INITED) return;
+      window.__EMP_PRODUCTS_LOADER_INITED = true;
+      dlog("init employee products loader");
+      attachObserver();
+      if (document.querySelector('.data-table tbody')) { __tbodySeen = true; scheduleLoad(10); } else dlog("tbody not present on init");
+      document.addEventListener('sectionLoaded', handleSectionLoaded);
+      document.addEventListener('DOMContentLoaded', () => setTimeout(() => { if (document.querySelector('.data-table tbody')) scheduleLoad(40); }, 40));
+      window.loadEmployeeProducts = loadEmployeeProducts;
+      window.startWatchingEmployeeProducts = function(){ 
+        __tbodySeen = false;  // Reset flag
+        __lastDataHash = null; // Clear cache so data reloads
+        if (!__observer) attachObserver(); 
+        scheduleLoad(50); // Force immediate reload
+        dlog("startWatchingEmployeeProducts called"); 
+      };
+      dlog("loader installed and ready");
+    }
     </script>
 
     <script src="../../scripts/sidebar.js"></script>
+
 </body>
 </html>

@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Dashboard</title>
-    <link rel="stylesheet" href="../../../styles/content.css">
 </head>
 <body>
     <div id="dashboard" class="content-section">
@@ -18,7 +16,7 @@
             </div>
             <div class="card">
                 <h3>Low Stock Alerts</h3>
-                <p id="lowStock">0</p>
+                <p id="lowStockCount">0</p>
             </div>
             <div class="card">
                 <h3>Today's Sales</h3>
@@ -26,34 +24,34 @@
             </div>
         </div>
 
-        <!-- Product List (Read-Only) -->
-        <h2 style="margin-top: 40px;">Product List</h2>
+        
+
+        <!-- Low Stock Items Section -->
+        <h2 style="margin-top: 24px;">Low Stock Items</h2>
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Category</th>
                     <th>Product Name</th>
                     <th>Stock</th>
-                    <th>Category</th>
+                    <th>Status</th>
                 </tr>
             </thead>
-            <tbody id="dashboardProductList">
+            <tbody id="lowStockList">
                 <tr>
-                    <td colspan="4" style="text-align:center; color:gray;">Loading products...</td>
+                    <td colspan="4" style="text-align:center; color:gray;">Loading low stock items...</td>
                 </tr>
             </tbody>
         </table>
 
-        <!-- Quick Action -->
-        <div style="margin-top: 30px; text-align: right;">
-            <button class="submit-button" id="checkoutBtn">Go to Checkout</button>
-        </div>
-
+            <!-- Quick Action -->
+            <div style="margin-top: 30px; text-align: right;">
+                <button class="submit-button" id="checkoutBtn">Go to Checkout</button>
+            </div>
         <div style="height: 50px;"></div>
     </div>
 
     <!-- External JS -->
-    <script src="dashboard.js"></script>
-    
+    <script src="dashboard_EMP.js"></script>
 </body>
 </html>
