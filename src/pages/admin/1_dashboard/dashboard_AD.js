@@ -1,11 +1,11 @@
-// dashboard_AD.js — fixed, defensive admin dashboard loader
+﻿// dashboard_AD.js â€” fixed, defensive admin dashboard loader
 // - No TypeScript operators
 // - Writes to multiple id variants (ad_* and plain ids)
 // - Builds absolute URLs so fragment-relative loading works
 // - LOW_THRESHOLD = 40 (stock <= 40 => low)
 
 (function () {
-  // ENDPOINTS — change only if your project actually places them elsewhere
+  // ENDPOINTS â€” change only if your project actually places them elsewhere
   const ENDPOINT_PRODUCTS = '/src/pages/admin/3_products/get_products.php';
   const ENDPOINT_CATEGORIES = '/src/pages/admin/2_categories/get_categories.php';
   const ENDPOINT_EMPLOYEES = '/src/pages/admin/4_employees/get_employees.php';
@@ -22,7 +22,7 @@
     try {
       return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 }).format(Number(n || 0));
     } catch (e) {
-      return '₱' + (Number(n || 0)).toFixed(2);
+      return 'â‚±' + (Number(n || 0)).toFixed(2);
     }
   }
 
@@ -96,7 +96,6 @@
     });
   }
 
-<<<<<<< HEAD
   function normalizeTransactions(json) {
     if (!json) return [];
     if (Array.isArray(json.transactions)) return json.transactions;
@@ -199,8 +198,6 @@
     });
   }
 
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   // ---------- loaders ----------
 
   async function loadProductsSummary() {
@@ -266,7 +263,6 @@
     const dd = String(now.getDate()).padStart(2,'0');
 
     const today = `${yyyy}-${mm}-${dd}`;
-<<<<<<< HEAD
     const urlToday = buildUrl(ENDPOINT_TRANSACTIONS + '?date=' + encodeURIComponent(today));
     const urlAll = buildUrl(ENDPOINT_TRANSACTIONS);
 
@@ -279,16 +275,6 @@
       const rawDate = String(t.transaction_date || t.date_time || t.date || '');
       return rawDate.indexOf(monthPrefix) === 0;
     });
-=======
-    const month = `${yyyy}-${mm}`;
-
-    const urlToday = buildUrl(ENDPOINT_TRANSACTIONS + '?date=' + encodeURIComponent(today));
-    const urlMonth = buildUrl(ENDPOINT_TRANSACTIONS + '?month=' + encodeURIComponent(month));
-
-    const [todayJson, monthJson] = await Promise.all([fetchJsonSafe(urlToday), fetchJsonSafe(urlMonth)]);
-    const todayTx = (todayJson && Array.isArray(todayJson.transactions)) ? todayJson.transactions : (todayJson && Array.isArray(todayJson.data) ? todayJson.data : (Array.isArray(todayJson) ? todayJson : []));
-    const monthTx = (monthJson && Array.isArray(monthJson.transactions)) ? monthJson.transactions : (monthJson && Array.isArray(monthJson.data) ? monthJson.data : (Array.isArray(monthJson) ? monthJson : []));
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     const todayTotal = (todayTx || []).reduce((s, t) => s + (Number(t.total_amount ?? t.total ?? t.amount ?? 0) || 0), 0);
     const monthTotal = (monthTx || []).reduce((s, t) => s + (Number(t.total_amount ?? t.total ?? t.amount ?? 0) || 0), 0);
@@ -308,11 +294,8 @@
       highestSale: money(highest)
     });
 
-<<<<<<< HEAD
     renderMonthlySalesHistogram(allTx);
 
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     console.log('[dashboard_AD] sales: today=', todayTotal, 'month=', monthTotal, 'txns=', monthCount);
   }
 
@@ -330,10 +313,7 @@
 
   function init() {
     // small delay to allow SPA fragment injection
-<<<<<<< HEAD
     bindNextPageButton();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     setTimeout(startDashboard, 40);
   }
 

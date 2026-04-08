@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMS – Employee Panel</title>
+    <title>IMS â€“ Employee Panel</title>
 
     <!-- ===== MEDIASESSION SUPPRESSOR (MUST BE FIRST) ===== -->
     <script>
@@ -95,7 +95,6 @@
 
     <!-- JAVASCRIPT: loader + helpers -->
     <script>
-<<<<<<< HEAD
     function notifySidebarLoadFinished() {
         window.dispatchEvent(new CustomEvent("sidebar:loading:end"));
     }
@@ -106,11 +105,6 @@
         if (typeof window.showSidebarLoading === "function") {
             window.showSidebarLoading();
         }
-=======
-    async function loadContent(section, folder) {
-
-        const content = document.getElementById("main-content");
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         content.classList.remove("visible");
         content.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
@@ -131,10 +125,7 @@
                 content.innerHTML = result.html;
                 content.style.opacity = 1;
                 content.classList.add("visible");
-<<<<<<< HEAD
                 notifySidebarLoadFinished();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
                 // Persist state
                 localStorage.setItem("currentSection", result.usedSection);
@@ -166,12 +157,8 @@
             document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
             // Build script path
-<<<<<<< HEAD
             const scriptVersion = "20260409-employee-ui-3";
             const scriptSrc = `${folder}/${result.usedSection}.js?v=${scriptVersion}`;
-=======
-            const scriptSrc = `${folder}/${result.usedSection}.js`;
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
             // Check if script already exists (fixes duplicate loading + redeclare error)
             let existing = document.querySelector(`script[data-section][src="${scriptSrc}"]`);
@@ -190,7 +177,7 @@
                     if (typeof window.startWatchingEmployeeProducts === "function") {
                         window.startWatchingEmployeeProducts();
                     } else if (typeof window.loadEmployeeProducts === "function") {
-                        // fallback — if watcher not present, call load directly
+                        // fallback â€” if watcher not present, call load directly
                         window.loadEmployeeProducts();
                     }
                     }
@@ -199,7 +186,7 @@
 
                 document.body.appendChild(script);
             } else {
-                // Reuse existing script — prefer to reset/wait and let the observer load the table
+                // Reuse existing script â€” prefer to reset/wait and let the observer load the table
                 setTimeout(() => {
                     const sec = result.usedSection.toLowerCase();
                     if (sec.includes("product")) {
@@ -222,10 +209,7 @@
             content.innerHTML =
                 `<div class="content-section"><h2>Error loading ${section}</h2><p>Missing file: ${err.message}.html</p></div>`;
             content.classList.add("visible");
-<<<<<<< HEAD
             notifySidebarLoadFinished();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         }
     }
 

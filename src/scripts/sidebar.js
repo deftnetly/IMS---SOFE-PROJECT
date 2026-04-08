@@ -3,7 +3,6 @@
 // Example include: <script src="../../scripts/sidebar.js"></script>
 
 (function () {
-<<<<<<< HEAD
   let loadingOverlay = null;
   let loadingTimer = null;
   let loadingStartedAt = 0;
@@ -57,8 +56,6 @@
   window.showSidebarLoading = showSidebarLoading;
   window.hideSidebarLoading = hideSidebarLoading;
 
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   // Helper - find sidebar links (excluding logout)
   function getSidebarLinks() {
     return Array.from(document.querySelectorAll('.sidebar a:not(.logout)'));
@@ -128,10 +125,7 @@
     // === CLICK -> ACTIVE (and save) ===
     links.forEach(link => {
       link.addEventListener('click', () => {
-<<<<<<< HEAD
         showSidebarLoading();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         links.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
 
@@ -154,12 +148,9 @@
       // prefer to use the global function so behavior is consistent
       window.setActiveLink(savedActive);
     }
-<<<<<<< HEAD
 
     window.addEventListener('sidebar:loading:start', showSidebarLoading);
     window.addEventListener('sidebar:loading:end', hideSidebarLoading);
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   }
 
   if (document.readyState === 'loading') {

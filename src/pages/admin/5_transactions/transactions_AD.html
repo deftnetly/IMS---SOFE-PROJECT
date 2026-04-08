@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -6,7 +6,6 @@
 
   <style>
     .panel { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
-<<<<<<< HEAD
     .controls {
       margin-bottom: 18px;
       display: inline-flex;
@@ -220,13 +219,6 @@
         width: 100%;
       }
     }
-=======
-    .controls { margin-bottom:14px; display:flex; gap:8px; align-items:center; }
-    .data-table { width:100%; border-collapse:collapse; }
-    .data-table thead th { background:#f2ead8; padding:14px; text-align:left; }
-    .data-table td { padding:14px; border-bottom:1px solid #eee; }
-    .view-btn, .remove-btn { padding:4px 8px; }
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     .modal-wrap {
       display:none;
@@ -257,7 +249,6 @@
       <h2 style="color:#e96f00; margin-top:0;">Transactions</h2>
 
       <div class="controls">
-<<<<<<< HEAD
         <input id="dateFilter" class="filter-input" type="date" />
         <div class="employee-filter" id="employeeFilterControl">
           <button type="button" id="employeeFilterTrigger" class="employee-filter-trigger">
@@ -271,14 +262,6 @@
         </div>
         <button onclick="applyFilters()" class="filter-action filter-apply">Apply Filter</button>
         <button onclick="clearFilters()" class="filter-action filter-reset">Reset</button>
-=======
-        <input id="dateFilter" type="date" style="padding:6px 8px;" />
-        <select id="employeeFilter" style="padding:6px 8px;">
-          <option value="">All Employees</option>
-        </select>
-        <button onclick="applyFilters()" style="background:#4CAF50;color:#fff;border:0;padding:7px 12px;border-radius:4px;">Apply Filter</button>
-        <button onclick="clearFilters()" style="background:#f44336;color:#fff;border:0;padding:7px 12px;border-radius:4px;">Reset</button>
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
       </div>
 
       <table class="data-table">
@@ -308,14 +291,14 @@
         <div>
           <h3>Transaction Details</h3>
           <div style="font-size:13px;color:#666;">
-            <span id="modalTransactionId">—</span>
+            <span id="modalTransactionId">â€”</span>
             <span id="modalTransactionDateTime" style="margin-left:12px;color:#999;font-size:12px;"></span>
           </div>
         </div>
         <button onclick="closeTransactionModal()" style="padding:6px 10px;">Close</button>
       </div>
 
-      <div><strong>Employee:</strong> <span id="modalEmployee">—</span></div>
+      <div><strong>Employee:</strong> <span id="modalEmployee">â€”</span></div>
 
       <table class="modal-table">
         <thead>
@@ -330,15 +313,15 @@
         <tfoot>
           <tr>
             <td colspan="3" style="text-align:right;font-weight:600;">Subtotal:</td>
-            <td id="modalSubtotal" style="text-align:right;font-weight:600;">₱0.00</td>
+            <td id="modalSubtotal" style="text-align:right;font-weight:600;">â‚±0.00</td>
           </tr>
           <tr>
             <td colspan="3" style="text-align:right;font-weight:600;">Tax (12%):</td>
-            <td id="modalTax" style="text-align:right;font-weight:600;">₱0.00</td>
+            <td id="modalTax" style="text-align:right;font-weight:600;">â‚±0.00</td>
           </tr>
           <tr>
             <td colspan="3" style="text-align:right;font-weight:600;">Total:</td>
-            <td id="modalTotal" style="text-align:right;font-weight:600;">₱0.00</td>
+            <td id="modalTotal" style="text-align:right;font-weight:600;">â‚±0.00</td>
           </tr>
         </tfoot>
       </table>
@@ -346,7 +329,7 @@
     </div>
   </div>
 
-  <!-- ONLY ONE SCRIPT TAG — FIXED -->
+  <!-- ONLY ONE SCRIPT TAG â€” FIXED -->
   <script src="/smart-inventory/src/pages/admin/5_transactions/transactions_AD.js"></script>
 
 </body>

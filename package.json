@@ -1,16 +1,10 @@
-{
+﻿{
   "name": "inventory-management-system",
   "version": "1.0.0",
   "description": "A web application for managing inventory.",
-<<<<<<< HEAD
   "main": "index.php",
   "scripts": {
     "start": "C:\\xampp\\php\\php.exe -S localhost:8000 -t .",
-=======
-  "main": "src/index.html",
-  "scripts": {
-    "start": "live-server src",
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     "build": "echo 'Build step not defined'",
     "test": "echo 'Test step not defined'"
   },
@@ -22,12 +16,5 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {},
-<<<<<<< HEAD
   "devDependencies": {}
 }
-=======
-  "devDependencies": {
-    "live-server": "^1.2.1"
-  }
-}
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e

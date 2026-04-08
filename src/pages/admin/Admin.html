@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>IMS – Admin Panel</title>
+    <title>IMS â€“ Admin Panel</title>
 
     <!-- ===== Defensive MediaSession patch (must run BEFORE any other scripts) ===== -->
     <script>
@@ -127,7 +127,6 @@
         loadContent(section, folder);
     }
 
-<<<<<<< HEAD
     function notifySidebarLoadFinished() {
         window.dispatchEvent(new CustomEvent("sidebar:loading:end"));
     }
@@ -227,10 +226,6 @@
         if (typeof window.showSidebarLoading === "function") {
             window.showSidebarLoading();
         }
-=======
-    async function loadContent(section, folder) {
-        const container = document.getElementById("main-content");
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         container.classList.remove("visible");
         container.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
@@ -239,11 +234,7 @@
 
         // Try .html then .php (AD suffix preferred)
         async function tryFetch(sec, ext) {
-<<<<<<< HEAD
             const res = await fetch(`${folder}/${sec}.${ext}?v=${htmlVersion}`, { cache: 'no-store' });
-=======
-            const res = await fetch(`${folder}/${sec}.${ext}`);
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
             if (!res.ok) throw new Error(`Not found: ${folder}/${sec}.${ext}`);
             return { html: await res.text(), usedSection: sec };
         }
@@ -256,10 +247,7 @@
             } catch {
                 container.innerHTML = `<p>Error loading ${section}.</p>`;
                 container.classList.add("visible");
-<<<<<<< HEAD
                 notifySidebarLoadFinished();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
                 return;
             }
 
@@ -269,27 +257,19 @@
             // =============================
             //  Fixed & safe script loader
             // =============================
-<<<<<<< HEAD
 (function loadSectionScript(folder, usedSection) {
     const scriptVersion = '20260409-admin-ui-8';
-=======
-            (function loadSectionScript(folder, usedSection) {
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     // --- SPECIAL CASE: if we loaded the employees_AD HTML, force employees_AD.js ---
-    // This is minimal and isolated — it won't affect other pages.
+    // This is minimal and isolated â€” it won't affect other pages.
     if (usedSection === 'employees_AD') {
-<<<<<<< HEAD
         const scriptPath = `${folder}/employees_AD.js?v=${scriptVersion}`;
-=======
-        const scriptPath = `${folder}/employees_AD.js`;
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         const js = document.createElement('script');
         js.src = scriptPath;
         js.setAttribute('data-section', usedSection);
 
         js.onload = () => {
-            console.log(scriptPath + " Loaded (employees override) ✔");
+            console.log(scriptPath + " Loaded (employees override) âœ”");
             requestAnimationFrame(() => {
                 document.dispatchEvent(new CustomEvent("sectionLoaded", {
                     detail: { section: usedSection }
@@ -297,7 +277,6 @@
                 if (usedSection.startsWith("dashboard")) {
                     document.dispatchEvent(new Event("dashboardLoaded"));
                 }
-<<<<<<< HEAD
                 setTimeout(() => {
                     if (usedSection.startsWith("reports")) {
                         cleanupAdminReportsControls();
@@ -314,9 +293,6 @@
                     container.classList.add("visible");
                     notifySidebarLoadFinished();
                 }, 10);
-=======
-                setTimeout(() => container.classList.add("visible"), 10);
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
             });
         };
 
@@ -324,10 +300,7 @@
             console.error("Failed to load employees script:", scriptPath);
             container.innerHTML = `<p>Error loading script: ${scriptPath}</p>`;
             container.classList.add("visible");
-<<<<<<< HEAD
             notifySidebarLoadFinished();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         };
 
         document.body.appendChild(js);
@@ -336,7 +309,6 @@
 
     // --- ORIGINAL CANDIDATE LOGIC (preserved exactly) ---
     const candidates = [];
-<<<<<<< HEAD
     candidates.push(`${folder}/${usedSection}.js?v=${scriptVersion}`);
 
     if (!usedSection.endsWith('_AD')) {
@@ -344,15 +316,6 @@
     } else {
         const base = usedSection.replace(/_AD$/, '');
         candidates.push(`${folder}/${base}.js?v=${scriptVersion}`);
-=======
-    candidates.push(`${folder}/${usedSection}.js`);
-
-    if (!usedSection.endsWith('_AD')) {
-        candidates.push(`${folder}/${usedSection}_AD.js`);
-    } else {
-        const base = usedSection.replace(/_AD$/, '');
-        candidates.push(`${folder}/${base}.js`);
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     }
 
     let attempt = 0;
@@ -362,10 +325,7 @@
             container.innerHTML = `<p>Error loading script. Tried:<br>${candidates.join("<br>")}</p>`;
             container.classList.add("visible");
             console.error("All script loads failed", candidates);
-<<<<<<< HEAD
             notifySidebarLoadFinished();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
             return;
         }
 
@@ -375,7 +335,7 @@
         js.setAttribute("data-section", usedSection);
 
         js.onload = () => {
-            console.log(src + " Loaded ✔");
+            console.log(src + " Loaded âœ”");
 
             requestAnimationFrame(() => {
                 document.dispatchEvent(new CustomEvent("sectionLoaded", {
@@ -386,19 +346,15 @@
                     document.dispatchEvent(new Event("dashboardLoaded"));
                 }
 
-<<<<<<< HEAD
                 setTimeout(() => {
                     container.classList.add("visible");
                     notifySidebarLoadFinished();
                 }, 10);
-=======
-                setTimeout(() => container.classList.add("visible"), 10);
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
             });
         };
 
         js.onerror = () => {
-            console.warn(src + " failed — trying next candidate...");
+            console.warn(src + " failed â€” trying next candidate...");
             js.remove();
             loadNext();
         };
@@ -413,10 +369,7 @@
         } catch (err) {
             container.innerHTML = `<p>Error loading section: ${err.message}</p>`;
             container.classList.add("visible");
-<<<<<<< HEAD
             notifySidebarLoadFinished();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         }
     }
 
@@ -448,9 +401,5 @@
     </script>
 
     <script src="../../scripts/sidebar.js"></script>
-<<<<<<< HEAD
-=======
-    <script src="/smart-inventory/src/pages/admin/5_transactions/transactions_AD.js"></script>
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* categories_AD.js — shows C001 from category_id, uses internal id for ops
+﻿/* categories_AD.js â€” shows C001 from category_id, uses internal id for ops
    NOTE: uses button classes 'action-button edit-button delete-button'
    so your CSS for those classes will apply.
 */
@@ -52,19 +52,11 @@
       tr.dataset.internalId = cat.id; // internal id
       tr.innerHTML = `
         <td class="col-id">${escapeHtml(codeFromNumber(cat.category_id))}</td>
-<<<<<<< HEAD
         <td class="col-name"><span class="categories-name">${escapeHtml(cat.category_name)}</span></td>
         <td class="col-desc"><span class="categories-description">${escapeHtml(cat.description)}</span></td>
         <td class="col-actions">
           <button class="action-button edit-button categories-edit-button">Edit</button>
           <button class="action-button delete-button categories-delete-button">Delete</button>
-=======
-        <td class="col-name">${escapeHtml(cat.category_name)}</td>
-        <td class="col-desc">${escapeHtml(cat.description)}</td>
-        <td class="col-actions">
-          <button class="action-button edit-button">Edit</button>
-          <button class="action-button delete-button">Delete</button>
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         </td>
       `;
       // attach handlers using the classes your CSS expects

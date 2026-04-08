@@ -1,21 +1,13 @@
-// transactions_AD.js — JS-only fix: View in Items column + working modal close
+﻿// transactions_AD.js â€” JS-only fix: View in Items column + working modal close
 (function () {
   'use strict';
 
   // duplicate guard
-<<<<<<< HEAD
   if (window.__transactionsAD_fixed_v5) {
     console.log('transactions_AD.js: already loaded (v5).');
     return;
   }
   window.__transactionsAD_fixed_v5 = true;
-=======
-  if (window.__transactionsAD_fixed_v2) {
-    console.log('transactions_AD.js: already loaded (v2).');
-    return;
-  }
-  window.__transactionsAD_fixed_v2 = true;
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
   // Config
   var MARKER_ID = 'transactionsPage';
@@ -23,10 +15,7 @@
   var LIST_API = '/smart-inventory/src/pages/employee/4_transactions/get_transactions.php';
   var DETAILS_API = '/smart-inventory/src/pages/employee/4_transactions/get_transaction_details.php';
   var DELETE_API = '/smart-inventory/src/pages/admin/5_transactions/delete_transaction.php';
-<<<<<<< HEAD
   var EMPLOYEES_API = '/smart-inventory/src/pages/admin/4_employees/get_employees.php';
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
   // Helpers
   function esc(s) {
@@ -41,7 +30,6 @@
     if (!tb) return;
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:' + (color || 'gray') + ';padding:14px">' + esc(msg) + '</td></tr>';
   }
-<<<<<<< HEAD
   function populateEmployeeFilter(items) {
     var select = document.getElementById('employeeFilter');
     if (!select) return;
@@ -140,8 +128,6 @@
 
     return '<button class="' + cls + '" data-txn="' + txn + '" style="border:none;border-radius:999px;padding:8px 16px;background:' + background + ';color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 8px 18px ' + shadow + ';transition:transform 0.18s ease,box-shadow 0.18s ease,opacity 0.18s ease;">' + label + '</button>';
   }
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
   // Attach handlers for rows
   function attachRowHandlers(tb) {
@@ -182,7 +168,7 @@
           var elDt = document.getElementById('modalTransactionDateTime');
           if (elDt) elDt.textContent = tx.transaction_date || tx.date_time || '';
           var elEmp = document.getElementById('modalEmployee');
-          if (elEmp) elEmp.textContent = tx.employee_name || j.employee_name || '—';
+          if (elEmp) elEmp.textContent = tx.employee_name || j.employee_name || 'â€”';
 
           var body = document.getElementById('modalItemsList');
           if (body) {
@@ -194,14 +180,14 @@
                 var qty = esc(String(it.quantity || it.qty || 0));
                 var price = Number(it.unit_price || it.price || it.amount || 0).toFixed(2);
                 var sub = Number(it.subtotal || ((it.quantity || 0) * (it.unit_price || it.price || 0))).toFixed(2);
-                return '<tr><td style="text-align:left">' + name + '</td><td style="text-align:center">' + qty + '</td><td style="text-align:right">₱' + price + '</td><td style="text-align:right">₱' + sub + '</td></tr>';
+                return '<tr><td style="text-align:left">' + name + '</td><td style="text-align:center">' + qty + '</td><td style="text-align:right">â‚±' + price + '</td><td style="text-align:right">â‚±' + sub + '</td></tr>';
               }).join('');
             }
           }
 
-          if (document.getElementById('modalSubtotal')) document.getElementById('modalSubtotal').textContent = '₱' + Number(tx.subtotal || 0).toFixed(2);
-          if (document.getElementById('modalTax')) document.getElementById('modalTax').textContent = '₱' + Number(tx.tax !== undefined && tx.tax !== null ? tx.tax : (Number(tx.subtotal || 0) * 0.12)).toFixed(2);
-          if (document.getElementById('modalTotal')) document.getElementById('modalTotal').textContent = '₱' + Number(tx.total || tx.total_amount || 0).toFixed(2);
+          if (document.getElementById('modalSubtotal')) document.getElementById('modalSubtotal').textContent = 'â‚±' + Number(tx.subtotal || 0).toFixed(2);
+          if (document.getElementById('modalTax')) document.getElementById('modalTax').textContent = 'â‚±' + Number(tx.tax !== undefined && tx.tax !== null ? tx.tax : (Number(tx.subtotal || 0) * 0.12)).toFixed(2);
+          if (document.getElementById('modalTotal')) document.getElementById('modalTotal').textContent = 'â‚±' + Number(tx.total || tx.total_amount || 0).toFixed(2);
 
           var modal = document.getElementById('transactionModal');
           if (modal) modal.style.display = 'flex';
@@ -211,7 +197,7 @@
       })
       .catch(function (err) {
         console.error('details fetch error', err);
-        alert('Failed to fetch details — see console');
+        alert('Failed to fetch details â€” see console');
       });
   }
 
@@ -253,7 +239,7 @@
           }
           renderListFallback();
         } else alert('Delete failed: ' + (j && j.message ? j.message : 'unknown'));
-      }).catch(function (e) { console.error('delete error', e); alert('Delete failed — see console'); });
+      }).catch(function (e) { console.error('delete error', e); alert('Delete failed â€” see console'); });
   }
 
   // Fallback renderer (fetches list and populates tbody)
@@ -295,24 +281,18 @@
       rows.forEach(function (r) {
         var txn = esc(r.transaction_id || r.txn_id || r.id || '');
         var date = esc(r.transaction_date || r.date_time || r.date || '');
-        var emp = esc(r.employee_name || r.employee_id || '—');
+        var emp = esc(r.employee_name || r.employee_id || 'â€”');
         var total = Number(r.total_amount || r.total || r.subtotal || 0).toFixed(2);
-        var itemsCount = (r.items && Array.isArray(r.items)) ? r.items.length : (r.items_count || '—');
+        var itemsCount = (r.items && Array.isArray(r.items)) ? r.items.length : (r.items_count || 'â€”');
 
         out.push(
           '<tr data-txn="' + txn + '">',
           '<td>' + txn + '</td>',
           '<td>' + date + '</td>',
           '<td>' + emp + '</td>',
-<<<<<<< HEAD
           '<td style="text-align:center">' + actionButtonHtml('view', txn) + '</td>',
-          '<td style="text-align:right">₱' + total + '</td>',
+          '<td style="text-align:right">â‚±' + total + '</td>',
           '<td style="text-align:center">' + actionButtonHtml('remove', txn) + '</td>',
-=======
-          '<td style="text-align:center"><button class="view-btn" data-txn="' + txn + '">View</button></td>',
-          '<td style="text-align:right">₱' + total + '</td>',
-          '<td style="text-align:center"><button class="remove-btn" data-txn="' + txn + '">Remove</button></td>',
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
           '</tr>'
         );
       });
@@ -354,11 +334,8 @@
 
   // Initial run
   try {
-<<<<<<< HEAD
     bindEmployeeFilterMenu();
     loadEmployeeFilterOptions();
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     if (typeof window.adminLoadTransactions === 'function') window.adminLoadTransactions();
     else renderListFallback();
   } catch (e) {
@@ -376,14 +353,10 @@
     var ef = document.getElementById('employeeFilter');
 
     if (df) df.value = '';
-<<<<<<< HEAD
     if (ef) {
       ef.selectedIndex = 0;
       renderEmployeeFilterMenu();
     }
-=======
-    if (ef) ef.selectedIndex = 0;
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     adminLoadTransactions({});
   };

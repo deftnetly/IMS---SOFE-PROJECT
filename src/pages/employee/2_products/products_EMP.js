@@ -1,4 +1,4 @@
-/* products_EMP.js
+﻿/* products_EMP.js
    Scoped product loader for Employee panel.
    Only touches the table with class "products-table".
    Safe to include multiple times (idempotent).
@@ -22,10 +22,10 @@
   /* --- formatting helpers --- */
   function fmtPrice(v) {
     const n = Number(v);
-    return isNaN(n) ? "₱0.00" : "₱" + n.toFixed(2);
+    return isNaN(n) ? "â‚±0.00" : "â‚±" + n.toFixed(2);
   }
   function fmtDate(v) {
-    if (!v) return "—";
+    if (!v) return "â€”";
     const d = new Date(v);
     return isNaN(d.getTime()) ? v : d.toLocaleString();
   }
@@ -38,7 +38,6 @@
     return "stock-high";
   }
   function statusInfo(stock) {
-<<<<<<< HEAD
     return Number(stock) === 0
       ? { text: "Unavailable", cls: "status-unavailable" }
       : { text: "Available", cls: "status-available" };
@@ -50,9 +49,6 @@
     const color = isUnavailable ? "#b91c1c" : "#166534";
 
     return `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;line-height:1.1;background:${background};color:${color};white-space:nowrap;">${escapeHtml(status.text)}</span>`;
-=======
-    return Number(stock) === 0 ? { text: "Unavailable", cls: "status-unavailable" } : { text: "Available", cls: "status-available" };
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   }
 
   /* --- internal state --- */
@@ -66,7 +62,7 @@
   function renderEmployeeProducts(products) {
     dlog("renderEmployeeProducts, count:", Array.isArray(products) ? products.length : typeof products);
     const tbody = document.querySelector(TABLE_TBODY_SELECTOR);
-    if (!tbody) { deerr("render failed — products tbody not found"); return; }
+    if (!tbody) { deerr("render failed â€” products tbody not found"); return; }
 
     // Clear
     tbody.innerHTML = "";
@@ -93,15 +89,9 @@
         <td>${escapeHtml(name)}</td>
         <td>${escapeHtml(category)}</td>
         <td>${fmtPrice(price)}</td>
-<<<<<<< HEAD
         <td class="stock-cell ${stockClass(stock)}">${stock === 0 ? "Unavailable" : escapeHtml(String(stock))}</td>
         <td>${escapeHtml(fmtDate(dateAdded))}</td>
         <td style="white-space:nowrap;">${statusBadgeHtml(status)}</td>
-=======
-        <td class="${stockClass(stock)}">${stock === 0 ? "Unavailable" : escapeHtml(String(stock))}</td>
-        <td>${escapeHtml(fmtDate(dateAdded))}</td>
-        <td class="${status.cls}">${status.text}</td>
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
       `;
       frag.appendChild(tr);
     }
@@ -124,9 +114,9 @@
 
   /* --- fetcher --- */
   async function loadEmployeeProducts() {
-    dlog("loadEmployeeProducts — checking table presence");
+    dlog("loadEmployeeProducts â€” checking table presence");
     const tbody = document.querySelector(TABLE_TBODY_SELECTOR);
-    if (!tbody) { deerr("load aborted — products tbody missing"); return; }
+    if (!tbody) { deerr("load aborted â€” products tbody missing"); return; }
 
     try {
       const res = await fetch(PRODUCTS_API, { cache: "no-store" });
@@ -141,7 +131,7 @@
       const data = Array.isArray(json.data) ? json.data : (json.products || json.items || []);
       const hash = JSON.stringify(data || []);
       if (__lastDataHash && __lastDataHash === hash) {
-        dlog("data unchanged — skipping render");
+        dlog("data unchanged â€” skipping render");
       } else {
         __lastDataHash = hash;
         renderEmployeeProducts(data);

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -13,7 +13,7 @@
       <h2>Checkout</h2>
       <div class="search-area">
         <input id="productGridSearch" placeholder="Search products..." aria-label="Search products" />
-        <button title="Clear" onclick="document.getElementById('productGridSearch').value=''; document.getElementById('productGridSearch').dispatchEvent(new Event('input'));">✕</button>
+        <button title="Clear" onclick="document.getElementById('productGridSearch').value=''; document.getElementById('productGridSearch').dispatchEvent(new Event('input'));">âœ•</button>
       </div>
     </header>
 
@@ -25,7 +25,6 @@
         <div class="product-section">
           <div class="product-section-header">
             <div class="product-top-row">
-<<<<<<< HEAD
               <div class="filter-cluster">
                 <div class="product-count"><span id="productCount">0</span> products</div>
                 <select id="productCategoryFilter" aria-label="Filter category">
@@ -37,19 +36,6 @@
                 <div class="quick-add">
                   <input type="text" id="productSearch" placeholder="Product name or ID..." />
                   <button class="submit-button" id="quickAddButton" type="button" onclick="addToCart()">Add to Cart</button>
-=======
-              <div class="product-count"><span id="productCount">0</span> products</div>
-              <div class="product-controls-row">
-                <select id="productCategoryFilter" aria-label="Filter category">
-                  <option value="all">All categories</option>
-                </select>
-
-                <!-- single quick-add control -->
-                <div class="quick-add">
-                  <input type="text" id="productSearch" placeholder="Product name or ID..." />
-                  <input type="number" id="productQty" placeholder="Qty" min="1" value="1" />
-                  <button class="submit-button" onclick="addToCart()">Add to Cart</button>
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
                 </div>
               </div>
             </div>
@@ -87,22 +73,22 @@
 
           <div class="summary-row">
             <span>Subtotal:</span>
-            <span id="orderSubtotal">₱0.00</span>
+            <span id="orderSubtotal">â‚±0.00</span>
           </div>
 
           <div class="summary-row">
             <span>Tax (12%):</span>
-            <span id="orderTax">₱0.00</span>
+            <span id="orderTax">â‚±0.00</span>
           </div>
 
           <div class="summary-row total">
             <strong>Total:</strong>
-            <strong id="orderTotal">₱0.00</strong>
+            <strong id="orderTotal">â‚±0.00</strong>
           </div>
 
           <div class="summary-row small muted">
             <span>Transaction ID:</span>
-            <span id="transactionId">—</span>
+            <span id="transactionId">â€”</span>
           </div>
 
           <button class="submit-button process" id="processBtn" onclick="processCheckout()">Process Checkout</button>

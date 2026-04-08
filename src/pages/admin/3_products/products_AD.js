@@ -1,4 +1,4 @@
-/* products_AD.js
+﻿/* products_AD.js
    Matches the provided HTML:
    - functions: openProductModal(), closeProductModal(), addProduct(event)
    - elements: categoryListDisplay, category select, addProductForm, productsTbody
@@ -40,7 +40,6 @@
   function codeFromCategory(c) {
     return c.code || ('C' + String(c.category_id || c.category_number || c.id || '').padStart(3, '0'));
   }
-<<<<<<< HEAD
   function statusBadgeHtml(statusText) {
     const key = String(statusText || '').toLowerCase();
     let background = '#dcfce7';
@@ -59,8 +58,6 @@
 
     return `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;line-height:1.1;background:${background};color:${color};white-space:nowrap;">${esc(statusText)}</span>`;
   }
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
   /* ---------- Categories ---------- */
   async function loadCategories() {
@@ -89,7 +86,6 @@
   function renderCategoryListAndSelect() {
     const sel = $('category');
     const list = $('categoryListDisplay');
-<<<<<<< HEAD
     if (!sel) return;
     sel.innerHTML = '<option value="">Select Category</option>';
     if (list) list.innerHTML = '';
@@ -97,13 +93,6 @@
       if (list) {
         const li = document.createElement('li'); li.textContent = 'No categories.'; list.appendChild(li);
       }
-=======
-    if (!sel || !list) return;
-    sel.innerHTML = '<option value="">Select Category</option>';
-    list.innerHTML = '';
-    if (!categories.length) {
-      const li = document.createElement('li'); li.textContent = 'No categories.'; list.appendChild(li);
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
       return;
     }
     categories.forEach(c => {
@@ -112,10 +101,7 @@
       opt.textContent = `${c.code} - ${c.category_name}`;
       sel.appendChild(opt);
 
-<<<<<<< HEAD
       if (!list) return;
-=======
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
       const li = document.createElement('li');
       li.textContent = `${c.code} - ${c.category_name}`;
       list.appendChild(li);
@@ -146,11 +132,7 @@
 
       // Product ID (use product_code if exists)
       const code = p.product_code || ('P' + String(p.id).padStart(3, '0'));
-<<<<<<< HEAD
       const catDisplay = p.category_name || '';
-=======
-      const catDisplay = (p.category_code ? (p.category_code + ' - ' + p.category_name) : (p.category_name || ''));
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
       // Correct stock classification: 0 -> unavailable, <=20 -> low, <=40 -> medium, >40 -> high
       const stockNum = Number(p.stock) || 0;
@@ -173,34 +155,17 @@
         statusText = 'High';
       }
 
-<<<<<<< HEAD
       tr.innerHTML = `
         <td class="col-id">${esc(code)}</td>
         <td class="col-name"><span class="product-name">${esc(p.product_name)}</span></td>
         <td class="col-cat"><span class="product-category">${esc(catDisplay)}</span></td>
-        <td class="col-price">₱${Number(p.price).toFixed(2)}</td>
+        <td class="col-price">â‚±${Number(p.price).toFixed(2)}</td>
         <td class="col-stock stock-cell ${stockClass}">${esc(p.stock)}</td>
         <td class="col-date"><span class="product-date">${esc(p.date_added)}</span></td>
         <td class="col-status" style="white-space:nowrap;">${statusBadgeHtml(statusText)}</td>
         <td class="col-actions">
           <button class="action-button edit-button products-edit-button">Edit</button>
           <button class="action-button delete-button products-delete-button">Delete</button>
-=======
-      // use the SAME stockClass for the status cell so text color matches the number
-      const statusClass = stockClass;
-
-      tr.innerHTML = `
-        <td class="col-id">${esc(code)}</td>
-        <td class="col-name">${esc(p.product_name)}</td>
-        <td class="col-cat">${esc(catDisplay)}</td>
-        <td class="col-price">₱${Number(p.price).toFixed(2)}</td>
-        <td class="col-stock ${stockClass}">${esc(p.stock)}</td>
-        <td class="col-date">${esc(p.date_added)}</td>
-        <td class="col-status ${statusClass}">${statusText}</td>
-        <td class="col-actions">
-          <button class="action-button edit-button">Edit</button>
-          <button class="action-button delete-button">Delete</button>
->>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         </td>
       `;
       // attach handlers
