@@ -38,6 +38,7 @@
     return "stock-high";
   }
   function statusInfo(stock) {
+<<<<<<< HEAD
     return Number(stock) === 0
       ? { text: "Unavailable", cls: "status-unavailable" }
       : { text: "Available", cls: "status-available" };
@@ -49,6 +50,9 @@
     const color = isUnavailable ? "#b91c1c" : "#166534";
 
     return `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;line-height:1.1;background:${background};color:${color};white-space:nowrap;">${escapeHtml(status.text)}</span>`;
+=======
+    return Number(stock) === 0 ? { text: "Unavailable", cls: "status-unavailable" } : { text: "Available", cls: "status-available" };
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   }
 
   /* --- internal state --- */
@@ -89,9 +93,15 @@
         <td>${escapeHtml(name)}</td>
         <td>${escapeHtml(category)}</td>
         <td>${fmtPrice(price)}</td>
+<<<<<<< HEAD
         <td class="stock-cell ${stockClass(stock)}">${stock === 0 ? "Unavailable" : escapeHtml(String(stock))}</td>
         <td>${escapeHtml(fmtDate(dateAdded))}</td>
         <td style="white-space:nowrap;">${statusBadgeHtml(status)}</td>
+=======
+        <td class="${stockClass(stock)}">${stock === 0 ? "Unavailable" : escapeHtml(String(stock))}</td>
+        <td>${escapeHtml(fmtDate(dateAdded))}</td>
+        <td class="${status.cls}">${status.text}</td>
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
       `;
       frag.appendChild(tr);
     }

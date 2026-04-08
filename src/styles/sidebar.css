@@ -161,6 +161,7 @@ body.dark-mode .sidebar a.active {
 body.dark-mode .sidebar a.logout:hover {
     background-color: #2a2a2a;
 }
+<<<<<<< HEAD
 
 .sidebar-loading-overlay {
     position: fixed;
@@ -206,3 +207,5 @@ body.dark-mode .sidebar a.logout:hover {
         transform: rotate(360deg);
     }
 }
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e

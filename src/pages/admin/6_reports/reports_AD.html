@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Low Stock Manager</title>
+<<<<<<< HEAD
   <style>
     .status-badge {
       display: inline-flex;
@@ -46,12 +47,33 @@
       opacity: 0.92;
     }
   </style>
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 </head>
 <body>
   <div class="content-section">
     <h2>Low Stock Reports</h2>
 
+<<<<<<< HEAD
     <div class="reports-toolbar"></div>
+=======
+    <div class="filter-section" style="display:flex; gap:12px; align-items:center;">
+      <div>
+        <label for="startDate">From</label><br>
+        <input type="date" id="startDate" class="filter-input" />
+      </div>
+
+      <div>
+        <label for="endDate">To</label><br>
+        <input type="date" id="endDate" class="filter-input" />
+      </div>
+
+      <div>
+        <label>&nbsp;</label><br>
+        <button id="generateBtn" class="filter-button">Check Low Stock</button>
+      </div>
+    </div>
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     <div id="tableWrapper">
       <table class="data-table" id="reportTable" aria-label="Low Stock Table">
@@ -72,6 +94,7 @@
   </div>
 
   <script src="./reports_AD.js"></script>
+<<<<<<< HEAD
   <script>
     function decorateReportStatuses() {
       try {
@@ -96,5 +119,7 @@
 
     setInterval(decorateReportStatuses, 300);
   </script>
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 </body>
 </html>

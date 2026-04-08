@@ -13,6 +13,7 @@
     .stock-medium { color: #ff9800; }
     .stock-high { color: #2e7d32; }
 
+<<<<<<< HEAD
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -90,13 +91,27 @@
     .product-date {
       color: #6b7280;
     }
+=======
+    .status-available { color: #2e7d32; font-weight: 600; }
+    .status-unavailable { color: #c62828; font-weight: 600; }
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   </style>
 </head>
 <body>
   <div class="content-section">
     <h2>Products</h2>
     <!-- This button calls the JS function expected by products_AD.js -->
+<<<<<<< HEAD
     <button class="add-button products-add-button" onclick="openProductModal()">Add New Product</button>
+=======
+    <button class="add-button" onclick="openProductModal()">Add New Product</button>
+
+    <!-- Category list area (optional) -->
+    <div class="category-list" style="margin-bottom: 12px;">
+      <h3>Available Categories</h3>
+      <ul id="categoryListDisplay"></ul>
+    </div>
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     <!-- Modal: matches JS (form uses addProduct(event) and hidden productId exists) -->
     <div id="productModal" class="modal" style="display:none;" aria-hidden="true">
@@ -156,6 +171,7 @@
   </div>
 
   <!-- This script tag should load the products_AD.js that expects the structure above -->
+<<<<<<< HEAD
   <script>
     function decorateAdminProductStatuses() {
       try {
@@ -180,5 +196,7 @@
 
     setInterval(decorateAdminProductStatuses, 300);
   </script>
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 </body>
 </html>

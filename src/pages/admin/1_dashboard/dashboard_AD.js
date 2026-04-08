@@ -96,6 +96,7 @@
     });
   }
 
+<<<<<<< HEAD
   function normalizeTransactions(json) {
     if (!json) return [];
     if (Array.isArray(json.transactions)) return json.transactions;
@@ -198,6 +199,8 @@
     });
   }
 
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   // ---------- loaders ----------
 
   async function loadProductsSummary() {
@@ -263,6 +266,7 @@
     const dd = String(now.getDate()).padStart(2,'0');
 
     const today = `${yyyy}-${mm}-${dd}`;
+<<<<<<< HEAD
     const urlToday = buildUrl(ENDPOINT_TRANSACTIONS + '?date=' + encodeURIComponent(today));
     const urlAll = buildUrl(ENDPOINT_TRANSACTIONS);
 
@@ -275,6 +279,16 @@
       const rawDate = String(t.transaction_date || t.date_time || t.date || '');
       return rawDate.indexOf(monthPrefix) === 0;
     });
+=======
+    const month = `${yyyy}-${mm}`;
+
+    const urlToday = buildUrl(ENDPOINT_TRANSACTIONS + '?date=' + encodeURIComponent(today));
+    const urlMonth = buildUrl(ENDPOINT_TRANSACTIONS + '?month=' + encodeURIComponent(month));
+
+    const [todayJson, monthJson] = await Promise.all([fetchJsonSafe(urlToday), fetchJsonSafe(urlMonth)]);
+    const todayTx = (todayJson && Array.isArray(todayJson.transactions)) ? todayJson.transactions : (todayJson && Array.isArray(todayJson.data) ? todayJson.data : (Array.isArray(todayJson) ? todayJson : []));
+    const monthTx = (monthJson && Array.isArray(monthJson.transactions)) ? monthJson.transactions : (monthJson && Array.isArray(monthJson.data) ? monthJson.data : (Array.isArray(monthJson) ? monthJson : []));
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     const todayTotal = (todayTx || []).reduce((s, t) => s + (Number(t.total_amount ?? t.total ?? t.amount ?? 0) || 0), 0);
     const monthTotal = (monthTx || []).reduce((s, t) => s + (Number(t.total_amount ?? t.total ?? t.amount ?? 0) || 0), 0);
@@ -294,8 +308,11 @@
       highestSale: money(highest)
     });
 
+<<<<<<< HEAD
     renderMonthlySalesHistogram(allTx);
 
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     console.log('[dashboard_AD] sales: today=', todayTotal, 'month=', monthTotal, 'txns=', monthCount);
   }
 
@@ -313,7 +330,10 @@
 
   function init() {
     // small delay to allow SPA fragment injection
+<<<<<<< HEAD
     bindNextPageButton();
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     setTimeout(startDashboard, 40);
   }
 

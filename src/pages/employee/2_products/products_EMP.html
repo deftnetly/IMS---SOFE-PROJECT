@@ -7,6 +7,7 @@
         .stock-medium { color: #ff9800; }
         .stock-high { color: #2e7d32; }
 
+<<<<<<< HEAD
         .status-badge {
         display: inline-flex;
         align-items: center;
@@ -23,6 +24,14 @@
         .status-unavailable {
         background: #fee2e2;
         color: #b91c1c; }
+=======
+        .status-available {
+        color: #2e7d32;  
+        font-weight: 600; }
+        .status-unavailable {
+        color: #c62828;
+        font-weight: 600; }
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     </style>
 
 <div class="content-section">
@@ -102,6 +111,7 @@ document.addEventListener("sectionLoaded", (e) => {
         mo.observe(document.body, { childList: true, subtree: true });
     } catch(e) {}
 })();
+<<<<<<< HEAD
 
 function decorateEmployeeProductStatuses() {
     try {
@@ -121,4 +131,6 @@ function decorateEmployeeProductStatuses() {
 }
 
 setInterval(decorateEmployeeProductStatuses, 300);
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 </script>

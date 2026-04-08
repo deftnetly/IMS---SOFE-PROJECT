@@ -75,11 +75,16 @@
         const stock = Number(it.current_stock);
         const status = escapeHtml(it.status);
 
+<<<<<<< HEAD
       let stockColor = stock === 0 ? "#d32f2f"
+=======
+        let stockColor = stock === 0 ? "#d32f2f"
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
                      : stock <= 20 ? "#d32f2f"
                      : stock <= 40 ? "#ff9800"
                      : "#2e7d32";
 
+<<<<<<< HEAD
         let statusClass = "status-available";
         if (status === "Unavailable" || stock === 0) {
           statusClass = "status-unavailable";
@@ -88,13 +93,22 @@
         } else if (status === "Low") {
           statusClass = "status-low";
         }
+=======
+        let statusColor = status === "Unavailable" || stock === 0 ? "#d32f2f"
+                        : status === "Low" ? "#ff9800"
+                        : "#2e7d32";
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
         html += `
           <tr>
             <td>${cat}</td>
             <td>${name}</td>
             <td style="color:${stockColor}; font-weight:600">${stock}</td>
+<<<<<<< HEAD
             <td><span class="status-badge ${statusClass}">${status}</span></td>
+=======
+            <td style="color:${statusColor}; font-weight:600">${status}</td>
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
           </tr>`;
       });
 
@@ -174,8 +188,11 @@
     window.location.href = "../3_checkout/checkout_EMP.html";
   }
 
+<<<<<<< HEAD
   window.goToCheckout = goToCheckout;
 
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   function attachCheckoutButton() {
     const btn = document.getElementById("checkoutBtn");
     if (btn) btn.addEventListener("click", goToCheckout);

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <style>
         .employee-dashboard {
             display: flex;
@@ -110,6 +111,11 @@
 </head>
 <body>
     <div id="dashboard" class="content-section employee-dashboard">
+=======
+</head>
+<body>
+    <div id="dashboard" class="content-section">
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
         <h2>Dashboard</h2>
 
         <!-- Cards Section -->
@@ -131,6 +137,7 @@
         
 
         <!-- Low Stock Items Section -->
+<<<<<<< HEAD
         <section class="dashboard-panel">
             <div class="dashboard-panel-header">
                 <h2>Low Stock Items</h2>
@@ -157,6 +164,30 @@
                 <button class="dashboard-checkout-btn" id="checkoutBtn" onclick="window.goToCheckout && window.goToCheckout()">Go to Checkout</button>
             </div>
         </section>
+=======
+        <h2 style="margin-top: 24px;">Low Stock Items</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Product Name</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="lowStockList">
+                <tr>
+                    <td colspan="4" style="text-align:center; color:gray;">Loading low stock items...</td>
+                </tr>
+            </tbody>
+        </table>
+
+            <!-- Quick Action -->
+            <div style="margin-top: 30px; text-align: right;">
+                <button class="submit-button" id="checkoutBtn">Go to Checkout</button>
+            </div>
+        <div style="height: 50px;"></div>
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     </div>
 
     <!-- External JS -->

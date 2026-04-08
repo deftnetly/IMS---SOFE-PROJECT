@@ -25,6 +25,7 @@
         <div class="product-section">
           <div class="product-section-header">
             <div class="product-top-row">
+<<<<<<< HEAD
               <div class="filter-cluster">
                 <div class="product-count"><span id="productCount">0</span> products</div>
                 <select id="productCategoryFilter" aria-label="Filter category">
@@ -36,6 +37,19 @@
                 <div class="quick-add">
                   <input type="text" id="productSearch" placeholder="Product name or ID..." />
                   <button class="submit-button" id="quickAddButton" type="button" onclick="addToCart()">Add to Cart</button>
+=======
+              <div class="product-count"><span id="productCount">0</span> products</div>
+              <div class="product-controls-row">
+                <select id="productCategoryFilter" aria-label="Filter category">
+                  <option value="all">All categories</option>
+                </select>
+
+                <!-- single quick-add control -->
+                <div class="quick-add">
+                  <input type="text" id="productSearch" placeholder="Product name or ID..." />
+                  <input type="number" id="productQty" placeholder="Qty" min="1" value="1" />
+                  <button class="submit-button" onclick="addToCart()">Add to Cart</button>
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
                 </div>
               </div>
             </div>

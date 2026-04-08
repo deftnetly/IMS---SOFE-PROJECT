@@ -6,6 +6,7 @@
 
   <style>
     .panel { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+<<<<<<< HEAD
     .controls {
       margin-bottom: 18px;
       display: inline-flex;
@@ -219,6 +220,13 @@
         width: 100%;
       }
     }
+=======
+    .controls { margin-bottom:14px; display:flex; gap:8px; align-items:center; }
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table thead th { background:#f2ead8; padding:14px; text-align:left; }
+    .data-table td { padding:14px; border-bottom:1px solid #eee; }
+    .view-btn, .remove-btn { padding:4px 8px; }
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     .modal-wrap {
       display:none;
@@ -249,6 +257,7 @@
       <h2 style="color:#e96f00; margin-top:0;">Transactions</h2>
 
       <div class="controls">
+<<<<<<< HEAD
         <input id="dateFilter" class="filter-input" type="date" />
         <div class="employee-filter" id="employeeFilterControl">
           <button type="button" id="employeeFilterTrigger" class="employee-filter-trigger">
@@ -262,6 +271,14 @@
         </div>
         <button onclick="applyFilters()" class="filter-action filter-apply">Apply Filter</button>
         <button onclick="clearFilters()" class="filter-action filter-reset">Reset</button>
+=======
+        <input id="dateFilter" type="date" style="padding:6px 8px;" />
+        <select id="employeeFilter" style="padding:6px 8px;">
+          <option value="">All Employees</option>
+        </select>
+        <button onclick="applyFilters()" style="background:#4CAF50;color:#fff;border:0;padding:7px 12px;border-radius:4px;">Apply Filter</button>
+        <button onclick="clearFilters()" style="background:#f44336;color:#fff;border:0;padding:7px 12px;border-radius:4px;">Reset</button>
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
       </div>
 
       <table class="data-table">

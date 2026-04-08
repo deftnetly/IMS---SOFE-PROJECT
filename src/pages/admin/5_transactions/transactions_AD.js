@@ -3,11 +3,19 @@
   'use strict';
 
   // duplicate guard
+<<<<<<< HEAD
   if (window.__transactionsAD_fixed_v5) {
     console.log('transactions_AD.js: already loaded (v5).');
     return;
   }
   window.__transactionsAD_fixed_v5 = true;
+=======
+  if (window.__transactionsAD_fixed_v2) {
+    console.log('transactions_AD.js: already loaded (v2).');
+    return;
+  }
+  window.__transactionsAD_fixed_v2 = true;
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
   // Config
   var MARKER_ID = 'transactionsPage';
@@ -15,7 +23,10 @@
   var LIST_API = '/smart-inventory/src/pages/employee/4_transactions/get_transactions.php';
   var DETAILS_API = '/smart-inventory/src/pages/employee/4_transactions/get_transaction_details.php';
   var DELETE_API = '/smart-inventory/src/pages/admin/5_transactions/delete_transaction.php';
+<<<<<<< HEAD
   var EMPLOYEES_API = '/smart-inventory/src/pages/admin/4_employees/get_employees.php';
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
   // Helpers
   function esc(s) {
@@ -30,6 +41,7 @@
     if (!tb) return;
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:' + (color || 'gray') + ';padding:14px">' + esc(msg) + '</td></tr>';
   }
+<<<<<<< HEAD
   function populateEmployeeFilter(items) {
     var select = document.getElementById('employeeFilter');
     if (!select) return;
@@ -128,6 +140,8 @@
 
     return '<button class="' + cls + '" data-txn="' + txn + '" style="border:none;border-radius:999px;padding:8px 16px;background:' + background + ';color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 8px 18px ' + shadow + ';transition:transform 0.18s ease,box-shadow 0.18s ease,opacity 0.18s ease;">' + label + '</button>';
   }
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
   // Attach handlers for rows
   function attachRowHandlers(tb) {
@@ -290,9 +304,15 @@
           '<td>' + txn + '</td>',
           '<td>' + date + '</td>',
           '<td>' + emp + '</td>',
+<<<<<<< HEAD
           '<td style="text-align:center">' + actionButtonHtml('view', txn) + '</td>',
           '<td style="text-align:right">₱' + total + '</td>',
           '<td style="text-align:center">' + actionButtonHtml('remove', txn) + '</td>',
+=======
+          '<td style="text-align:center"><button class="view-btn" data-txn="' + txn + '">View</button></td>',
+          '<td style="text-align:right">₱' + total + '</td>',
+          '<td style="text-align:center"><button class="remove-btn" data-txn="' + txn + '">Remove</button></td>',
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
           '</tr>'
         );
       });
@@ -334,8 +354,11 @@
 
   // Initial run
   try {
+<<<<<<< HEAD
     bindEmployeeFilterMenu();
     loadEmployeeFilterOptions();
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     if (typeof window.adminLoadTransactions === 'function') window.adminLoadTransactions();
     else renderListFallback();
   } catch (e) {
@@ -353,10 +376,14 @@
     var ef = document.getElementById('employeeFilter');
 
     if (df) df.value = '';
+<<<<<<< HEAD
     if (ef) {
       ef.selectedIndex = 0;
       renderEmployeeFilterMenu();
     }
+=======
+    if (ef) ef.selectedIndex = 0;
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     adminLoadTransactions({});
   };

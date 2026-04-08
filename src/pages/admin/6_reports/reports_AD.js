@@ -57,6 +57,7 @@
     tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align:center">${escapeHtml(String(msg))}</td></tr>`;
   }
 
+<<<<<<< HEAD
   function statusBadgeClass(status) {
     if (status === 'Unavailable') return 'status-unavailable';
     if (status === 'Critical') return 'status-critical';
@@ -103,6 +104,8 @@
     return `<button class="view-btn" data-id="${escapeHtml(productId)}" style="border:none;border-radius:999px;padding:8px 16px;background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 8px 18px rgba(234,88,12,0.18);transition:transform 0.18s ease,box-shadow 0.18s ease,opacity 0.18s ease;">View</button>`;
   }
 
+=======
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
     function render(items) {
         const tbody = document.querySelector('#reportTable tbody');
         if (!tbody) return;
@@ -112,6 +115,16 @@
         }
         let html = '';
         for (const it of items) {
+<<<<<<< HEAD
+=======
+            // colour mapping for the status and optional stock cell
+            let statusColor = 'black';
+            if (it.status === 'Unavailable') statusColor = '#6b6363ff'; // gray
+            else if (it.status === 'Critical') statusColor = '#d32f2f'; // red
+            else if (it.status === 'Low') statusColor = '#ecbf43ff'; // yellow-orange
+            else if (it.status === 'Available') statusColor = '#36993bff'; // green
+
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
             // stock color: unavailable red, <=20 red, <=40 orange, >40 green
             let stockColor = '#000';
             if (it.current_stock === 0) stockColor = '#6b6363ff';
@@ -124,6 +137,7 @@
             <td>${escapeHtml(it.product_name)}</td>
             <td>${escapeHtml(it.category)}</td>
             <td style="color:${stockColor}; font-weight:600">${escapeHtml(String(it.current_stock))}</td>
+<<<<<<< HEAD
             <td style="white-space:nowrap;">${statusBadgeHtml(it.status)}</td>
             <td>${escapeHtml(String(it.sold_in_range || 0))}</td>
             <td>${viewButtonHtml(it.product_id)}</td>
@@ -131,6 +145,14 @@
         }
         tbody.innerHTML = html;
         decorateRenderedReportStatuses();
+=======
+            <td style="color:${statusColor}; font-weight:600">${escapeHtml(it.status)}</td>
+            <td>${escapeHtml(String(it.sold_in_range || 0))}</td>
+            <td><button class="view-btn" data-id="${escapeHtml(it.product_id)}">View</button></td>
+            </tr>`;
+        }
+        tbody.innerHTML = html;
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
         tbody.querySelectorAll('.view-btn').forEach(b => b.onclick = (ev) => openModal(b.dataset.id, items));
         }
@@ -163,6 +185,7 @@
     if (modal) modal.style.display = 'none';
   }
 
+<<<<<<< HEAD
   function removeLegacyControls() {
     try {
       document.querySelectorAll('.filter-section').forEach((section) => section.remove());
@@ -180,6 +203,11 @@
   async function generate() {
     const start = '';
     const end = '';
+=======
+  async function generate() {
+    const start = (document.getElementById('startDate')||{}).value || '';
+    const end   = (document.getElementById('endDate')||{}).value || '';
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
 
     // we allow empty range (server will still return low-stock items based on internal thresholds)
     console.log('[LowStock] generate, start=', start, 'end=', end);
@@ -229,6 +257,7 @@
   }
 
   function bind() {
+<<<<<<< HEAD
     removeLegacyControls();
     ensureTable();
     setHeaders();
@@ -238,6 +267,15 @@
     generate();
     setTimeout(removeLegacyControls, 50);
     setTimeout(removeLegacyControls, 250);
+=======
+    ensureTable();
+    setHeaders();
+    clearTableMessage('No results. Choose range and click "Check Low Stock".');
+    const gen = document.getElementById('generateBtn');
+    if (gen) gen.onclick = generate;
+    const close = document.getElementById('closeModal');
+    if (close) close.onclick = closeModal;
+>>>>>>> 8f8842294032db287e642deef9d19e5986b2269e
   }
 
   document.addEventListener('DOMContentLoaded', bind);
