@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <style>
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999; }
+    .modal-content { background:#fff; margin:6% auto; padding:20px; border-radius:10px; width:90%; max-width:600px; }
+    .close { float:right; font-size:20px; cursor:pointer; }
+    .form-group { margin-bottom:12px; }
+    .form-buttons { display:flex; justify-content:flex-end; gap:8px; }
+    .data-table { width:100%; border-collapse:collapse; margin-top:20px; }
+    .data-table th, .data-table td { border:1px solid #ddd; padding:8px; }
+    .small-btn { padding:4px 6px; font-size:12px; }
+    .action-button { padding:6px 8px; cursor:pointer; }
+  </style>
+</head>
+
+<body>
+  <div class="content-section">
+    <h2>Employees</h2>
+    <button class="add-button" onclick="openEmployeeModalForAdd()">Add New Employee</button>
+
+    <!-- MODAL -->
+    <div id="employeeModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEmployeeModal()">&times;</span>
+        <h2 id="modalTitle">Add Employee</h2>
+
+        <form id="employeeForm">
+          <input type="hidden" id="employeeCode" name="employee_code" />
+
+          <div class="form-group">
+            <label for="employeeName">Full Name:</label>
+            <input type="text" id="employeeName" name="full_name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" required />
+          </div>
+
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <div style="display:flex; gap:6px;">
+              <input type="password" id="password" name="password" />
+              <button type="button" id="togglePassword" class="small-btn">👁 Show</button>
+            </div>
+            <small>Password must be at least 8 characters and include an uppercase letter.</small>
+          </div>
+
+          <div class="form-buttons">
+            <button type="button" class="cancel-button" onclick="closeEmployeeModal()">Cancel</button>
+            <button type="submit" class="submit-button">Add Employee</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Employee Code</th>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Username</th>
+          <th>Password</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="employeesTbody"></tbody>
+    </table>
+  </div>
+
+</body>
+</html>

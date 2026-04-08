@@ -1,0 +1,20 @@
+{
+  "name": "inventory-management-system",
+  "version": "1.0.0",
+  "description": "A web application for managing inventory.",
+  "main": "index.php",
+  "scripts": {
+    "start": "C:\\xampp\\php\\php.exe -S localhost:8000 -t .",
+    "build": "echo 'Build step not defined'",
+    "test": "echo 'Test step not defined'"
+  },
+  "keywords": [
+    "inventory",
+    "management",
+    "system"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

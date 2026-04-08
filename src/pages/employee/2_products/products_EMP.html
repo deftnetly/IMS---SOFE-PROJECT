@@ -1,0 +1,95 @@
+<!-- products_EMP.html (SAFE FRAGMENT) -->
+
+<style>
+        .stock-cell { font-weight: 600; }
+        .stock-unavailable { color: #383434; }
+        .stock-low { color: #c62828; }
+        .stock-medium { color: #ff9800; }
+        .stock-high { color: #2e7d32; }
+
+        .status-available {
+        color: #2e7d32;  
+        font-weight: 600; }
+        .status-unavailable {
+        color: #c62828;
+        font-weight: 600; }
+    </style>
+
+<div class="content-section">
+    <h2>Products (View Only)</h2>
+    <p style="color: gray; margin-bottom: 15px;">
+        You can browse product details but cannot modify them.
+    </p>
+
+    <table class="data-table products-table">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Price (₱)</th>
+                <th>Stock</th>
+                <th>Date Added</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Products will be loaded here by products_EMP.js -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+/* === RUN EMPLOYEE PRODUCT INITIALIZER === */
+function runEmployeeInit() {
+    try {
+        if (typeof initializeProducts === "function") return initializeProducts();
+        if (typeof initializeEmployeeProducts === "function") return initializeEmployeeProducts();
+
+        if (typeof renderEmployeeProducts === "function") {
+            try { return renderEmployeeProducts(); } catch(err){ console.warn(err); }
+        }
+        if (typeof loadEmployeeProducts === "function") {
+            try { return loadEmployeeProducts(); } catch(err){ console.warn(err); }
+        }
+
+        // retry shortly in case script loads after fragment
+        setTimeout(() => {
+            try {
+                if (typeof loadEmployeeProducts === "function") loadEmployeeProducts();
+                else if (typeof initializeProducts === "function") initializeProducts();
+            } catch(e){ console.warn("Delayed re-init failed:", e); }
+        }, 120);
+
+    } catch(err) {
+        console.warn("runEmployeeInit error:", err);
+    }
+}
+
+/* Try loading immediately (script may already be in memory) */
+setTimeout(runEmployeeInit, 60);
+
+/* SPA EVENT LISTENER (Employee.html dispatches this) */
+document.addEventListener("sectionLoaded", (e) => {
+    try {
+        const sec = e?.detail?.section?.toLowerCase() || "";
+        if (sec.includes("product")) runEmployeeInit();
+    } catch(err) {
+        console.warn("sectionLoaded handler failed:", err);
+    }
+});
+
+/* FALLBACK: load when table appears (very rare but safe) */
+(function(){
+    if (typeof loadEmployeeProducts === "function") return;
+    const mo = new MutationObserver((mutations, observer) => {
+        if (document.querySelector(".data-table tbody")) {
+            runEmployeeInit();
+            setTimeout(() => { try { observer.disconnect(); }catch(e){} }, 800);
+        }
+    });
+    try {
+        mo.observe(document.body, { childList: true, subtree: true });
+    } catch(e) {}
+})();
+</script>
