@@ -3,11 +3,11 @@
   'use strict';
 
   // duplicate guard
-  if (window.__transactionsAD_fixed_v2) {
-    console.log('transactions_AD.js: already loaded (v2).');
+  if (window.__transactionsAD_fixed_v5) {
+    console.log('transactions_AD.js: already loaded (v5).');
     return;
   }
-  window.__transactionsAD_fixed_v2 = true;
+  window.__transactionsAD_fixed_v5 = true;
 
   // Config
   var MARKER_ID = 'transactionsPage';
@@ -15,6 +15,7 @@
   var LIST_API = '/smart-inventory/src/pages/employee/4_transactions/get_transactions.php';
   var DETAILS_API = '/smart-inventory/src/pages/employee/4_transactions/get_transaction_details.php';
   var DELETE_API = '/smart-inventory/src/pages/admin/5_transactions/delete_transaction.php';
+  var EMPLOYEES_API = '/smart-inventory/src/pages/admin/4_employees/get_employees.php';
 
   // Helpers
   function esc(s) {
@@ -28,6 +29,104 @@
   function setMessage(tb, msg, color) {
     if (!tb) return;
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:' + (color || 'gray') + ';padding:14px">' + esc(msg) + '</td></tr>';
+  }
+  function populateEmployeeFilter(items) {
+    var select = document.getElementById('employeeFilter');
+    if (!select) return;
+
+    var previous = select.value || '';
+    select.innerHTML = '<option value="">All Employees</option>';
+
+    (items || []).forEach(function (emp) {
+      var name = String(emp.full_name || emp.employee_name || '').trim();
+      if (!name) return;
+      var option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+
+    if (previous) select.value = previous;
+    renderEmployeeFilterMenu();
+  }
+
+  function renderEmployeeFilterMenu() {
+    var select = document.getElementById('employeeFilter');
+    var menu = document.getElementById('employeeFilterMenu');
+    var label = document.getElementById('employeeFilterLabel');
+    if (!select || !menu || !label) return;
+
+    var current = select.value || '';
+    label.textContent = current || 'All Employees';
+    menu.innerHTML = '';
+
+    Array.prototype.forEach.call(select.options, function (opt) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'employee-filter-option' + (opt.value === current ? ' is-active' : '');
+      btn.textContent = opt.textContent;
+      btn.setAttribute('data-value', opt.value);
+      btn.onclick = function () {
+        select.value = opt.value;
+        label.textContent = opt.textContent;
+        renderEmployeeFilterMenu();
+        closeEmployeeFilterMenu();
+      };
+      menu.appendChild(btn);
+    });
+  }
+
+  function closeEmployeeFilterMenu() {
+    var control = document.getElementById('employeeFilterControl');
+    if (control) control.classList.remove('open');
+  }
+
+  function bindEmployeeFilterMenu() {
+    var control = document.getElementById('employeeFilterControl');
+    var trigger = document.getElementById('employeeFilterTrigger');
+    var select = document.getElementById('employeeFilter');
+    if (!control || !trigger || !select || trigger.__bound) return;
+
+    trigger.__bound = true;
+    trigger.onclick = function () {
+      control.classList.toggle('open');
+      renderEmployeeFilterMenu();
+    };
+
+    document.addEventListener('click', function (ev) {
+      if (!control.contains(ev.target)) closeEmployeeFilterMenu();
+    });
+
+    select.addEventListener('change', renderEmployeeFilterMenu);
+    renderEmployeeFilterMenu();
+  }
+
+  function loadEmployeeFilterOptions() {
+    var select = document.getElementById('employeeFilter');
+    if (!select) return Promise.resolve();
+
+    return fetch(EMPLOYEES_API, { credentials: 'same-origin', cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) {
+        var rows = (j && (j.employees || j.data)) || [];
+        populateEmployeeFilter(rows);
+      })
+      .catch(function (err) {
+        console.error('employee filter load error', err);
+        populateEmployeeFilter([]);
+      });
+  }
+
+  function actionButtonHtml(kind, txn) {
+    var isView = kind === 'view';
+    var cls = isView ? 'view-btn' : 'remove-btn';
+    var label = isView ? 'View' : 'Remove';
+    var shadow = isView ? 'rgba(234,88,12,0.18)' : 'rgba(220,38,38,0.18)';
+    var background = isView
+      ? 'linear-gradient(135deg,#f97316 0%,#ea580c 100%)'
+      : 'linear-gradient(135deg,#ef4444 0%,#dc2626 100%)';
+
+    return '<button class="' + cls + '" data-txn="' + txn + '" style="border:none;border-radius:999px;padding:8px 16px;background:' + background + ';color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 8px 18px ' + shadow + ';transition:transform 0.18s ease,box-shadow 0.18s ease,opacity 0.18s ease;">' + label + '</button>';
   }
 
   // Attach handlers for rows
@@ -191,9 +290,9 @@
           '<td>' + txn + '</td>',
           '<td>' + date + '</td>',
           '<td>' + emp + '</td>',
-          '<td style="text-align:center"><button class="view-btn" data-txn="' + txn + '">View</button></td>',
+          '<td style="text-align:center">' + actionButtonHtml('view', txn) + '</td>',
           '<td style="text-align:right">₱' + total + '</td>',
-          '<td style="text-align:center"><button class="remove-btn" data-txn="' + txn + '">Remove</button></td>',
+          '<td style="text-align:center">' + actionButtonHtml('remove', txn) + '</td>',
           '</tr>'
         );
       });
@@ -235,6 +334,8 @@
 
   // Initial run
   try {
+    bindEmployeeFilterMenu();
+    loadEmployeeFilterOptions();
     if (typeof window.adminLoadTransactions === 'function') window.adminLoadTransactions();
     else renderListFallback();
   } catch (e) {
@@ -252,7 +353,10 @@
     var ef = document.getElementById('employeeFilter');
 
     if (df) df.value = '';
-    if (ef) ef.selectedIndex = 0;
+    if (ef) {
+      ef.selectedIndex = 0;
+      renderEmployeeFilterMenu();
+    }
 
     adminLoadTransactions({});
   };

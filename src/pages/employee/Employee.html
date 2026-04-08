@@ -157,7 +157,8 @@
             document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
             // Build script path
-            const scriptSrc = `${folder}/${result.usedSection}.js`;
+            const scriptVersion = "20260409-employee-ui-3";
+            const scriptSrc = `${folder}/${result.usedSection}.js?v=${scriptVersion}`;
 
             // Check if script already exists (fixes duplicate loading + redeclare error)
             let existing = document.querySelector(`script[data-section][src="${scriptSrc}"]`);

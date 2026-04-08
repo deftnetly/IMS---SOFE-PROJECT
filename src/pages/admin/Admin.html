@@ -131,8 +131,98 @@
         window.dispatchEvent(new CustomEvent("sidebar:loading:end"));
     }
 
+    function decorateAdminReportStatusPills() {
+        try {
+            const rows = document.querySelectorAll("#reportTable tbody tr");
+            rows.forEach((row) => {
+                const statusCell = row.cells[4];
+                if (!statusCell) return;
+                const rawText = (statusCell.textContent || "").trim();
+                if (!rawText) return;
+                if (statusCell.querySelector("span")) return;
+
+                let background = "#dcfce7";
+                let color = "#166534";
+                const key = rawText.toLowerCase();
+
+                if (key === "unavailable") {
+                    background = "#fee2e2";
+                    color = "#b91c1c";
+                } else if (key === "critical") {
+                    background = "#fef2f2";
+                    color = "#991b1b";
+                } else if (key === "low") {
+                    background = "#fff7ed";
+                    color = "#c2410c";
+                }
+
+                statusCell.style.whiteSpace = "nowrap";
+                statusCell.innerHTML = `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;line-height:1.1;background:${background};color:${color};white-space:nowrap;">${rawText}</span>`;
+            });
+        } catch (err) {
+            console.warn("decorateAdminReportStatusPills failed", err);
+        }
+    }
+
+    function cleanupAdminReportsControls() {
+        try {
+            document.querySelectorAll('.filter-section').forEach((section) => {
+                section.style.display = 'none';
+            });
+            document.querySelectorAll('#generateBtn, #startDate, #endDate').forEach((el) => {
+                el.style.display = 'none';
+                el.remove();
+            });
+            document.querySelectorAll('label[for="startDate"], label[for="endDate"]').forEach((label) => {
+                label.style.display = 'none';
+            });
+            document.querySelectorAll('#generateBtn, #startDate, #endDate').forEach((el) => el.remove());
+            document.querySelectorAll('#reportTable').forEach(() => {
+                document.querySelectorAll('.filter-section').forEach((section) => section.remove());
+                document.querySelectorAll('label[for="startDate"], label[for="endDate"]').forEach((label) => {
+                    const wrapper = label.closest('div');
+                    if (wrapper) wrapper.remove();
+                    else label.remove();
+                });
+            });
+        } catch (err) {
+            console.warn("cleanupAdminReportsControls failed", err);
+        }
+    }
+
+    function decorateAdminTransactionButtons() {
+        try {
+            document.querySelectorAll('#txBody .view-btn').forEach((btn) => {
+                btn.style.border = 'none';
+                btn.style.borderRadius = '999px';
+                btn.style.padding = '8px 16px';
+                btn.style.background = 'linear-gradient(135deg,#f97316 0%,#ea580c 100%)';
+                btn.style.color = '#fff';
+                btn.style.fontWeight = '700';
+                btn.style.fontSize = '13px';
+                btn.style.cursor = 'pointer';
+                btn.style.boxShadow = '0 8px 18px rgba(234,88,12,0.18)';
+            });
+
+            document.querySelectorAll('#txBody .remove-btn').forEach((btn) => {
+                btn.style.border = 'none';
+                btn.style.borderRadius = '999px';
+                btn.style.padding = '8px 16px';
+                btn.style.background = 'linear-gradient(135deg,#ef4444 0%,#dc2626 100%)';
+                btn.style.color = '#fff';
+                btn.style.fontWeight = '700';
+                btn.style.fontSize = '13px';
+                btn.style.cursor = 'pointer';
+                btn.style.boxShadow = '0 8px 18px rgba(220,38,38,0.18)';
+            });
+        } catch (err) {
+            console.warn("decorateAdminTransactionButtons failed", err);
+        }
+    }
+
     async function loadContent(section, folder) {
         const container = document.getElementById("main-content");
+        const htmlVersion = '20260409-admin-html-5';
         if (typeof window.showSidebarLoading === "function") {
             window.showSidebarLoading();
         }
@@ -144,7 +234,7 @@
 
         // Try .html then .php (AD suffix preferred)
         async function tryFetch(sec, ext) {
-            const res = await fetch(`${folder}/${sec}.${ext}`);
+            const res = await fetch(`${folder}/${sec}.${ext}?v=${htmlVersion}`, { cache: 'no-store' });
             if (!res.ok) throw new Error(`Not found: ${folder}/${sec}.${ext}`);
             return { html: await res.text(), usedSection: sec };
         }
@@ -167,12 +257,13 @@
             // =============================
             //  Fixed & safe script loader
             // =============================
-            (function loadSectionScript(folder, usedSection) {
+(function loadSectionScript(folder, usedSection) {
+    const scriptVersion = '20260409-admin-ui-8';
 
     // --- SPECIAL CASE: if we loaded the employees_AD HTML, force employees_AD.js ---
     // This is minimal and isolated — it won't affect other pages.
     if (usedSection === 'employees_AD') {
-        const scriptPath = `${folder}/employees_AD.js`;
+        const scriptPath = `${folder}/employees_AD.js?v=${scriptVersion}`;
         const js = document.createElement('script');
         js.src = scriptPath;
         js.setAttribute('data-section', usedSection);
@@ -187,6 +278,18 @@
                     document.dispatchEvent(new Event("dashboardLoaded"));
                 }
                 setTimeout(() => {
+                    if (usedSection.startsWith("reports")) {
+                        cleanupAdminReportsControls();
+                        decorateAdminReportStatusPills();
+                        setTimeout(cleanupAdminReportsControls, 150);
+                        setTimeout(cleanupAdminReportsControls, 400);
+                        setTimeout(decorateAdminReportStatusPills, 250);
+                    }
+                    if (usedSection.startsWith("transactions")) {
+                        decorateAdminTransactionButtons();
+                        setTimeout(decorateAdminTransactionButtons, 150);
+                        setTimeout(decorateAdminTransactionButtons, 500);
+                    }
                     container.classList.add("visible");
                     notifySidebarLoadFinished();
                 }, 10);
@@ -206,13 +309,13 @@
 
     // --- ORIGINAL CANDIDATE LOGIC (preserved exactly) ---
     const candidates = [];
-    candidates.push(`${folder}/${usedSection}.js`);
+    candidates.push(`${folder}/${usedSection}.js?v=${scriptVersion}`);
 
     if (!usedSection.endsWith('_AD')) {
-        candidates.push(`${folder}/${usedSection}_AD.js`);
+        candidates.push(`${folder}/${usedSection}_AD.js?v=${scriptVersion}`);
     } else {
         const base = usedSection.replace(/_AD$/, '');
-        candidates.push(`${folder}/${base}.js`);
+        candidates.push(`${folder}/${base}.js?v=${scriptVersion}`);
     }
 
     let attempt = 0;
@@ -298,6 +401,5 @@
     </script>
 
     <script src="../../scripts/sidebar.js"></script>
-    <script src="/smart-inventory/src/pages/admin/5_transactions/transactions_AD.js"></script>
 </body>
 </html>

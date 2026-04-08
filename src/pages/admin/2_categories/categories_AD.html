@@ -3,12 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <style>
+        .categories-add-button {
+            border: none;
+            border-radius: 999px;
+            min-height: 44px;
+            padding: 0 18px;
+            background: #f97316;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(234, 88, 12, 0.12);
+            transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+        }
+        .categories-add-button:hover,
+        .categories-edit-button:hover,
+        .categories-delete-button:hover {
+            transform: translateY(-1px);
+        }
+        .categories-add-button:hover {
+            background: #ea580c;
+        }
+        .categories-add-button:active,
+        .categories-edit-button:active,
+        .categories-delete-button:active {
+            transform: translateY(0);
+            opacity: 0.94;
+        }
+        .categories-edit-button,
+        .categories-delete-button {
+            border: none;
+            border-radius: 999px;
+            min-height: 36px;
+            padding: 0 14px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+        }
+        .categories-edit-button {
+            background: #2196F3;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.18);
+        }
+        .categories-delete-button {
+            background: #f44336;
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.18);
+        }
+        .categories-name {
+            color: #7c2d12;
+            font-weight: 700;
+        }
+        .categories-description {
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
     <div class="content-section">
         <h2>Categories</h2>
-        <button class="add-button">Add New Category</button>
+        <button class="add-button categories-add-button">Add New Category</button>
 
         <!-- Modal -->
         <div id="categoryModal" class="modal" style="display:none;">

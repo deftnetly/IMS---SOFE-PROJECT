@@ -75,21 +75,26 @@
         const stock = Number(it.current_stock);
         const status = escapeHtml(it.status);
 
-        let stockColor = stock === 0 ? "#d32f2f"
+      let stockColor = stock === 0 ? "#d32f2f"
                      : stock <= 20 ? "#d32f2f"
                      : stock <= 40 ? "#ff9800"
                      : "#2e7d32";
 
-        let statusColor = status === "Unavailable" || stock === 0 ? "#d32f2f"
-                        : status === "Low" ? "#ff9800"
-                        : "#2e7d32";
+        let statusClass = "status-available";
+        if (status === "Unavailable" || stock === 0) {
+          statusClass = "status-unavailable";
+        } else if (status === "Critical") {
+          statusClass = "status-critical";
+        } else if (status === "Low") {
+          statusClass = "status-low";
+        }
 
         html += `
           <tr>
             <td>${cat}</td>
             <td>${name}</td>
             <td style="color:${stockColor}; font-weight:600">${stock}</td>
-            <td style="color:${statusColor}; font-weight:600">${status}</td>
+            <td><span class="status-badge ${statusClass}">${status}</span></td>
           </tr>`;
       });
 
@@ -168,6 +173,8 @@
     // fallback normal navigation
     window.location.href = "../3_checkout/checkout_EMP.html";
   }
+
+  window.goToCheckout = goToCheckout;
 
   function attachCheckoutButton() {
     const btn = document.getElementById("checkoutBtn");

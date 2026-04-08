@@ -3,7 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <style>
+        .dashboard-next-button {
+            border: none;
+            border-radius: 16px;
+            min-height: 46px;
+            padding: 0 20px;
+            background: #f97316;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(234, 88, 12, 0.12);
+            transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+        }
+        .dashboard-next-button:hover {
+            transform: translateY(-1px);
+            background: #ea580c;
+        }
+        .dashboard-next-button:active {
+            transform: translateY(0);
+            opacity: 0.94;
+        }
+        .sales-history-panel {
+            margin-top: 34px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .sales-history-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .sales-history-copy h3 {
+            margin: 0 0 6px;
+            color: #111827;
+            font-size: 18px;
+        }
+        .sales-history-copy p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .sales-history-note {
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .sales-chart {
+            display: flex;
+            gap: 16px;
+            align-items: end;
+            min-height: 240px;
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 4px;
+        }
+        .sales-chart-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+            border-radius: 12px;
+            background: #f9fafb;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .sales-bar-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-height: 220px;
+            flex: 0 0 74px;
+        }
+        .sales-bar-value {
+            color: #374151;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .sales-bar-track {
+            display: flex;
+            align-items: flex-end;
+            width: 100%;
+            max-width: 56px;
+            height: 160px;
+            padding: 3px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .sales-bar-fill {
+            width: 100%;
+            min-height: 10px;
+            border-radius: 6px;
+            background: #f97316;
+        }
+        .sales-bar-label {
+            color: #374151;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div id="dashboard" class="content-section">
@@ -25,7 +139,7 @@
             </div>
             <div class="card">
                 <h3>Today's Sales</h3>
-                <p id="todaysSales">₱0.00</p>
+                <p id="todaysSales">â‚±0.00</p>
             </div>
         </div>
 
@@ -34,7 +148,7 @@
         <div class="dashboard-cards">
             <div class="card">
                 <h3>Total Stock Value</h3>
-                <p id="totalStockValue">₱0.00</p>
+                <p id="totalStockValue">â‚±0.00</p>
             </div>
             <div class="card">
                 <h3>Low Stock Alerts</h3>
@@ -51,7 +165,7 @@
         <div class="dashboard-cards">
             <div class="card">
                 <h3>Total Sales</h3>
-                <p id="monthlySales">₱0.00</p>
+                <p id="monthlySales">â‚±0.00</p>
             </div>
             <div class="card">
                 <h3>Total Transactions</h3>
@@ -59,17 +173,31 @@
             </div>
             <div class="card">
                 <h3>Average Sale</h3>
-                <p id="averageSale">₱0.00</p>
+                <p id="averageSale">â‚±0.00</p>
             </div>
             <div class="card">
                 <h3>Highest Sale</h3>
-                <p id="highestSale">₱0.00</p>
+                <p id="highestSale">â‚±0.00</p>
+            </div>
+        </div>
+        
+        <div class="sales-history-panel">
+            <h2>Monthly Sales History</h2>
+            <div class="sales-history-head">
+                <div class="sales-history-copy">
+                    
+                    <p>Histogram view of recorded sales by month since transactions started in the system.</p>
+                </div>
+                <div class="sales-history-note" id="salesHistorySummary">Loading sales history...</div>
+            </div>
+            <div id="salesHistoryChart" class="sales-chart">
+                <div class="sales-chart-empty">Loading chart...</div>
             </div>
         </div>
 
         <!-- Quick Action -->
             <div style="margin-top: 30px; text-align: right;">
-                <button class="submit-button" id="checkoutBtn">Go next page</button>
+                <button class="dashboard-next-button" id="checkoutBtn">Go next page</button>
             </div>
 
     </div>

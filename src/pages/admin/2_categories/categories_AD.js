@@ -52,11 +52,11 @@
       tr.dataset.internalId = cat.id; // internal id
       tr.innerHTML = `
         <td class="col-id">${escapeHtml(codeFromNumber(cat.category_id))}</td>
-        <td class="col-name">${escapeHtml(cat.category_name)}</td>
-        <td class="col-desc">${escapeHtml(cat.description)}</td>
+        <td class="col-name"><span class="categories-name">${escapeHtml(cat.category_name)}</span></td>
+        <td class="col-desc"><span class="categories-description">${escapeHtml(cat.description)}</span></td>
         <td class="col-actions">
-          <button class="action-button edit-button">Edit</button>
-          <button class="action-button delete-button">Delete</button>
+          <button class="action-button edit-button categories-edit-button">Edit</button>
+          <button class="action-button delete-button categories-delete-button">Delete</button>
         </td>
       `;
       // attach handlers using the classes your CSS expects

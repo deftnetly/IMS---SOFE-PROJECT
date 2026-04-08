@@ -11,6 +11,10 @@
 
     <header class="checkout-header">
       <h2>Checkout</h2>
+      <div class="search-area">
+        <input id="productGridSearch" placeholder="Search products..." aria-label="Search products" />
+        <button title="Clear" onclick="document.getElementById('productGridSearch').value=''; document.getElementById('productGridSearch').dispatchEvent(new Event('input'));">✕</button>
+      </div>
     </header>
 
     <main class="checkout-main">
@@ -21,17 +25,17 @@
         <div class="product-section">
           <div class="product-section-header">
             <div class="product-top-row">
-              <div class="product-count"><span id="productCount">0</span> products</div>
-              <div class="product-controls-row">
+              <div class="filter-cluster">
+                <div class="product-count"><span id="productCount">0</span> products</div>
                 <select id="productCategoryFilter" aria-label="Filter category">
                   <option value="all">All categories</option>
                 </select>
-
+              </div>
+              <div class="product-controls-row">
                 <!-- single quick-add control -->
                 <div class="quick-add">
                   <input type="text" id="productSearch" placeholder="Product name or ID..." />
-                  <input type="number" id="productQty" placeholder="Qty" min="1" value="1" />
-                  <button class="submit-button" onclick="addToCart()">Add to Cart</button>
+                  <button class="submit-button" id="quickAddButton" type="button" onclick="addToCart()">Add to Cart</button>
                 </div>
               </div>
             </div>

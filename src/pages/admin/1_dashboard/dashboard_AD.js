@@ -96,6 +96,108 @@
     });
   }
 
+  function normalizeTransactions(json) {
+    if (!json) return [];
+    if (Array.isArray(json.transactions)) return json.transactions;
+    if (Array.isArray(json.data)) return json.data;
+    if (Array.isArray(json)) return json;
+    return [];
+  }
+
+  function renderMonthlySalesHistogram(items) {
+    const chart = $('salesHistoryChart');
+    const summary = $('salesHistorySummary');
+    if (!chart || !summary) return;
+
+    if (!items || !items.length) {
+      chart.innerHTML = '<div class="sales-chart-empty">No sales history yet.</div>';
+      summary.textContent = 'Waiting for transaction history';
+      return;
+    }
+
+    const grouped = new Map();
+    let minDate = null;
+    const now = new Date();
+    const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    items.forEach((t) => {
+      const rawDate = String(t.transaction_date || t.date_time || t.date || '').trim();
+      const amount = Number(t.total_amount ?? t.total ?? t.amount ?? 0) || 0;
+      if (!rawDate) return;
+
+      const date = new Date(rawDate.replace(' ', 'T'));
+      if (Number.isNaN(date.getTime())) return;
+      const monthDate = new Date(date.getFullYear(), date.getMonth(), 1);
+
+      if (!minDate || monthDate < minDate) {
+        minDate = monthDate;
+      }
+
+      const key = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}`;
+      const label = monthDate.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+
+      if (!grouped.has(key)) {
+        grouped.set(key, { label, total: 0 });
+      }
+
+      grouped.get(key).total += amount;
+    });
+
+    if (!minDate) {
+      chart.innerHTML = '<div class="sales-chart-empty">No sales history yet.</div>';
+      summary.textContent = 'Waiting for transaction history';
+      return;
+    }
+
+    const months = [];
+    const cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+    while (cursor <= currentMonthDate) {
+      const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
+      const label = cursor.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+      const existing = grouped.get(key);
+      months.push(existing || { label, total: 0 });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+
+    const max = Math.max(...months.map((m) => m.total), 1);
+    const first = months[0].label;
+    const last = months[months.length - 1].label;
+    summary.textContent = `${first} to ${last}`;
+
+    chart.innerHTML = months.map((month) => {
+      const height = Math.max(10, Math.round((month.total / max) * 158));
+      return `
+        <div class="sales-bar-card">
+          <div class="sales-bar-value">${escapeHtml(money(month.total))}</div>
+          <div class="sales-bar-track">
+            <div class="sales-bar-fill" style="height:${height}px;"></div>
+          </div>
+          <div class="sales-bar-label">${escapeHtml(month.label)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function bindNextPageButton() {
+    const btn = document.getElementById('checkoutBtn');
+    if (!btn || btn.__dashboardBound) return;
+    btn.__dashboardBound = true;
+    btn.addEventListener('click', () => {
+      if (typeof window.openPage === 'function') {
+        window.openPage('categories', '2_categories');
+      }
+    });
+  }
+
   // ---------- loaders ----------
 
   async function loadProductsSummary() {
@@ -161,14 +263,18 @@
     const dd = String(now.getDate()).padStart(2,'0');
 
     const today = `${yyyy}-${mm}-${dd}`;
-    const month = `${yyyy}-${mm}`;
-
     const urlToday = buildUrl(ENDPOINT_TRANSACTIONS + '?date=' + encodeURIComponent(today));
-    const urlMonth = buildUrl(ENDPOINT_TRANSACTIONS + '?month=' + encodeURIComponent(month));
+    const urlAll = buildUrl(ENDPOINT_TRANSACTIONS);
 
-    const [todayJson, monthJson] = await Promise.all([fetchJsonSafe(urlToday), fetchJsonSafe(urlMonth)]);
-    const todayTx = (todayJson && Array.isArray(todayJson.transactions)) ? todayJson.transactions : (todayJson && Array.isArray(todayJson.data) ? todayJson.data : (Array.isArray(todayJson) ? todayJson : []));
-    const monthTx = (monthJson && Array.isArray(monthJson.transactions)) ? monthJson.transactions : (monthJson && Array.isArray(monthJson.data) ? monthJson.data : (Array.isArray(monthJson) ? monthJson : []));
+    const [todayJson, allJson] = await Promise.all([fetchJsonSafe(urlToday), fetchJsonSafe(urlAll)]);
+    const todayTx = normalizeTransactions(todayJson);
+    const allTx = normalizeTransactions(allJson);
+
+    const monthPrefix = `${yyyy}-${mm}`;
+    const monthTx = allTx.filter((t) => {
+      const rawDate = String(t.transaction_date || t.date_time || t.date || '');
+      return rawDate.indexOf(monthPrefix) === 0;
+    });
 
     const todayTotal = (todayTx || []).reduce((s, t) => s + (Number(t.total_amount ?? t.total ?? t.amount ?? 0) || 0), 0);
     const monthTotal = (monthTx || []).reduce((s, t) => s + (Number(t.total_amount ?? t.total ?? t.amount ?? 0) || 0), 0);
@@ -188,6 +294,8 @@
       highestSale: money(highest)
     });
 
+    renderMonthlySalesHistogram(allTx);
+
     console.log('[dashboard_AD] sales: today=', todayTotal, 'month=', monthTotal, 'txns=', monthCount);
   }
 
@@ -205,6 +313,7 @@
 
   function init() {
     // small delay to allow SPA fragment injection
+    bindNextPageButton();
     setTimeout(startDashboard, 40);
   }
 

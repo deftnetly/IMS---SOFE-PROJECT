@@ -38,7 +38,17 @@
     return "stock-high";
   }
   function statusInfo(stock) {
-    return Number(stock) === 0 ? { text: "Unavailable", cls: "status-unavailable" } : { text: "Available", cls: "status-available" };
+    return Number(stock) === 0
+      ? { text: "Unavailable", cls: "status-unavailable" }
+      : { text: "Available", cls: "status-available" };
+  }
+
+  function statusBadgeHtml(status) {
+    const isUnavailable = status && status.text === "Unavailable";
+    const background = isUnavailable ? "#fee2e2" : "#dcfce7";
+    const color = isUnavailable ? "#b91c1c" : "#166534";
+
+    return `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;line-height:1.1;background:${background};color:${color};white-space:nowrap;">${escapeHtml(status.text)}</span>`;
   }
 
   /* --- internal state --- */
@@ -79,9 +89,9 @@
         <td>${escapeHtml(name)}</td>
         <td>${escapeHtml(category)}</td>
         <td>${fmtPrice(price)}</td>
-        <td class="${stockClass(stock)}">${stock === 0 ? "Unavailable" : escapeHtml(String(stock))}</td>
+        <td class="stock-cell ${stockClass(stock)}">${stock === 0 ? "Unavailable" : escapeHtml(String(stock))}</td>
         <td>${escapeHtml(fmtDate(dateAdded))}</td>
-        <td class="${status.cls}">${status.text}</td>
+        <td style="white-space:nowrap;">${statusBadgeHtml(status)}</td>
       `;
       frag.appendChild(tr);
     }

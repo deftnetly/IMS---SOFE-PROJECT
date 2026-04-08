@@ -33,14 +33,23 @@ if (!$inc) {
 }
 
 try {
-    // date filter (optional)
-    $where = '';
+    // filters (optional)
+    $whereParts = [];
     $params = [];
 
     if (!empty($_GET['date'])) {
-        // expect YYYY-MM-DD
-        $where = " WHERE DATE(t.date_time) = ?";
+        $whereParts[] = "DATE(t.date_time) = ?";
         $params[] = $_GET['date'];
+    }
+
+    if (!empty($_GET['employee'])) {
+        $whereParts[] = "e.full_name = ?";
+        $params[] = $_GET['employee'];
+    }
+
+    $where = '';
+    if (!empty($whereParts)) {
+        $where = ' WHERE ' . implode(' AND ', $whereParts);
     }
 
     // Only select columns that exist in your schema.
@@ -68,7 +77,8 @@ try {
     if (isset($conn)) { // mysqli
         if (!empty($params)) {
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param('s', $params[0]);
+            $types = str_repeat('s', count($params));
+            $stmt->bind_param($types, ...$params);
             $stmt->execute();
             $res = $stmt->get_result();
             $rows = $res->fetch_all(MYSQLI_ASSOC);

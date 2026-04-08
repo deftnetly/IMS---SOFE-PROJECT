@@ -4,27 +4,54 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Low Stock Manager</title>
+  <style>
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 96px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 1.1;
+    }
+    .status-unavailable { background: #fee2e2; color: #b91c1c; }
+    .status-critical { background: #fef2f2; color: #991b1b; }
+    .status-low { background: #fff7ed; color: #c2410c; }
+    .status-available { background: #dcfce7; color: #166534; }
+    .reports-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+    .view-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(234, 88, 12, 0.18);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+    .view-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(234, 88, 12, 0.24);
+    }
+    .view-btn:active {
+      transform: translateY(0);
+      opacity: 0.92;
+    }
+  </style>
 </head>
 <body>
   <div class="content-section">
     <h2>Low Stock Reports</h2>
 
-    <div class="filter-section" style="display:flex; gap:12px; align-items:center;">
-      <div>
-        <label for="startDate">From</label><br>
-        <input type="date" id="startDate" class="filter-input" />
-      </div>
-
-      <div>
-        <label for="endDate">To</label><br>
-        <input type="date" id="endDate" class="filter-input" />
-      </div>
-
-      <div>
-        <label>&nbsp;</label><br>
-        <button id="generateBtn" class="filter-button">Check Low Stock</button>
-      </div>
-    </div>
+    <div class="reports-toolbar"></div>
 
     <div id="tableWrapper">
       <table class="data-table" id="reportTable" aria-label="Low Stock Table">
@@ -45,5 +72,29 @@
   </div>
 
   <script src="./reports_AD.js"></script>
+  <script>
+    function decorateReportStatuses() {
+      try {
+        document.querySelectorAll("#reportTable tbody tr").forEach((row) => {
+          const statusCell = row.cells[4];
+          if (!statusCell) return;
+          const rawText = (statusCell.textContent || "").trim();
+          if (!rawText) return;
+          if (statusCell.querySelector(".status-badge")) return;
+
+          let cls = "status-available";
+          if (rawText.toLowerCase() === "unavailable") cls = "status-unavailable";
+          else if (rawText.toLowerCase() === "critical") cls = "status-critical";
+          else if (rawText.toLowerCase() === "low") cls = "status-low";
+
+          statusCell.innerHTML = `<span class="status-badge ${cls}">${rawText}</span>`;
+        });
+      } catch (err) {
+        console.warn("decorateReportStatuses error:", err);
+      }
+    }
+
+    setInterval(decorateReportStatuses, 300);
+  </script>
 </body>
 </html>

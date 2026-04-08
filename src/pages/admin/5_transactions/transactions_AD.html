@@ -6,11 +6,219 @@
 
   <style>
     .panel { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
-    .controls { margin-bottom:14px; display:flex; gap:8px; align-items:center; }
+    .controls {
+      margin-bottom: 18px;
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 14px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
+      border: 1px solid rgba(251, 146, 60, 0.18);
+      border-radius: 18px;
+      box-shadow:
+        0 12px 30px rgba(249, 115, 22, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.75);
+      width: fit-content;
+      max-width: 100%;
+    }
     .data-table { width:100%; border-collapse:collapse; }
     .data-table thead th { background:#f2ead8; padding:14px; text-align:left; }
     .data-table td { padding:14px; border-bottom:1px solid #eee; }
-    .view-btn, .remove-btn { padding:4px 8px; }
+    .filter-input,
+    .filter-select {
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid rgba(251, 146, 60, 0.22);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.95);
+      color: #7c2d12;
+      font-size: 13px;
+      font-weight: 600;
+      box-sizing: border-box;
+      outline: none;
+      box-shadow:
+        0 8px 20px rgba(249, 115, 22, 0.06),
+        inset 0 1px 0 rgba(255,255,255,0.7);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .filter-input {
+      min-width: 150px;
+    }
+    .filter-select {
+      min-width: 168px;
+    }
+    .filter-input:focus,
+    .filter-select:focus {
+      border-color: rgba(249, 115, 22, 0.55);
+      box-shadow:
+        0 0 0 4px rgba(249, 115, 22, 0.12),
+        0 10px 22px rgba(249, 115, 22, 0.12);
+      transform: translateY(-1px);
+    }
+    .filter-action {
+      border: none;
+      border-radius: 14px;
+      min-height: 42px;
+      padding: 0 15px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+    }
+    .filter-action:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.05);
+    }
+    .filter-action:active {
+      transform: translateY(0);
+      opacity: 0.92;
+    }
+    .filter-apply {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.22);
+    }
+    .filter-reset {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 12px 24px rgba(239, 68, 68, 0.22);
+    }
+    .employee-filter {
+      position: relative;
+      min-width: 190px;
+    }
+    .filter-select-native {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .employee-filter-trigger {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid rgba(251, 146, 60, 0.22);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.95);
+      color: #7c2d12;
+      font-size: 13px;
+      font-weight: 600;
+      box-sizing: border-box;
+      outline: none;
+      box-shadow:
+        0 8px 20px rgba(249, 115, 22, 0.06),
+        inset 0 1px 0 rgba(255,255,255,0.7);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 14px;
+      cursor: pointer;
+    }
+    .employee-filter-trigger:hover {
+      transform: translateY(-1px);
+    }
+    .employee-filter.open .employee-filter-trigger,
+    .employee-filter-trigger:focus {
+      border-color: rgba(249, 115, 22, 0.55);
+      box-shadow:
+        0 0 0 4px rgba(249, 115, 22, 0.12),
+        0 10px 22px rgba(249, 115, 22, 0.12);
+    }
+    .employee-filter-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .employee-filter-caret {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      border-right: 2px solid #c2410c;
+      border-bottom: 2px solid #c2410c;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.18s ease;
+    }
+    .employee-filter.open .employee-filter-caret {
+      transform: rotate(-135deg) translateY(-1px);
+    }
+    .employee-filter-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      right: 0;
+      z-index: 30;
+      display: none;
+      padding: 8px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(251, 146, 60, 0.18);
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.16);
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .employee-filter.open .employee-filter-menu {
+      display: block;
+    }
+    .employee-filter-option {
+      width: 100%;
+      border: none;
+      background: transparent;
+      border-radius: 12px;
+      padding: 9px 11px;
+      text-align: left;
+      color: #7c2d12;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+    }
+    .employee-filter-option:hover {
+      background: #fff7ed;
+      color: #c2410c;
+      transform: translateX(2px);
+    }
+    .employee-filter-option.is-active {
+      background: linear-gradient(135deg, #ffedd5 0%, #fff7ed 100%);
+      color: #c2410c;
+    }
+    .view-btn, .remove-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+    .view-btn {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      box-shadow: 0 8px 18px rgba(234, 88, 12, 0.18);
+    }
+    .remove-btn {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 8px 18px rgba(220, 38, 38, 0.18);
+    }
+    .view-btn:hover, .remove-btn:hover {
+      transform: translateY(-1px);
+    }
+    .view-btn:active, .remove-btn:active {
+      transform: translateY(0);
+      opacity: 0.92;
+    }
+    @media (max-width: 720px) {
+      .controls {
+        padding: 14px;
+      }
+      .filter-input,
+      .employee-filter,
+      .filter-action {
+        width: 100%;
+      }
+    }
 
     .modal-wrap {
       display:none;
@@ -41,12 +249,19 @@
       <h2 style="color:#e96f00; margin-top:0;">Transactions</h2>
 
       <div class="controls">
-        <input id="dateFilter" type="date" style="padding:6px 8px;" />
-        <select id="employeeFilter" style="padding:6px 8px;">
-          <option value="">All Employees</option>
-        </select>
-        <button onclick="applyFilters()" style="background:#4CAF50;color:#fff;border:0;padding:7px 12px;border-radius:4px;">Apply Filter</button>
-        <button onclick="clearFilters()" style="background:#f44336;color:#fff;border:0;padding:7px 12px;border-radius:4px;">Reset</button>
+        <input id="dateFilter" class="filter-input" type="date" />
+        <div class="employee-filter" id="employeeFilterControl">
+          <button type="button" id="employeeFilterTrigger" class="employee-filter-trigger">
+            <span id="employeeFilterLabel" class="employee-filter-label">All Employees</span>
+            <span class="employee-filter-caret"></span>
+          </button>
+          <div id="employeeFilterMenu" class="employee-filter-menu"></div>
+          <select id="employeeFilter" class="filter-select-native" aria-hidden="true" tabindex="-1">
+            <option value="">All Employees</option>
+          </select>
+        </div>
+        <button onclick="applyFilters()" class="filter-action filter-apply">Apply Filter</button>
+        <button onclick="clearFilters()" class="filter-action filter-reset">Reset</button>
       </div>
 
       <table class="data-table">
