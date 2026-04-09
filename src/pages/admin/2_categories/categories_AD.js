@@ -24,10 +24,30 @@
 
   let categoriesData = [];
   let editingInternalId = null;
+  let categorySearchTerm = '';
 
   function $id(id){ return document.getElementById(id); }
   function escapeHtml(s){ if(s===null||s===undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function codeFromNumber(n){ return 'C' + String(n).padStart(3,'0'); }
+  function getFilteredCategories() {
+    const term = String(categorySearchTerm || '').trim().toLowerCase();
+    if (!term) return categoriesData || [];
+
+    return (categoriesData || []).filter(cat => {
+      const code = codeFromNumber(cat.category_id || '').toLowerCase();
+      const name = String(cat.category_name || '').toLowerCase();
+      const description = String(cat.description || '').toLowerCase();
+      return code.includes(term) || name.includes(term) || description.includes(term);
+    });
+  }
+  function updateCategorySearchClearState() {
+    const searchInput = $id('categorySearch');
+    const clearBtn = $id('categorySearchClear');
+    if (!searchInput || !clearBtn) return;
+    clearBtn.style.display = 'inline-flex';
+    clearBtn.style.opacity = '1';
+    clearBtn.style.pointerEvents = 'auto';
+  }
 
   async function loadCategories() {
     try {
@@ -47,7 +67,12 @@
     const tbody = $id('categoriesTbody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    categoriesData.forEach(cat => {
+    const filteredCategories = getFilteredCategories();
+    if (!filteredCategories.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#6b7280;padding:18px 12px;">No categories matched your search.</td></tr>';
+      return;
+    }
+    filteredCategories.forEach(cat => {
       const tr = document.createElement('tr');
       tr.dataset.internalId = cat.id; // internal id
       tr.innerHTML = `
@@ -123,7 +148,14 @@
   }
 
   async function confirmDelete(cat) {
-    if (!confirm('Delete this category?')) return;
+    const confirmed = typeof window.showDeleteConfirm === 'function'
+      ? await window.showDeleteConfirm({
+          title: 'Delete Category',
+          message: 'Do you want to permanently delete this category? This cannot be undone.',
+          confirmLabel: 'Delete Category'
+        })
+      : confirm('Do you want to permanently delete this category?\n\nThis cannot be undone.');
+    if (!confirmed) return;
     try {
       // delete by internal id
       const res = await fetch(API + '/delete_category.php', {
@@ -141,8 +173,31 @@
     const addBtn = document.querySelector('.add-button'); if (addBtn) addBtn.onclick = openAddModal;
     const form = $id('addCategoryForm'); if (form) { form.removeEventListener('submit', submitForm); form.addEventListener('submit', submitForm); }
     const closeBtn = $id('categoryModalClose'); if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    const searchInput = $id('categorySearch');
+    if (searchInput && !searchInput.__init) {
+      searchInput.__init = true;
+      searchInput.addEventListener('input', () => {
+        categorySearchTerm = searchInput.value || '';
+        updateCategorySearchClearState();
+        renderTable();
+      });
+    }
+    const clearBtn = $id('categorySearchClear');
+    if (clearBtn && !clearBtn.__init) {
+      clearBtn.__init = true;
+      clearBtn.addEventListener('click', () => {
+        const input = $id('categorySearch');
+        if (!input) return;
+        input.value = '';
+        categorySearchTerm = '';
+        updateCategorySearchClearState();
+        renderTable();
+        input.focus();
+      });
+    }
     window.addEventListener('click', (e) => { const modal = $id('categoryModal'); if (modal && e.target === modal) closeModal(); });
 
+    updateCategorySearchClearState();
     loadCategories();
   }
 

@@ -3,19 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/smart-inventory/src/pages/employee/3_checkout/checkout_EMP.css">
+  <link rel="stylesheet" href="/smart-inventory/src/pages/employee/3_checkout/checkout_EMP.css?v=20260409-checkout-cart-4">
   <!-- local CSS in same folder -->
 </head>
 <body>
   <div class="checkout-container">
-
-    <header class="checkout-header">
-      <h2>Checkout</h2>
-      <div class="search-area">
-        <input id="productGridSearch" placeholder="Search products..." aria-label="Search products" />
-        <button title="Clear" onclick="document.getElementById('productGridSearch').value=''; document.getElementById('productGridSearch').dispatchEvent(new Event('input'));">âœ•</button>
-      </div>
-    </header>
 
     <main class="checkout-main">
       <!-- LEFT: products + cart -->
@@ -23,6 +15,9 @@
 
         <!-- Product section (controls + scrollable grid) -->
         <div class="product-section">
+          <header class="checkout-header">
+            <h2 class="checkout-title">Checkout</h2>
+          </header>
           <div class="product-section-header">
             <div class="product-top-row">
               <div class="filter-cluster">
@@ -30,13 +25,7 @@
                 <select id="productCategoryFilter" aria-label="Filter category">
                   <option value="all">All categories</option>
                 </select>
-              </div>
-              <div class="product-controls-row">
-                <!-- single quick-add control -->
-                <div class="quick-add">
-                  <input type="text" id="productSearch" placeholder="Product name or ID..." />
-                  <button class="submit-button" id="quickAddButton" type="button" onclick="addToCart()">Add to Cart</button>
-                </div>
+                <input id="productGridSearch" placeholder="Search products..." aria-label="Search products" />
               </div>
             </div>
           </div>
@@ -73,22 +62,22 @@
 
           <div class="summary-row">
             <span>Subtotal:</span>
-            <span id="orderSubtotal">â‚±0.00</span>
+            <span id="orderSubtotal">&#8369;0.00</span>
           </div>
 
           <div class="summary-row">
             <span>Tax (12%):</span>
-            <span id="orderTax">â‚±0.00</span>
+            <span id="orderTax">&#8369;0.00</span>
           </div>
 
           <div class="summary-row total">
             <strong>Total:</strong>
-            <strong id="orderTotal">â‚±0.00</strong>
+            <strong id="orderTotal">&#8369;0.00</strong>
           </div>
 
           <div class="summary-row small muted">
             <span>Transaction ID:</span>
-            <span id="transactionId">â€”</span>
+            <span id="transactionId">-</span>
           </div>
 
           <button class="submit-button process" id="processBtn" onclick="processCheckout()">Process Checkout</button>
@@ -96,9 +85,20 @@
       </aside>
     </main>
 
+    <div class="checkout-notice" id="checkoutNotice">
+      <div class="checkout-notice-card">
+        <div class="checkout-notice-badge" id="checkoutNoticeBadge">i</div>
+        <h3 id="checkoutNoticeTitle">Notice</h3>
+        <p id="checkoutNoticeMessage">Message</p>
+        <div class="checkout-notice-actions">
+          <button type="button" class="checkout-notice-button" id="checkoutNoticeOk">OK</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- External JS file (no inline scripts in fragment) -->
-  <script src="checkout_EMP.js"></script>
+  <script src="checkout_EMP.js?v=20260409-checkout-js-2"></script>
 </body>
 </html>

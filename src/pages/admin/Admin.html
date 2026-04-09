@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>IMS â€“ Admin Panel</title>
+    <title>IMS - Admin Panel</title>
 
     <!-- ===== Defensive MediaSession patch (must run BEFORE any other scripts) ===== -->
     <script>
@@ -41,15 +41,174 @@
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="/Smart-Inventory/src/styles/content.css">
     <link rel="stylesheet" href="../../styles/logout-popup.css">
-    <link rel="icon" type="image/png" href="../../assets/SIMS.png">
+    <link rel="icon" type="image/png" href="../../assets/main_logo.png">
 
     <style>
+        .admin-topbar {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            right: 0;
+            z-index: 80;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            min-height: auto;
+            padding: 18px 28px 0;
+            transition: left 0.25s ease;
+            pointer-events: none;
+        }
+        .admin-identity {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border: 1px solid rgba(249, 115, 22, 0.16);
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,247,237,0.98) 100%);
+            box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
+            pointer-events: auto;
+        }
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f97316;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+        }
+        .admin-identity-copy {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .admin-identity-label {
+            color: #9ca3af;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .admin-identity-name {
+            color: #7c2d12;
+            font-size: 15px;
+            font-weight: 700;
+        }
         #main-content {
             opacity: 0;
             transition: opacity 0.4s ease;
+            padding-top: 88px;
         }
         #main-content.visible {
             opacity: 1;
+        }
+        .sidebar.collapsed ~ .admin-topbar {
+            left: 88px;
+        }
+        .confirm-popup {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.42);
+            backdrop-filter: blur(4px);
+            z-index: 1200;
+        }
+        .confirm-popup.active {
+            display: flex;
+        }
+        .confirm-box {
+            width: min(100%, 440px);
+            background: #fff;
+            border-radius: 22px;
+            padding: 26px 24px 22px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+        }
+        .confirm-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff7ed;
+            color: #c2410c;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 14px;
+        }
+        .confirm-box h3 {
+            margin: 0 0 10px;
+            color: #111827;
+            font-size: 24px;
+            line-height: 1.15;
+        }
+        .confirm-box p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .confirm-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .confirm-buttons button {
+            border: none;
+            border-radius: 999px;
+            min-height: 42px;
+            padding: 0 18px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+        }
+        .confirm-buttons button:hover {
+            transform: translateY(-1px);
+        }
+        .confirm-buttons button:active {
+            transform: translateY(0);
+            opacity: 0.94;
+        }
+        .confirm-cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .confirm-delete {
+            background: #f97316;
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(249, 115, 22, 0.18);
+        }
+        .confirm-delete:hover {
+            background: #ea580c;
+        }
+        @media (max-width: 900px) {
+            .admin-topbar {
+                left: 0;
+                padding: 18px 18px 0 74px;
+            }
+        }
+        @media (max-width: 560px) {
+            .admin-topbar {
+                justify-content: flex-start;
+            }
+            .admin-identity {
+                width: 100%;
+                border-radius: 18px;
+            }
+            .admin-identity-name {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -84,6 +243,16 @@
         </a>
     </div>
 
+    <div class="admin-topbar">
+        <div class="admin-identity" aria-live="polite">
+            <div class="admin-avatar" id="adminAvatar">A</div>
+            <div class="admin-identity-copy">
+                <span class="admin-identity-label">Logged In As</span>
+                <span class="admin-identity-name" id="adminDisplayName">Admin</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Main content -->
     <div class="content" id="main-content"></div>
 
@@ -94,6 +263,18 @@
             <div class="logout-buttons">
                 <button class="yes" onclick="confirmLogout()">Yes</button>
                 <button class="no" onclick="closeLogoutPopup()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-popup" id="confirmPopup">
+        <div class="confirm-box">
+            <div class="confirm-badge">!</div>
+            <h3 id="confirmTitle">Delete Item</h3>
+            <p id="confirmMessage">Do you want to permanently delete this item?</p>
+            <div class="confirm-buttons">
+                <button type="button" class="confirm-cancel" id="confirmCancelBtn">Cancel</button>
+                <button type="button" class="confirm-delete" id="confirmDeleteBtn">Delete</button>
             </div>
         </div>
     </div>
@@ -117,13 +298,81 @@
         }
     })();
 
+    function buildAdminInitials(name) {
+        const parts = String(name || '')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2);
+        if (!parts.length) return 'A';
+        return parts.map(part => part.charAt(0).toUpperCase()).join('');
+    }
+
+    async function loadAdminIdentity() {
+        try {
+            const res = await fetch('get_admin_session.php?v=20260409-admin-session-1', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
+            if (!res.ok) return;
+            const data = await res.json().catch(() => null);
+            if (!data || !data.success) return;
+
+            const displayName = String(data.display_name || '').trim() || String(data.username || '').trim() || 'Admin';
+            const nameEl = document.getElementById('adminDisplayName');
+            const avatarEl = document.getElementById('adminAvatar');
+            if (nameEl) nameEl.textContent = displayName;
+            if (avatarEl) avatarEl.textContent = buildAdminInitials(displayName);
+        } catch (err) {
+            console.warn('loadAdminIdentity failed', err);
+        }
+    }
+
     function saveLastPage(section, folder) {
         localStorage.setItem("lastSection", section);
         localStorage.setItem("lastFolder", folder);
     }
 
+    let confirmPopupResolver = null;
+
+    function closeStyledConfirm(result) {
+        const popup = document.getElementById("confirmPopup");
+        if (popup) popup.classList.remove("active");
+        if (confirmPopupResolver) {
+            const resolve = confirmPopupResolver;
+            confirmPopupResolver = null;
+            resolve(result);
+        }
+    }
+
+    window.showDeleteConfirm = function(options = {}) {
+        const popup = document.getElementById("confirmPopup");
+        const title = document.getElementById("confirmTitle");
+        const message = document.getElementById("confirmMessage");
+        const confirmBtn = document.getElementById("confirmDeleteBtn");
+        const cancelBtn = document.getElementById("confirmCancelBtn");
+
+        if (!popup || !title || !message || !confirmBtn || !cancelBtn) {
+            const fallbackMessage = options.message || 'Do you want to permanently delete this item?\n\nThis cannot be undone.';
+            return Promise.resolve(window.confirm(fallbackMessage));
+        }
+
+        title.textContent = options.title || "Delete Item";
+        message.textContent = options.message || "Do you want to permanently delete this item? This cannot be undone.";
+        confirmBtn.textContent = options.confirmLabel || "Delete";
+        cancelBtn.textContent = options.cancelLabel || "Cancel";
+        popup.classList.add("active");
+
+        return new Promise((resolve) => {
+            confirmPopupResolver = resolve;
+        });
+    };
+
     function openPage(section, folder) {
         saveLastPage(section, folder);
+        if (typeof window.setActiveLink === "function") {
+            window.setActiveLink(section);
+        }
         loadContent(section, folder);
     }
 
@@ -196,7 +445,7 @@
                 btn.style.border = 'none';
                 btn.style.borderRadius = '999px';
                 btn.style.padding = '8px 16px';
-                btn.style.background = 'linear-gradient(135deg,#f97316 0%,#ea580c 100%)';
+                btn.style.background = '#f97316';
                 btn.style.color = '#fff';
                 btn.style.fontWeight = '700';
                 btn.style.fontSize = '13px';
@@ -222,7 +471,7 @@
 
     async function loadContent(section, folder) {
         const container = document.getElementById("main-content");
-        const htmlVersion = '20260409-admin-html-5';
+        const htmlVersion = '20260409-admin-html-26';
         if (typeof window.showSidebarLoading === "function") {
             window.showSidebarLoading();
         }
@@ -258,7 +507,7 @@
             //  Fixed & safe script loader
             // =============================
 (function loadSectionScript(folder, usedSection) {
-    const scriptVersion = '20260409-admin-ui-8';
+    const scriptVersion = '20260409-admin-ui-26';
 
     // --- SPECIAL CASE: if we loaded the employees_AD HTML, force employees_AD.js ---
     // This is minimal and isolated â€” it won't affect other pages.
@@ -374,6 +623,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        loadAdminIdentity();
         const lastSection = localStorage.getItem("lastSection");
         const lastFolder = localStorage.getItem("lastFolder");
 
@@ -398,6 +648,15 @@
             window.location.href = "../../login/Login.html";
         }, 500);
     }
+
+    document.getElementById("confirmCancelBtn")?.addEventListener("click", () => closeStyledConfirm(false));
+    document.getElementById("confirmDeleteBtn")?.addEventListener("click", () => closeStyledConfirm(true));
+    document.getElementById("confirmPopup")?.addEventListener("click", (e) => {
+        if (e.target && e.target.id === "confirmPopup") closeStyledConfirm(false);
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && confirmPopupResolver) closeStyledConfirm(false);
+    });
     </script>
 
     <script src="../../scripts/sidebar.js"></script>

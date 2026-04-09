@@ -6,54 +6,144 @@
 <title>Transaction History</title>
 
 <style>
-  /* Card */
+  .employee-transactions-shell {
+    padding: 28px;
+  }
   .transactions-card {
     background: #ffffff;
-    border-radius: 12px;
+    border-radius: 18px;
     padding: 25px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
     margin-bottom: 30px;
   }
   .transactions-card h3 { margin:0; font-size:26px; color:#e65c00; }
-  .muted { color:#777; margin-top:4px; margin-bottom:20px; }
+  .muted { color:#6b7280; margin-top:6px; margin-bottom:18px; font-size:14px; }
+  .transactions-filters {
+    margin: 0 0 18px;
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
+    border: 1px solid rgba(251, 146, 60, 0.18);
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(249, 115, 22, 0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+    width: fit-content;
+    max-width: 100%;
+  }
+  .transactions-date-filter {
+    min-height: 46px;
+    padding: 0 14px;
+    border: 1px solid #e5d5bf;
+    border-radius: 16px;
+    background: #fff;
+    color: #7c2d12;
+    font-size: 14px;
+    font-weight: 600;
+    box-sizing: border-box;
+    box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  }
+  .transactions-date-filter:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 10px 22px rgba(249, 115, 22, 0.12);
+    transform: translateY(-1px);
+  }
+  .transactions-filter-btn {
+    border: none;
+    border-radius: 16px;
+    min-height: 46px;
+    padding: 0 18px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+  }
+  .transactions-filter-btn:hover {
+    transform: translateY(-1px);
+  }
+  .transactions-filter-btn:active {
+    transform: translateY(0);
+    opacity: 0.94;
+  }
+  .transactions-filter-btn.apply-btn {
+    background: #f97316;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(249, 115, 22, 0.18);
+  }
+  .transactions-filter-btn.apply-btn:hover {
+    background: #ea580c;
+  }
+  .transactions-filter-btn.reset-btn {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fed7aa;
+  }
 
-  /* List table */
   #transactionTable { width:100%; border-collapse:collapse; table-layout:fixed; }
-  #transactionTable colgroup col:nth-child(1) { width: 28%; } /* Transaction ID */
-  #transactionTable colgroup col:nth-child(2) { width: 32%; } /* Date */
-  #transactionTable colgroup col:nth-child(3) { width: 20%; } /* Total */
-  #transactionTable colgroup col:nth-child(4) { width: 20%; } /* Payment */
+  #transactionTable colgroup col:nth-child(1) { width: 28%; }
+  #transactionTable colgroup col:nth-child(2) { width: 32%; }
+  #transactionTable colgroup col:nth-child(3) { width: 20%; }
+  #transactionTable colgroup col:nth-child(4) { width: 20%; }
 
   #transactionTable thead th {
     background:#f3efe2;
     padding:14px;
-    font-weight:600;
+    font-weight:700;
     text-align:left;
     border-bottom:1px solid #ddd;
+    color:#111827;
   }
   #transactionTable tbody td {
     padding:14px;
     border-bottom:1px solid #f0f0f0;
     font-size:15px;
     vertical-align: middle;
+    color:#6b7280;
+  }
+  #transactionTable tbody td:first-child {
+    color:#9a3412;
+    font-weight:700;
+  }
+  #transactionTable tbody td:nth-child(2) {
+    color:#6b7280;
   }
 
-  /* alignment classes */
-  .td-amount { text-align:right; padding-right:16px; white-space:nowrap; }
+  .td-amount {
+    text-align:right;
+    padding-right:16px;
+    white-space:nowrap;
+    color:#c2410c !important;
+    font-weight:700;
+  }
   .td-method { text-align:center; }
 
   .td-method .view-btn {
-    padding:4px 8px;
-    font-size:13px;
-    min-width:60px;
+    min-height: 36px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 78px;
     box-sizing:border-box;
-    border-radius:4px;
-    border:1px solid #999;
-    background:#fff;
+    border-radius:999px;
+    border:none;
+    background:#f97316;
+    color:#fff;
     cursor:pointer;
+    box-shadow: 0 8px 18px rgba(249, 115, 22, 0.18);
+    transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+  }
+  .td-method .view-btn:hover {
+    transform: translateY(-1px);
+    background: #ea580c;
+  }
+  .td-method .view-btn:active {
+    transform: translateY(0);
+    opacity: 0.94;
   }
 
-  /* Details modal */
   #transactionModal {
     display:none;
     position:fixed;
@@ -77,46 +167,57 @@
     border:1px solid #ccc; background:#fafafa; padding:5px 10px; border-radius:6px; cursor:pointer;
   }
 
-  /* Details table */
   #detailsTable { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:14px; }
-  #detailsTable colgroup col:nth-child(1) { width:50%; }  /* Product */
-  #detailsTable colgroup col:nth-child(2) { width:12%; }  /* Qty */
-  #detailsTable colgroup col:nth-child(3) { width:18%; }  /* Price */
-  #detailsTable colgroup col:nth-child(4) { width:20%; }  /* Subtotal */
+  #detailsTable colgroup col:nth-child(1) { width:50%; }
+  #detailsTable colgroup col:nth-child(2) { width:12%; }
+  #detailsTable colgroup col:nth-child(3) { width:18%; }
+  #detailsTable colgroup col:nth-child(4) { width:20%; }
 
   #detailsTable thead th {
     background:#f7f7f7;
     padding:10px;
     border-bottom:1px solid #ddd;
-    font-weight:600;
+    font-weight:700;
     color:#e65c00;
   }
-  #detailsTable tbody td { padding:10px; border-bottom:1px solid #eee; }
+  #detailsTable tbody td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+    color:#6b7280;
+  }
 
   .th-product, .td-product { text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .td-product { color:#7c2d12 !important; font-weight:600; }
   .th-qty, .td-qty { text-align:center; }
   .th-price, .td-price { text-align:right; padding-right:12px; white-space:nowrap; }
+  .td-price { color:#9a3412 !important; font-weight:600; }
   .th-subtotal, .td-subtotal { text-align:right; padding-right:12px; white-space:nowrap; }
+  .td-subtotal { color:#c2410c; font-weight:700; }
 
-  /* footer total alignment */
   #detailsTable tfoot td { padding:10px; }
   #detailsTable tfoot td:last-child { text-align:right; font-weight:600; }
+  @media (max-width: 760px) {
+    .transactions-filters {
+      width: 100%;
+    }
+    .transactions-date-filter,
+    .transactions-filter-btn {
+      width: 100%;
+    }
+  }
 </style>
 </head>
 
 <body>
+<div class="employee-transactions-shell">
 <div class="transactions-card">
   <h3>Transaction History</h3>
   <p class="muted">This page displays your completed sales transactions.</p>
 
-  <div style="margin:12px 0;">
-    <input id="dateFilter" type="date" style="padding:6px 8px;" />
-    <button onclick="applyFilters()" style="margin-left:8px; padding:6px 12px; background:#4CAF50; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-      Apply Filter
-    </button>
-    <button onclick="clearFilters()" style="margin-left:8px; padding:6px 12px; background:#6094b3; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-    Reset
-    </button>
+  <div class="transactions-filters">
+    <input id="dateFilter" class="transactions-date-filter" type="date" />
+    <button onclick="applyFilters()" class="transactions-filter-btn apply-btn">Apply Filter</button>
+    <button onclick="clearFilters()" class="transactions-filter-btn reset-btn">Reset</button>
   </div>
 
   <div style="background:#fff; border-radius:8px;">
@@ -138,10 +239,10 @@
         <tr><td colspan="4" style="text-align:center;color:gray;">Loading transactions...</td></tr>
       </tbody>
     </table>
-    </div>
+  </div>
+</div>
 </div>
 
-<!-- Modal -->
 <div id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="transactionModalLabel">
   <div class="modal-inner">
     <div class="modal-header">
@@ -164,12 +265,12 @@
         </colgroup>
 
         <thead>
-            <tr>
-                 <th class="th-product">Product</th>
-                 <th class="th-qty">Quantity</th>
-                 <th class="th-price">Price</th>
-                 <th class="th-subtotal">Subtotal</th>
-            </tr>
+          <tr>
+            <th class="th-product">Product</th>
+            <th class="th-qty">Quantity</th>
+            <th class="th-price">Price</th>
+            <th class="th-subtotal">Subtotal</th>
+          </tr>
         </thead>
 
         <tbody id="modalItemsList">
@@ -177,18 +278,18 @@
         </tbody>
 
         <tfoot>
-            <tr>
-                    <td colspan="3" style="text-align:right; font-weight:600;">Subtotal:</td>
-                    <td id="modalSubtotal" class="td-subtotal" style="font-weight:600;">₱0.00</td>
-                </tr>
-                <tr>
-                    <td colspan="3" style="text-align:right; font-weight:600;">Tax(12%):</td>
-                    <td id="modalTax" class="td-subtotal" style="font-weight:600;">₱0.00</td>
-                </tr>
-                <tr>
-                    <td colspan="3" style="text-align:right; font-weight:600;">Total:</td>
-                    <td id="modalTotal" class="td-subtotal" style="font-weight:600;">₱0.00</td>
-                </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; font-weight:600;">Subtotal:</td>
+            <td id="modalSubtotal" class="td-subtotal" style="font-weight:600;">&#8369;0.00</td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; font-weight:600;">Tax(12%):</td>
+            <td id="modalTax" class="td-subtotal" style="font-weight:600;">&#8369;0.00</td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; font-weight:600;">Total:</td>
+            <td id="modalTotal" class="td-subtotal" style="font-weight:600;">&#8369;0.00</td>
+          </tr>
         </tfoot>
       </table>
     </div>

@@ -3,6 +3,9 @@
 header('Content-Type: application/json; charset=utf-8');
 ini_set('display_errors',1);
 error_reporting(E_ALL);
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 
 // include db_connect (try common relative paths)
 $paths = [
@@ -22,6 +25,8 @@ $id = isset($_GET['id']) ? trim($_GET['id']) : null;
 if (!$id) { http_response_code(400); echo json_encode(['success'=>false,'message'=>'Missing id']); exit; }
 
 try {
+  $sessionRole = $_SESSION['role'] ?? '';
+  $sessionEmployeeId = isset($_SESSION['employee_id']) ? (int)$_SESSION['employee_id'] : 0;
   // We'll locate transaction and include employee name
   $transaction = null;
   $txNumericId = null;
@@ -41,6 +46,15 @@ try {
     }
 
     if (!$transaction) { http_response_code(404); echo json_encode(['success'=>false,'message'=>'Transaction not found']); exit; }
+
+    if ($sessionRole === 'employee') {
+      $ownerId = isset($transaction['employee_id']) ? (int)$transaction['employee_id'] : 0;
+      if ($sessionEmployeeId <= 0 || $ownerId !== $sessionEmployeeId) {
+        http_response_code(403);
+        echo json_encode(['success'=>false,'message'=>'You can only view your own transactions']);
+        exit;
+      }
+    }
 
     $txNumericId = intval($transaction['id']);
     $txnString = $transaction['txn_id'];
@@ -93,6 +107,16 @@ try {
     }
     if (!$res || $res->num_rows === 0) { http_response_code(404); echo json_encode(['success'=>false,'message'=>'Transaction not found']); exit; }
     $transaction = $res->fetch_assoc();
+
+    if ($sessionRole === 'employee') {
+      $ownerId = isset($transaction['employee_id']) ? (int)$transaction['employee_id'] : 0;
+      if ($sessionEmployeeId <= 0 || $ownerId !== $sessionEmployeeId) {
+        http_response_code(403);
+        echo json_encode(['success'=>false,'message'=>'You can only view your own transactions']);
+        exit;
+      }
+    }
+
     $txNumericId = intval($transaction['id']);
     $txnString = $transaction['txn_id'];
 

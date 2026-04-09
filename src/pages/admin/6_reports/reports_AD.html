@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Low Stock Manager</title>
   <style>
+    .content-section .data-table thead th {
+      color: #111827;
+      font-weight: 700;
+    }
+    .content-section .data-table tbody td {
+      color: #6b7280;
+    }
+    .content-section .data-table tbody td:nth-child(1) {
+      color: #9a3412;
+      font-weight: 700;
+    }
+    .content-section .data-table tbody td:nth-child(2) {
+      color: #7c2d12;
+      font-weight: 700;
+    }
+    .content-section .data-table tbody td:nth-child(3) {
+      color: #0f766e;
+      font-weight: 600;
+    }
+    .content-section .data-table tbody td:nth-child(6) {
+      color: #c2410c;
+      font-weight: 700;
+    }
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -24,6 +47,78 @@
       display: flex;
       justify-content: flex-end;
       margin-bottom: 12px;
+    }
+    .reports-controls {
+      margin-bottom: 18px;
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: nowrap;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
+      border: 1px solid rgba(251, 146, 60, 0.18);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+      width: fit-content;
+      max-width: 100%;
+    }
+    .reports-search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 360px;
+      flex: 0 0 360px;
+    }
+    .reports-search {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 42px 0 16px;
+      border: 1px solid #e5d5bf;
+      border-radius: 999px;
+      background: #fff;
+      color: #7c2d12;
+      font-size: 14px;
+      font-weight: 600;
+      box-sizing: border-box;
+      box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .reports-search::placeholder {
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    .reports-search:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 10px 22px rgba(249, 115, 22, 0.12);
+      transform: translateY(-1px);
+    }
+    .reports-search-clear {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.10);
+      transition: background-color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+    }
+    .reports-search-clear:hover {
+      background: #ffedd5;
+    }
+    .reports-search-clear:active {
+      transform: translateY(-50%);
+      opacity: 0.92;
     }
     .view-btn {
       border: none;
@@ -45,11 +140,30 @@
       transform: translateY(0);
       opacity: 0.92;
     }
+    #reportModal .modal-content h2 {
+      color: #111827;
+    }
+    #reportModal .modal-content p {
+      color: #6b7280;
+    }
   </style>
 </head>
 <body>
   <div class="content-section">
     <h2>Low Stock Reports</h2>
+
+    <div class="reports-controls">
+      <div class="reports-search-wrap">
+        <input
+          type="text"
+          id="reportSearch"
+          class="reports-search"
+          placeholder="Search product ID, name, category, or status..."
+          aria-label="Search reports"
+        >
+        <button type="button" class="reports-search-clear" id="reportSearchClear" aria-label="Clear report search">X</button>
+      </div>
+    </div>
 
     <div class="reports-toolbar"></div>
 

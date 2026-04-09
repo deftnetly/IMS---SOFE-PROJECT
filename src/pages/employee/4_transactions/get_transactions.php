@@ -6,6 +6,9 @@ header('Content-Type: application/json; charset=utf-8');
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // try common db_connect locations (adjust to your structure if needed)
 $paths = [
@@ -36,13 +39,25 @@ try {
     // filters (optional)
     $whereParts = [];
     $params = [];
+    $sessionRole = $_SESSION['role'] ?? '';
+    $sessionEmployeeId = isset($_SESSION['employee_id']) ? (int)$_SESSION['employee_id'] : 0;
+
+    if ($sessionRole === 'employee') {
+        if ($sessionEmployeeId <= 0) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Employee session not found']);
+            exit;
+        }
+        $whereParts[] = "t.employee_id = ?";
+        $params[] = $sessionEmployeeId;
+    }
 
     if (!empty($_GET['date'])) {
         $whereParts[] = "DATE(t.date_time) = ?";
         $params[] = $_GET['date'];
     }
 
-    if (!empty($_GET['employee'])) {
+    if ($sessionRole !== 'employee' && !empty($_GET['employee'])) {
         $whereParts[] = "e.full_name = ?";
         $params[] = $_GET['employee'];
     }

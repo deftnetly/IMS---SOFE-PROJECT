@@ -2,6 +2,7 @@
 
 (function () {
   const CART_KEY = "empCart_v1";
+  const LEGACY_CART_KEY = "empCart_v1_session";
   const TAX_RATE = 0.12;
   const PRODUCT_API_PATH = "get_checkout_products.php";
   const CATEGORY_API_PATH = "get_checkout_categories.php";
@@ -11,6 +12,67 @@
   let categories = [];
   let cart = [];
   let filtersBound = false;
+  let noticeBound = false;
+
+  function bindNoticeModal() {
+    if (noticeBound) return;
+    const modal = document.getElementById("checkoutNotice");
+    const okBtn = document.getElementById("checkoutNoticeOk");
+    if (!modal || !okBtn) return;
+
+    noticeBound = true;
+
+    const closeNotice = () => {
+      modal.classList.remove("active");
+    };
+
+    okBtn.addEventListener("click", closeNotice);
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeNotice();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.classList.contains("active")) {
+        closeNotice();
+      }
+    });
+  }
+
+  function showCheckoutNotice(title, message, tone = "info") {
+    const modal = document.getElementById("checkoutNotice");
+    const badge = document.getElementById("checkoutNoticeBadge");
+    const titleEl = document.getElementById("checkoutNoticeTitle");
+    const messageEl = document.getElementById("checkoutNoticeMessage");
+    const okBtn = document.getElementById("checkoutNoticeOk");
+
+    if (!modal || !badge || !titleEl || !messageEl || !okBtn) {
+      alert(message);
+      return;
+    }
+
+    bindNoticeModal();
+
+    let badgeText = "i";
+    let badgeBg = "#fff7ed";
+    let badgeColor = "#c2410c";
+
+    if (tone === "success") {
+      badgeText = "✓";
+      badgeBg = "#dcfce7";
+      badgeColor = "#166534";
+    } else if (tone === "error") {
+      badgeText = "!";
+      badgeBg = "#fee2e2";
+      badgeColor = "#b91c1c";
+    }
+
+    badge.textContent = badgeText;
+    badge.style.background = badgeBg;
+    badge.style.color = badgeColor;
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    modal.classList.add("active");
+    okBtn.focus();
+  }
 
   function buildUrlCandidates(path) {
     const normalizedPath = String(path || "");
@@ -110,8 +172,22 @@
 
   function loadCart() {
     try {
-      const raw = sessionStorage.getItem(CART_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const localRaw = localStorage.getItem(CART_KEY);
+      if (localRaw) {
+        const parsed = JSON.parse(localRaw);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+
+      const sessionRaw = sessionStorage.getItem(CART_KEY) || sessionStorage.getItem(LEGACY_CART_KEY);
+      if (sessionRaw) {
+        const parsed = JSON.parse(sessionRaw);
+        if (Array.isArray(parsed)) {
+          localStorage.setItem(CART_KEY, JSON.stringify(parsed));
+          return parsed;
+        }
+      }
+
+      return [];
     } catch (error) {
       console.warn("[checkout] loadCart error", error);
       return [];
@@ -120,7 +196,10 @@
 
   function saveCart() {
     try {
-      sessionStorage.setItem(CART_KEY, JSON.stringify(cart));
+      const serialized = JSON.stringify(cart);
+      localStorage.setItem(CART_KEY, serialized);
+      sessionStorage.setItem(CART_KEY, serialized);
+      sessionStorage.setItem(LEGACY_CART_KEY, serialized);
     } catch (error) {
       console.warn("[checkout] saveCart error", error);
     }
@@ -136,6 +215,15 @@
     if (!tbody) return;
 
     tbody.innerHTML = "";
+    if (!cart.length) {
+      tbody.innerHTML = `
+        <tr class="cart-empty-row">
+          <td colspan="6" style="text-align:center;color:#9ca3af;font-weight:600;padding:18px 14px;">Empty cart</td>
+        </tr>
+      `;
+      return;
+    }
+
     cart.forEach((item, index) => {
       const row = document.createElement("tr");
       const total = Number(item.price) * Number(item.qty);
@@ -143,9 +231,15 @@
       row.innerHTML = `
         <td>${escapeHtml(item.id)}</td>
         <td>${escapeHtml(item.name)}</td>
-        <td>${item.qty}</td>
-        <td>PHP ${Number(item.price).toFixed(2)}</td>
-        <td>PHP ${total.toFixed(2)}</td>
+        <td>
+          <div class="cart-qty-controls">
+            <button type="button" class="cart-qty-button" onclick="changeCartQty(${index}, -1)">-</button>
+            <span class="cart-qty-value">${item.qty}</span>
+            <button type="button" class="cart-qty-button" onclick="changeCartQty(${index}, 1)">+</button>
+          </div>
+        </td>
+        <td>&#8369;${Number(item.price).toFixed(2)}</td>
+        <td>&#8369;${total.toFixed(2)}</td>
         <td><button type="button" class="cart-remove-button" onclick="removeFromCart(${index})">Remove</button></td>
       `;
 
@@ -163,10 +257,26 @@
     const totalEl = document.getElementById("orderTotal");
     const txnEl = document.getElementById("transactionId");
 
-    if (subtotalEl) subtotalEl.textContent = `PHP ${subtotal.toFixed(2)}`;
-    if (taxEl) taxEl.textContent = `PHP ${tax.toFixed(2)}`;
-    if (totalEl) totalEl.textContent = `PHP ${total.toFixed(2)}`;
+    if (subtotalEl) subtotalEl.innerHTML = `&#8369;${subtotal.toFixed(2)}`;
+    if (taxEl) taxEl.innerHTML = `&#8369;${tax.toFixed(2)}`;
+    if (totalEl) totalEl.innerHTML = `&#8369;${total.toFixed(2)}`;
     if (txnEl) txnEl.textContent = generateTxnId();
+  }
+
+  function renderCheckoutStateWhenReady(attempts = 20) {
+    const cartBody = document.querySelector("#cartTable tbody");
+    const subtotalEl = document.getElementById("orderSubtotal");
+    const totalEl = document.getElementById("orderTotal");
+
+    if (cartBody && subtotalEl && totalEl) {
+      renderCart();
+      renderSummary();
+      return;
+    }
+
+    if (attempts > 0) {
+      setTimeout(() => renderCheckoutStateWhenReady(attempts - 1), 100);
+    }
   }
 
   function productCardHtml(product) {
@@ -184,7 +294,7 @@
             </div>
           </div>
           <div class="card-top-row">
-            <div class="price">PHP ${Number(product.price).toFixed(2)}</div>
+            <div class="price">&#8369;${Number(product.price).toFixed(2)}</div>
             <div class="qty-controls">
               <button class="qty-minus" data-id="${escapeHtml(product.id)}" type="button">-</button>
               <input id="qty_${escapeHtml(product.id)}" value="1" min="1" type="number" />
@@ -372,7 +482,7 @@
   window.addProductToCart = function (productId, qty = 1) {
     const product = products.find((entry) => String(entry.id) === String(productId));
     if (!product) {
-      alert("Product not found.");
+      showCheckoutNotice("Product Not Found", "The selected product could not be found.", "error");
       return;
     }
 
@@ -401,6 +511,22 @@
     renderSummary();
   };
 
+  window.changeCartQty = function (index, delta) {
+    const item = cart[index];
+    if (!item) return;
+
+    const nextQty = Number(item.qty) + Number(delta);
+    if (nextQty <= 0) {
+      cart.splice(index, 1);
+    } else {
+      item.qty = nextQty;
+    }
+
+    saveCart();
+    renderCart();
+    renderSummary();
+  };
+
   window.addToCart = function () {
     const searchInput = document.getElementById("productSearch");
     if (!searchInput) return;
@@ -409,14 +535,14 @@
     const qty = 1;
 
     if (!query) {
-      alert("Enter a product name or ID first.");
+      showCheckoutNotice("Search Required", "Enter a product name or ID first.", "info");
       searchInput.focus();
       return;
     }
 
     const matched = findProductFromQuickSearch(query);
     if (!matched) {
-      alert("No matching product found.");
+      showCheckoutNotice("No Match Found", "No matching product was found.", "error");
       searchInput.focus();
       searchInput.select();
       return;
@@ -441,7 +567,7 @@
 
   window.processCheckout = async function () {
     if (!cart.length) {
-      alert("Cart empty.");
+      showCheckoutNotice("Cart Empty", "Add at least one product before processing checkout.", "error");
       return;
     }
 
@@ -466,19 +592,20 @@
 
     try {
       await postTransactionToServer(payload);
-      alert(`Checkout saved. TXN ${txnId}`);
+      showCheckoutNotice("Checkout Saved", `Transaction ${txnId} was saved successfully.`, "success");
       cart = [];
       saveCart();
       renderCart();
       renderSummary();
     } catch (error) {
       console.error("[checkout] process error", error);
-      alert(`Failed to save transaction: ${error.message || error}`);
+      showCheckoutNotice("Checkout Failed", `Failed to save transaction: ${error.message || error}`, "error");
     }
   };
 
   async function initCheckout() {
     removeHeaderSearch();
+    bindNoticeModal();
     cart = loadCart();
 
     try {
@@ -518,10 +645,8 @@
 
     buildCategoryListWhenReady();
     wireFiltersWhenReady();
-    wireQuickAdd();
     renderWhenReady();
-    renderCart();
-    renderSummary();
+    renderCheckoutStateWhenReady();
   }
 
   if (document.readyState === "loading") {
@@ -543,4 +668,13 @@
   setTimeout(() => {
     wireFiltersWhenReady();
   }, 550);
+
+  document.addEventListener("sectionLoaded", (event) => {
+    const section = String(event?.detail?.section || "").toLowerCase();
+    if (section.includes("checkout")) {
+      setTimeout(() => {
+        renderCheckoutStateWhenReady();
+      }, 60);
+    }
+  });
 })();

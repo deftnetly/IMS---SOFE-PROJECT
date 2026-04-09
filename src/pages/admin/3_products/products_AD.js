@@ -33,6 +33,7 @@
   let categories = []; // { id, category_id, category_name, code }
   let products = [];   // loaded from products API
   let editingProductId = null; // internal product id when editing
+  let productSearchTerm = '';
 
   // helpers
   const $ = id => document.getElementById(id);
@@ -57,6 +58,34 @@
     }
 
     return `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;line-height:1.1;background:${background};color:${color};white-space:nowrap;">${esc(statusText)}</span>`;
+  }
+  function getProductStatusText(stockNum) {
+    if (stockNum <= 0) return 'Unavailable';
+    if (stockNum <= 20) return 'Low';
+    if (stockNum <= 40) return 'Medium';
+    return 'High';
+  }
+  function getFilteredProducts() {
+    const term = String(productSearchTerm || '').trim().toLowerCase();
+    if (!term) return products || [];
+
+    return (products || []).filter((p) => {
+      const code = String(p.product_code || ('P' + String(p.id || '').padStart(3, '0'))).toLowerCase();
+      const name = String(p.product_name || '').toLowerCase();
+      const category = String(p.category_name || '').toLowerCase();
+      const dateAdded = String(p.date_added || '').toLowerCase();
+      const stockNum = Number(p.stock) || 0;
+      const status = getProductStatusText(stockNum).toLowerCase();
+      return code.includes(term) || name.includes(term) || category.includes(term) || dateAdded.includes(term) || status.includes(term);
+    });
+  }
+  function updateProductSearchClearState() {
+    const searchInput = $('productSearch');
+    const clearBtn = $('productSearchClear');
+    if (!searchInput || !clearBtn) return;
+    clearBtn.style.display = 'inline-flex';
+    clearBtn.style.opacity = '1';
+    clearBtn.style.pointerEvents = 'auto';
   }
 
   /* ---------- Categories ---------- */
@@ -127,7 +156,12 @@
     const tbody = $('productsTbody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    products.forEach(p => {
+    const filteredProducts = getFilteredProducts();
+    if (!filteredProducts.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#6b7280;padding:18px 12px;">No products matched your search.</td></tr>';
+      return;
+    }
+    filteredProducts.forEach(p => {
       const tr = document.createElement('tr');
 
       // Product ID (use product_code if exists)
@@ -139,27 +173,23 @@
 
       // decide stock class and status text
       let stockClass = 'stock-high';
-      let statusText = 'High';
+      let statusText = getProductStatusText(stockNum);
 
       if (stockNum <= 0) {
         stockClass = 'stock-unavailable';
-        statusText = 'Unavailable';
       } else if (stockNum <= 20) {
         stockClass = 'stock-low';
-        statusText = 'Low';
       } else if (stockNum <= 40) {
         stockClass = 'stock-medium';
-        statusText = 'Medium';
       } else {
         stockClass = 'stock-high';
-        statusText = 'High';
       }
 
       tr.innerHTML = `
         <td class="col-id">${esc(code)}</td>
         <td class="col-name"><span class="product-name">${esc(p.product_name)}</span></td>
         <td class="col-cat"><span class="product-category">${esc(catDisplay)}</span></td>
-        <td class="col-price">â‚±${Number(p.price).toFixed(2)}</td>
+        <td class="col-price">&#8369;${Number(p.price).toFixed(2)}</td>
         <td class="col-stock stock-cell ${stockClass}">${esc(p.stock)}</td>
         <td class="col-date"><span class="product-date">${esc(p.date_added)}</span></td>
         <td class="col-status" style="white-space:nowrap;">${statusBadgeHtml(statusText)}</td>
@@ -311,7 +341,14 @@
 
   /* ---------- Delete ---------- */
   async function deleteProduct(productId) {
-    if (!confirm('Delete this product?')) return;
+    const confirmed = typeof window.showDeleteConfirm === 'function'
+      ? await window.showDeleteConfirm({
+          title: 'Delete Product',
+          message: 'Do you want to permanently delete this product? This cannot be undone.',
+          confirmLabel: 'Delete Product'
+        })
+      : confirm('Do you want to permanently delete this product?\n\nThis cannot be undone.');
+    if (!confirmed) return;
     try {
       const res = await fetch(DELETE_PRODUCT_API, {
         method: 'POST',
@@ -339,9 +376,32 @@
       const modal = $('productModal');
       if (modal && e.target === modal) closeProductModal();
     });
+    const searchInput = $('productSearch');
+    if (searchInput && !searchInput.__init) {
+      searchInput.__init = true;
+      searchInput.addEventListener('input', () => {
+        productSearchTerm = searchInput.value || '';
+        updateProductSearchClearState();
+        renderProductsTable();
+      });
+    }
+    const clearBtn = $('productSearchClear');
+    if (clearBtn && !clearBtn.__init) {
+      clearBtn.__init = true;
+      clearBtn.addEventListener('click', () => {
+        const input = $('productSearch');
+        if (!input) return;
+        input.value = '';
+        productSearchTerm = '';
+        updateProductSearchClearState();
+        renderProductsTable();
+        input.focus();
+      });
+    }
 
     await loadCategories();
     await loadProducts();
+    updateProductSearchClearState();
   }
 
   // wire to SPA loader or DOMContentLoaded

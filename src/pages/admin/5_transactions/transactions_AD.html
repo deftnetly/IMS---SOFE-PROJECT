@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -13,19 +13,41 @@
       align-items: center;
       flex-wrap: wrap;
       padding: 14px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
+      background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
       border: 1px solid rgba(251, 146, 60, 0.18);
       border-radius: 18px;
-      box-shadow:
-        0 12px 30px rgba(249, 115, 22, 0.08),
-        inset 0 1px 0 rgba(255,255,255,0.75);
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.08), inset 0 1px 0 rgba(255,255,255,0.75);
       width: fit-content;
       max-width: 100%;
     }
     .data-table { width:100%; border-collapse:collapse; }
-    .data-table thead th { background:#f2ead8; padding:14px; text-align:left; }
-    .data-table td { padding:14px; border-bottom:1px solid #eee; }
+    .data-table thead th {
+      background:#f2ead8;
+      padding:14px;
+      text-align:left;
+      color:#111827;
+      font-weight:700;
+    }
+    .data-table td {
+      padding:14px;
+      border-bottom:1px solid #eee;
+      color:#6b7280;
+    }
+    .data-table tbody td:nth-child(1) {
+      color:#9a3412;
+      font-weight:700;
+    }
+    .data-table tbody td:nth-child(2) {
+      color:#6b7280;
+    }
+    .data-table tbody td:nth-child(3) {
+      color:#7c2d12;
+      font-weight:600;
+    }
+    .data-table tbody td:nth-child(5) {
+      color:#c2410c;
+      font-weight:700;
+    }
     .filter-input,
     .filter-select {
       min-height: 42px;
@@ -38,23 +60,15 @@
       font-weight: 600;
       box-sizing: border-box;
       outline: none;
-      box-shadow:
-        0 8px 20px rgba(249, 115, 22, 0.06),
-        inset 0 1px 0 rgba(255,255,255,0.7);
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.06), inset 0 1px 0 rgba(255,255,255,0.7);
       transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
     }
-    .filter-input {
-      min-width: 150px;
-    }
-    .filter-select {
-      min-width: 168px;
-    }
+    .filter-input { min-width: 150px; }
+    .filter-select { min-width: 168px; }
     .filter-input:focus,
     .filter-select:focus {
       border-color: rgba(249, 115, 22, 0.55);
-      box-shadow:
-        0 0 0 4px rgba(249, 115, 22, 0.12),
-        0 10px 22px rgba(249, 115, 22, 0.12);
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 10px 22px rgba(249, 115, 22, 0.12);
       transform: translateY(-1px);
     }
     .filter-action {
@@ -69,32 +83,27 @@
       cursor: pointer;
       transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
     }
-    .filter-action:hover {
-      transform: translateY(-1px);
-      filter: saturate(1.05);
-    }
-    .filter-action:active {
-      transform: translateY(0);
-      opacity: 0.92;
-    }
+    .filter-action:hover { transform: translateY(-1px); filter: saturate(1.05); }
+    .filter-action:active { transform: translateY(0); opacity: 0.92; }
     .filter-apply {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.22);
+      background: #f97316;
+      box-shadow: 0 12px 24px rgba(249, 115, 22, 0.18);
+    }
+    .filter-apply:hover {
+      background: #ea580c;
     }
     .filter-reset {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      box-shadow: 0 12px 24px rgba(239, 68, 68, 0.22);
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid rgba(249, 115, 22, 0.18);
+      box-shadow: 0 10px 22px rgba(249, 115, 22, 0.08);
     }
-    .employee-filter {
-      position: relative;
-      min-width: 190px;
+    .filter-reset:hover {
+      background: #ffedd5;
+      color: #7c2d12;
     }
-    .filter-select-native {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      pointer-events: none;
-    }
+    .employee-filter { position: relative; min-width: 190px; }
+    .filter-select-native { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
     .employee-filter-trigger {
       width: 100%;
       min-height: 42px;
@@ -106,9 +115,7 @@
       font-weight: 600;
       box-sizing: border-box;
       outline: none;
-      box-shadow:
-        0 8px 20px rgba(249, 115, 22, 0.06),
-        inset 0 1px 0 rgba(255,255,255,0.7);
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.06), inset 0 1px 0 rgba(255,255,255,0.7);
       transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
       display: flex;
       align-items: center;
@@ -117,21 +124,13 @@
       padding: 0 14px;
       cursor: pointer;
     }
-    .employee-filter-trigger:hover {
-      transform: translateY(-1px);
-    }
+    .employee-filter-trigger:hover { transform: translateY(-1px); }
     .employee-filter.open .employee-filter-trigger,
     .employee-filter-trigger:focus {
       border-color: rgba(249, 115, 22, 0.55);
-      box-shadow:
-        0 0 0 4px rgba(249, 115, 22, 0.12),
-        0 10px 22px rgba(249, 115, 22, 0.12);
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 10px 22px rgba(249, 115, 22, 0.12);
     }
-    .employee-filter-label {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    .employee-filter-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .employee-filter-caret {
       width: 10px;
       height: 10px;
@@ -141,9 +140,7 @@
       transform: rotate(45deg) translateY(-2px);
       transition: transform 0.18s ease;
     }
-    .employee-filter.open .employee-filter-caret {
-      transform: rotate(-135deg) translateY(-1px);
-    }
+    .employee-filter.open .employee-filter-caret { transform: rotate(-135deg) translateY(-1px); }
     .employee-filter-menu {
       position: absolute;
       top: calc(100% + 10px);
@@ -159,9 +156,7 @@
       max-height: 260px;
       overflow-y: auto;
     }
-    .employee-filter.open .employee-filter-menu {
-      display: block;
-    }
+    .employee-filter.open .employee-filter-menu { display: block; }
     .employee-filter-option {
       width: 100%;
       border: none;
@@ -175,15 +170,8 @@
       cursor: pointer;
       transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
     }
-    .employee-filter-option:hover {
-      background: #fff7ed;
-      color: #c2410c;
-      transform: translateX(2px);
-    }
-    .employee-filter-option.is-active {
-      background: linear-gradient(135deg, #ffedd5 0%, #fff7ed 100%);
-      color: #c2410c;
-    }
+    .employee-filter-option:hover { background: #fff7ed; color: #c2410c; transform: translateX(2px); }
+    .employee-filter-option.is-active { background: linear-gradient(135deg, #ffedd5 0%, #fff7ed 100%); color: #c2410c; }
     .view-btn, .remove-btn {
       border: none;
       border-radius: 999px;
@@ -194,30 +182,13 @@
       cursor: pointer;
       transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
     }
-    .view-btn {
-      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      box-shadow: 0 8px 18px rgba(234, 88, 12, 0.18);
-    }
-    .remove-btn {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      box-shadow: 0 8px 18px rgba(220, 38, 38, 0.18);
-    }
-    .view-btn:hover, .remove-btn:hover {
-      transform: translateY(-1px);
-    }
-    .view-btn:active, .remove-btn:active {
-      transform: translateY(0);
-      opacity: 0.92;
-    }
+    .view-btn { background: #f97316; box-shadow: 0 8px 18px rgba(234, 88, 12, 0.18); }
+    .remove-btn { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 8px 18px rgba(220, 38, 38, 0.18); }
+    .view-btn:hover, .remove-btn:hover { transform: translateY(-1px); }
+    .view-btn:active, .remove-btn:active { transform: translateY(0); opacity: 0.92; }
     @media (max-width: 720px) {
-      .controls {
-        padding: 14px;
-      }
-      .filter-input,
-      .employee-filter,
-      .filter-action {
-        width: 100%;
-      }
+      .controls { padding: 14px; }
+      .filter-input, .employee-filter, .filter-action { width: 100%; }
     }
 
     .modal-wrap {
@@ -229,23 +200,36 @@
       align-items:center;
       z-index:9999;
     }
-    .modal-inner {
-      width:88%;
-      max-width:900px;
-      background:#fff;
-      border-radius:8px;
-      padding:18px;
-    }
+    .modal-inner { width:88%; max-width:900px; background:#fff; border-radius:8px; padding:18px; }
     .modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .modal-head h3 { color:#111827; }
     .modal-table { width:100%; border-collapse:collapse; margin-top:8px; }
-    .modal-table th, .modal-table td { padding:10px; border-bottom:1px solid #eee; }
+    .modal-table th {
+      padding:10px;
+      border-bottom:1px solid #eee;
+      color:#111827;
+      font-weight:700;
+    }
+    .modal-table td {
+      padding:10px;
+      border-bottom:1px solid #eee;
+      color:#6b7280;
+    }
+    .modal-table tbody td:first-child {
+      color:#7c2d12;
+      font-weight:600;
+    }
+    .modal-table tbody td:nth-child(3),
+    .modal-table tbody td:nth-child(4) {
+      color:#c2410c;
+      font-weight:700;
+    }
   </style>
 </head>
 
 <body>
   <div id="transactionsPage" style="padding:28px;">
     <div class="panel">
-
       <h2 style="color:#e96f00; margin-top:0;">Transactions</h2>
 
       <div class="controls">
@@ -275,30 +259,25 @@
             <th style="text-align:center;">Actions</th>
           </tr>
         </thead>
-        <tbody id="txBody">
-          <!-- JS will populate rows here -->
-        </tbody>
+        <tbody id="txBody"></tbody>
       </table>
-
     </div>
   </div>
 
-  <!-- MODAL -->
   <div id="transactionModal" class="modal-wrap">
     <div class="modal-inner">
-
       <div class="modal-head">
         <div>
           <h3>Transaction Details</h3>
           <div style="font-size:13px;color:#666;">
-            <span id="modalTransactionId">â€”</span>
+            <span id="modalTransactionId">-</span>
             <span id="modalTransactionDateTime" style="margin-left:12px;color:#999;font-size:12px;"></span>
           </div>
         </div>
         <button onclick="closeTransactionModal()" style="padding:6px 10px;">Close</button>
       </div>
 
-      <div><strong>Employee:</strong> <span id="modalEmployee">â€”</span></div>
+      <div><strong>Employee:</strong> <span id="modalEmployee">-</span></div>
 
       <table class="modal-table">
         <thead>
@@ -313,24 +292,21 @@
         <tfoot>
           <tr>
             <td colspan="3" style="text-align:right;font-weight:600;">Subtotal:</td>
-            <td id="modalSubtotal" style="text-align:right;font-weight:600;">â‚±0.00</td>
+            <td id="modalSubtotal" style="text-align:right;font-weight:600;">&#8369;0.00</td>
           </tr>
           <tr>
             <td colspan="3" style="text-align:right;font-weight:600;">Tax (12%):</td>
-            <td id="modalTax" style="text-align:right;font-weight:600;">â‚±0.00</td>
+            <td id="modalTax" style="text-align:right;font-weight:600;">&#8369;0.00</td>
           </tr>
           <tr>
             <td colspan="3" style="text-align:right;font-weight:600;">Total:</td>
-            <td id="modalTotal" style="text-align:right;font-weight:600;">â‚±0.00</td>
+            <td id="modalTotal" style="text-align:right;font-weight:600;">&#8369;0.00</td>
           </tr>
         </tfoot>
       </table>
-
     </div>
   </div>
 
-  <!-- ONLY ONE SCRIPT TAG â€” FIXED -->
   <script src="/smart-inventory/src/pages/admin/5_transactions/transactions_AD.js"></script>
-
 </body>
 </html>

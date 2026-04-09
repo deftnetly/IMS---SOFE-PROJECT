@@ -4,11 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        .categories-page-shell {
+            padding: 20px 28px 28px;
+        }
+        .categories-page-shell .content-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
         .categories-add-button {
             border: none;
             border-radius: 999px;
-            min-height: 44px;
+            min-height: 48px;
             padding: 0 18px;
+            margin: 0;
             background: #f97316;
             color: #fff;
             font-size: 14px;
@@ -16,6 +26,82 @@
             cursor: pointer;
             box-shadow: 0 8px 16px rgba(234, 88, 12, 0.12);
             transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .categories-controls {
+            margin-bottom: 18px;
+            display: inline-flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: nowrap;
+            padding: 14px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
+            border: 1px solid rgba(251, 146, 60, 0.18);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(249, 115, 22, 0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+            width: fit-content;
+            max-width: 100%;
+        }
+        .categories-search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 360px;
+            flex: 0 0 360px;
+        }
+        .categories-search {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 42px 0 16px;
+            border: 1px solid #e5d5bf;
+            border-radius: 999px;
+            background: #fff;
+            color: #7c2d12;
+            font-size: 14px;
+            font-weight: 600;
+            box-sizing: border-box;
+            box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        }
+        .categories-search::placeholder {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+        .categories-search:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 10px 22px rgba(249, 115, 22, 0.12);
+            transform: translateY(-1px);
+        }
+        .categories-search-clear {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            border: none;
+            border-radius: 999px;
+            background: #fff7ed;
+            color: #c2410c;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.10);
+            transition: background-color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+        }
+        .categories-search-clear:hover {
+            background: #ffedd5;
+        }
+        .categories-search-clear:active {
+            transform: translateY(-50%);
+            opacity: 0.92;
         }
         .categories-add-button:hover,
         .categories-edit-button:hover,
@@ -58,12 +144,109 @@
         .categories-description {
             color: #6b7280;
         }
+        .modal {
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(15, 23, 42, 0.42);
+            backdrop-filter: blur(3px);
+            z-index:999;
+            padding: 26px 14px;
+            overflow: auto;
+        }
+        .modal-content {
+            background:#fff;
+            margin: 3% auto;
+            padding: 24px 24px 22px;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 640px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+        }
+        .modal-content h3 {
+            margin: 0 0 18px;
+            color: #111827;
+            font-size: 18px;
+        }
+        .close {
+            float:right;
+            font-size:24px;
+            line-height: 1;
+            cursor:pointer;
+            color:#6b7280;
+            transition: color 0.18s ease;
+        }
+        .close:hover {
+            color:#111827;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+            color: #374151;
+        }
+        .form-group input {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            border: 1px solid #e5d5bf;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #374151;
+            box-sizing: border-box;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+        }
+        .form-buttons {
+            display:flex;
+            justify-content:flex-end;
+            gap:10px;
+            margin-top: 8px;
+        }
+        .form-buttons .cancel-button,
+        .form-buttons .submit-button {
+            border: none;
+            border-radius: 999px;
+            min-height: 42px;
+            padding: 0 18px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .form-buttons .cancel-button {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .form-buttons .submit-button {
+            background: #f97316;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
+    <div class="categories-page-shell">
     <div class="content-section">
         <h2>Categories</h2>
-        <button class="add-button categories-add-button">Add New Category</button>
+        <div class="categories-controls">
+            <div class="categories-search-wrap">
+                <input
+                    type="text"
+                    id="categorySearch"
+                    class="categories-search"
+                    placeholder="Search category ID, name, or description..."
+                    aria-label="Search categories"
+                >
+                <button type="button" class="categories-search-clear" id="categorySearchClear" aria-label="Clear category search">X</button>
+            </div>
+            <button class="add-button categories-add-button">Add New Category</button>
+        </div>
 
         <!-- Modal -->
         <div id="categoryModal" class="modal" style="display:none;">
@@ -102,6 +285,7 @@
             </thead>
             <tbody id="categoriesTbody"></tbody>
         </table>
+    </div>
     </div>
 
 </body>

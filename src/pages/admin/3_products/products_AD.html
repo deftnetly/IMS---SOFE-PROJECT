@@ -7,6 +7,15 @@
 
   <!-- KEEP your stock/status CSS exactly as you had it -->
   <style>
+    .products-page-shell {
+      padding: 20px 28px 28px;
+    }
+    .products-page-shell .content-section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
     .stock-cell { font-weight: 600; }
     .stock-unavailable { color: #383434; }
     .stock-low { color: #c62828; }
@@ -32,8 +41,9 @@
     .products-add-button {
       border: none;
       border-radius: 999px;
-      min-height: 44px;
+      min-height: 48px;
       padding: 0 18px;
+      margin: 0;
       background: #f97316;
       color: #fff;
       font-size: 14px;
@@ -41,6 +51,82 @@
       cursor: pointer;
       box-shadow: 0 8px 16px rgba(234, 88, 12, 0.12);
       transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .products-controls {
+      margin-bottom: 18px;
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: nowrap;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
+      border: 1px solid rgba(251, 146, 60, 0.18);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+      width: fit-content;
+      max-width: 100%;
+    }
+    .products-search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 360px;
+      flex: 0 0 360px;
+    }
+    .products-search {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 42px 0 16px;
+      border: 1px solid #e5d5bf;
+      border-radius: 999px;
+      background: #fff;
+      color: #7c2d12;
+      font-size: 14px;
+      font-weight: 600;
+      box-sizing: border-box;
+      box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .products-search::placeholder {
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    .products-search:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 10px 22px rgba(249, 115, 22, 0.12);
+      transform: translateY(-1px);
+    }
+    .products-search-clear {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.10);
+      transition: background-color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+    }
+    .products-search-clear:hover {
+      background: #ffedd5;
+    }
+    .products-search-clear:active {
+      transform: translateY(-50%);
+      opacity: 0.92;
     }
     .products-add-button:hover {
       transform: translateY(-1px);
@@ -90,13 +176,112 @@
     .product-date {
       color: #6b7280;
     }
+    .modal {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(15, 23, 42, 0.42);
+      backdrop-filter: blur(3px);
+      z-index:999;
+      padding: 26px 14px;
+      overflow: auto;
+    }
+    .modal-content {
+      background:#fff;
+      margin: 3% auto;
+      padding: 24px 24px 22px;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 760px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+    }
+    .modal-content h2 {
+      margin: 0 0 18px;
+      color: #111827;
+      font-size: 18px;
+    }
+    .close {
+      float:right;
+      font-size:24px;
+      line-height: 1;
+      cursor:pointer;
+      color:#6b7280;
+      transition: color 0.18s ease;
+    }
+    .close:hover {
+      color:#111827;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      color: #374151;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid #e5d5bf;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #374151;
+      box-sizing: border-box;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      background: #fff;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+    }
+    .form-buttons {
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top: 8px;
+    }
+    .form-buttons .cancel-button,
+    .form-buttons .submit-button {
+      border: none;
+      border-radius: 999px;
+      min-height: 42px;
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .form-buttons .cancel-button {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .form-buttons .submit-button {
+      background: #f97316;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
+  <div class="products-page-shell">
   <div class="content-section">
     <h2>Products</h2>
-    <!-- This button calls the JS function expected by products_AD.js -->
-    <button class="add-button products-add-button" onclick="openProductModal()">Add New Product</button>
+    <div class="products-controls">
+      <div class="products-search-wrap">
+        <input
+          type="text"
+          id="productSearch"
+          class="products-search"
+          placeholder="Search product ID, name, category, or status..."
+          aria-label="Search products"
+        />
+        <button type="button" class="products-search-clear" id="productSearchClear" aria-label="Clear product search">X</button>
+      </div>
+      <button class="add-button products-add-button" onclick="openProductModal()">Add New Product</button>
+    </div>
 
     <!-- Modal: matches JS (form uses addProduct(event) and hidden productId exists) -->
     <div id="productModal" class="modal" style="display:none;" aria-hidden="true">
@@ -118,7 +303,7 @@
           </div>
 
           <div class="form-group">
-            <label for="price">Price (â‚±):</label>
+            <label for="price">Price (&#8369;):</label>
             <input type="number" id="price" step="0.01" required>
           </div>
 
@@ -144,7 +329,7 @@
           <th>Product ID</th>
           <th>Product Name</th>
           <th>Category</th>
-          <th>Price (â‚±)</th>
+          <th>Price (&#8369;)</th>
           <th>Stock</th>
           <th>Date Added</th>
           <th>Status</th>
@@ -153,6 +338,7 @@
       </thead>
       <tbody id="productsTbody"></tbody>
     </table>
+  </div>
   </div>
 
   <!-- This script tag should load the products_AD.js that expects the structure above -->

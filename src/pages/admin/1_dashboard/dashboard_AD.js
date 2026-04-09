@@ -9,7 +9,7 @@
   const ENDPOINT_PRODUCTS = '/src/pages/admin/3_products/get_products.php';
   const ENDPOINT_CATEGORIES = '/src/pages/admin/2_categories/get_categories.php';
   const ENDPOINT_EMPLOYEES = '/src/pages/admin/4_employees/get_employees.php';
-  const ENDPOINT_TRANSACTIONS = '/src/pages/employee/4_transactions/get_transactions.php';
+  const ENDPOINT_TRANSACTIONS = '/src/pages/admin/5_transactions/get_transactions.php';
 
   const LOW_THRESHOLD = 40; // <= 40 is low stock
 

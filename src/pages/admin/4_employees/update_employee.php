@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $employee_code = trim($_POST['employee_code'] ?? '');
 $full_name     = trim($_POST['full_name'] ?? '');
 $email         = trim($_POST['email'] ?? '');
-$phone         = trim($_POST['phone'] ?? '');
+$phone         = preg_replace('/\D+/', '', trim($_POST['phone'] ?? ''));
 $username      = trim($_POST['username'] ?? '');
 $password      = $_POST['password'] ?? '';
 $action        = $_POST['action'] ?? '';
@@ -62,6 +62,12 @@ if ($action === 'reset_password') {
 if (!$employee_code || !$full_name) {
     http_response_code(400);
     echo json_encode(['success'=>false,'message'=>'employee_code and full_name required']);
+    exit;
+}
+
+if ($phone === '' || !preg_match('/^09\d{9}$/', $phone)) {
+    http_response_code(400);
+    echo json_encode(['success'=>false,'message'=>'Phone number must be a valid PH mobile number in 11-digit format']);
     exit;
 }
 

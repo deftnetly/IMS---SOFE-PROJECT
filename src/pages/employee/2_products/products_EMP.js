@@ -14,6 +14,8 @@
   const TABLE_TBODY_SELECTOR = ".products-table tbody";
   const TABLE_WRAPPER_SELECTOR = ".products-table";
   const DEBUG = true;
+  let employeeProductSearchTerm = "";
+  let employeeProductsData = [];
 
   /* --- small logger helpers --- */
   function dlog(...args) { if (DEBUG) console.log("[EMP-PROD]", ...args); }
@@ -22,7 +24,7 @@
   /* --- formatting helpers --- */
   function fmtPrice(v) {
     const n = Number(v);
-    return isNaN(n) ? "â‚±0.00" : "â‚±" + n.toFixed(2);
+    return isNaN(n) ? "&#8369;0.00" : "&#8369;" + n.toFixed(2);
   }
   function fmtDate(v) {
     if (!v) return "â€”";
@@ -41,6 +43,70 @@
     return Number(stock) === 0
       ? { text: "Unavailable", cls: "status-unavailable" }
       : { text: "Available", cls: "status-available" };
+  }
+
+  function getFilteredEmployeeProducts(products) {
+    const term = String(employeeProductSearchTerm || "").trim().toLowerCase();
+    if (!term) return products || [];
+    return (products || []).filter((p) => {
+      const id = String(p.product_code || p.id || "").toLowerCase();
+      const name = String(p.product_name || p.product || "").toLowerCase();
+      const category = String((p.category_name || p.category || "")).toLowerCase();
+      const categoryCode = String(p.category_code || "").toLowerCase();
+      const price = String(p.price || "").toLowerCase();
+      const stock = String(p.stock || "").toLowerCase();
+      const dateAdded = String(p.date_added || p.created_at || "").toLowerCase();
+      const status = String(statusInfo(Number(p.stock || 0)).text || "").toLowerCase();
+      return id.includes(term)
+        || name.includes(term)
+        || category.includes(term)
+        || categoryCode.includes(term)
+        || price.includes(term)
+        || stock.includes(term)
+        || dateAdded.includes(term)
+        || status.includes(term);
+    });
+  }
+
+  function updateEmployeeProductSearchClearState() {
+    const searchInput = document.getElementById("employeeProductSearch");
+    const clearBtn = document.getElementById("employeeProductSearchClear");
+    if (!searchInput || !clearBtn) return;
+    clearBtn.style.display = "inline-flex";
+    clearBtn.style.opacity = "1";
+    clearBtn.style.pointerEvents = "auto";
+  }
+
+  function renderCurrentEmployeeProducts() {
+    renderEmployeeProducts(getFilteredEmployeeProducts(employeeProductsData));
+  }
+
+  function bindEmployeeProductSearchUi() {
+    const searchInput = document.getElementById("employeeProductSearch");
+    if (searchInput && !searchInput.__init) {
+      searchInput.__init = true;
+      searchInput.addEventListener("input", () => {
+        employeeProductSearchTerm = searchInput.value || "";
+        updateEmployeeProductSearchClearState();
+        renderCurrentEmployeeProducts();
+      });
+    }
+
+    const clearBtn = document.getElementById("employeeProductSearchClear");
+    if (clearBtn && !clearBtn.__init) {
+      clearBtn.__init = true;
+      clearBtn.addEventListener("click", () => {
+        const input = document.getElementById("employeeProductSearch");
+        if (!input) return;
+        input.value = "";
+        employeeProductSearchTerm = "";
+        updateEmployeeProductSearchClearState();
+        renderCurrentEmployeeProducts();
+        input.focus();
+      });
+    }
+
+    updateEmployeeProductSearchClearState();
   }
 
   function statusBadgeHtml(status) {
@@ -68,7 +134,7 @@
     tbody.innerHTML = "";
 
     if (!Array.isArray(products) || products.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:gray;">No products available.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:gray;">${employeeProductSearchTerm ? 'No products matched your search.' : 'No products available.'}</td></tr>`;
       return;
     }
 
@@ -117,6 +183,7 @@
     dlog("loadEmployeeProducts â€” checking table presence");
     const tbody = document.querySelector(TABLE_TBODY_SELECTOR);
     if (!tbody) { deerr("load aborted â€” products tbody missing"); return; }
+    bindEmployeeProductSearchUi();
 
     try {
       const res = await fetch(PRODUCTS_API, { cache: "no-store" });
@@ -129,14 +196,16 @@
       if (json.success === false) { renderError("Server error: " + (json.error || "Unknown")); deerr("API error payload:", json); return; }
 
       const data = Array.isArray(json.data) ? json.data : (json.products || json.items || []);
+      employeeProductsData = data;
       const hash = JSON.stringify(data || []);
       if (__lastDataHash && __lastDataHash === hash) {
         dlog("data unchanged â€” skipping render");
       } else {
         __lastDataHash = hash;
-        renderEmployeeProducts(data);
+        renderCurrentEmployeeProducts();
       }
       __tbodySeen = true;
+      updateEmployeeProductSearchClearState();
     } catch (err) {
       deerr("loadEmployeeProducts failed:", err);
       renderError("Cannot load products (network/server).");
@@ -208,6 +277,7 @@
     dlog("init products loader (scoped)");
 
     attachObserver();
+    bindEmployeeProductSearchUi();
 
     if (document.querySelector(TABLE_TBODY_SELECTOR)) {
       dlog("products tbody present on init -> schedule load");
@@ -228,9 +298,11 @@
         const sec = e && e.detail && e.detail.section ? String(e.detail.section).toLowerCase() : '';
         dlog("sectionLoaded event:", sec);
         if (sec.indexOf('product') !== -1) {
+          bindEmployeeProductSearchUi();
           // entering product page
           __tbodySeen = false; // let observer detect reinsertion
           setTimeout(() => {
+            bindEmployeeProductSearchUi();
             if (document.querySelector(TABLE_TBODY_SELECTOR)) scheduleLoad(40);
           }, 40);
         } else {

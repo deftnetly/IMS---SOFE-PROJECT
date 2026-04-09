@@ -4,87 +4,437 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-
   <style>
-    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999; }
-    .modal-content { background:#fff; margin:6% auto; padding:20px; border-radius:10px; width:90%; max-width:600px; }
-    .close { float:right; font-size:20px; cursor:pointer; }
-    .form-group { margin-bottom:12px; }
-    .form-buttons { display:flex; justify-content:flex-end; gap:8px; }
-    .data-table { width:100%; border-collapse:collapse; margin-top:20px; }
-    .data-table th, .data-table td { border:1px solid #ddd; padding:8px; }
-    .small-btn { padding:4px 6px; font-size:12px; }
-    .action-button { padding:6px 8px; cursor:pointer; }
+    .employees-page-shell {
+      padding: 28px;
+    }
+    .employees-panel {
+      background: #fff;
+      border-radius: 18px;
+      padding: 24px 26px 30px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+    }
+    .employees-header {
+      margin-bottom: 20px;
+    }
+    .employees-header h2 {
+      margin: 0 0 6px;
+      color: #ff5b00;
+    }
+    .employees-subtitle {
+      margin: 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .employees-add-button {
+      border: none;
+      border-radius: 999px;
+      min-height: 48px;
+      padding: 0 20px;
+      margin: 0;
+      background: #f97316;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      box-shadow: 0 10px 22px rgba(249, 115, 22, 0.18);
+      transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+    }
+    .employees-add-button:hover {
+      transform: translateY(-1px);
+      background: #ea580c;
+    }
+    .employees-add-button:active {
+      transform: translateY(0);
+      opacity: 0.94;
+    }
+    .employees-controls {
+      margin-bottom: 18px;
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: nowrap;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,247,237,0.98) 100%);
+      border: 1px solid rgba(251, 146, 60, 0.18);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+      width: fit-content;
+      max-width: 100%;
+    }
+    .employees-search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 360px;
+      flex: 0 0 360px;
+    }
+    .employees-search {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 42px 0 16px;
+      border: 1px solid #e5d5bf;
+      border-radius: 999px;
+      background: #fff;
+      color: #7c2d12;
+      font-size: 14px;
+      font-weight: 600;
+      box-sizing: border-box;
+      box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .employees-search::placeholder {
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    .employees-search:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12), 0 10px 22px rgba(249, 115, 22, 0.12);
+      transform: translateY(-1px);
+    }
+    .employees-search-clear {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.10);
+      transition: background-color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+    }
+    .employees-search-clear:hover {
+      background: #ffedd5;
+    }
+    .employees-search-clear:active {
+      transform: translateY(-50%);
+      opacity: 0.92;
+    }
+    .employees-table-wrap {
+      overflow-x: auto;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    }
+    .employees-table-wrap .data-table {
+      width: 100%;
+      margin-top: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 920px;
+    }
+    .employees-table-wrap .data-table thead th {
+      background: #f2ead8;
+      border-bottom: 1px solid #e7dcc8;
+      padding: 14px 12px;
+      font-weight: 700;
+      text-align: left;
+      color: #111827;
+      white-space: nowrap;
+    }
+    .employees-table-wrap .data-table tbody td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #ece7dd;
+      background: #fff;
+      vertical-align: middle;
+      color: #6b7280;
+    }
+    .employees-table-wrap .data-table tbody tr:hover td {
+      background: #fffaf5;
+    }
+    .employee-code {
+      color: #9a3412;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .employee-name {
+      color: #7C2D12;
+      font-weight: 700;
+    }
+    .employee-email,
+    .employee-phone,
+    .employee-username {
+      color: #6b7280;
+    }
+    .employee-password {
+      color: #9ca3af;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+    }
+    .employees-actions {
+      white-space: nowrap;
+    }
+    .employees-actions .action-button {
+      border: none;
+      border-radius: 999px;
+      min-height: 36px;
+      padding: 0 14px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+    .employees-actions .edit-button {
+      background: #2196F3;
+      box-shadow: 0 8px 18px rgba(59, 130, 246, 0.18);
+    }
+    .employees-actions .delete-button {
+      background: #f44336;
+      box-shadow: 0 8px 18px rgba(239, 68, 68, 0.18);
+      margin-left: 8px;
+    }
+    .employees-actions .action-button:hover {
+      transform: translateY(-1px);
+    }
+    .employees-actions .action-button:active {
+      transform: translateY(0);
+      opacity: 0.94;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.42);
+      backdrop-filter: blur(3px);
+      z-index: 999;
+      padding: 26px 14px;
+      overflow: auto;
+    }
+    .modal-content {
+      background: #fff;
+      margin: 3% auto;
+      padding: 24px 24px 22px;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 640px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+    }
+    .modal-content h2 {
+      margin: 0 0 18px;
+      color: #111827;
+    }
+    .close {
+      float: right;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      color: #6b7280;
+      transition: color 0.18s ease;
+    }
+    .close:hover {
+      color: #111827;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      color: #374151;
+    }
+    .form-group input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid #e5d5bf;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #374151;
+      box-sizing: border-box;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+    }
+    .password-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .password-row input {
+      flex: 1 1 auto;
+    }
+    .small-btn {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid #e5d5bf;
+      border-radius: 12px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .form-group small {
+      display: block;
+      margin-top: 6px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+    .form-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .form-buttons .cancel-button,
+    .form-buttons .submit-button {
+      border: none;
+      border-radius: 999px;
+      min-height: 42px;
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .form-buttons .cancel-button {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .form-buttons .submit-button {
+      background: #f97316;
+      color: #fff;
+    }
+    @media (max-width: 760px) {
+      .employees-page-shell {
+        padding: 20px;
+      }
+      .employees-panel {
+        padding: 18px;
+      }
+      .employees-header {
+        margin-bottom: 18px;
+      }
+      .employees-controls {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+      .employees-search-wrap {
+        width: 100%;
+        flex: 1 1 100%;
+      }
+      .employees-add-button {
+        width: 100%;
+      }
+      .password-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div class="content-section">
-    <h2>Employees</h2>
-    <button class="add-button" onclick="openEmployeeModalForAdd()">Add New Employee</button>
+  <div class="employees-page-shell">
+    <div class="employees-panel">
+      <div class="employees-header">
+        <div>
+          <h2>Employees</h2>
+        </div>
+      </div>
+      <div class="employees-controls">
+        <div class="employees-search-wrap">
+          <input
+            type="text"
+            id="employeeSearch"
+            class="employees-search"
+            placeholder="Search employee code, full name, email, or username..."
+            aria-label="Search employees"
+          />
+          <button type="button" class="employees-search-clear" id="employeeSearchClear" aria-label="Clear employee search">X</button>
+        </div>
+        <button class="add-button employees-add-button" onclick="openEmployeeModalForAdd()">Add New Employee</button>
+      </div>
 
-    <!-- MODAL -->
-    <div id="employeeModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeEmployeeModal()">&times;</span>
-        <h2 id="modalTitle">Add Employee</h2>
+      <div id="employeeModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeEmployeeModal()">&times;</span>
+          <h2 id="modalTitle">Add Employee</h2>
 
-        <form id="employeeForm">
-          <input type="hidden" id="employeeCode" name="employee_code" />
+          <form id="employeeForm">
+            <input type="hidden" id="employeeCode" name="employee_code" />
 
-          <div class="form-group">
-            <label for="employeeName">Full Name:</label>
-            <input type="text" id="employeeName" name="full_name" required />
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-
-          <div class="form-group">
-            <label for="phone">Phone Number:</label>
-            <input type="tel" id="phone" name="phone" required />
-          </div>
-
-          <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required />
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password:</label>
-            <div style="display:flex; gap:6px;">
-              <input type="password" id="password" name="password" />
-              <button type="button" id="togglePassword" class="small-btn">👁 Show</button>
+            <div class="form-group">
+              <label for="employeeName">Full Name:</label>
+              <input type="text" id="employeeName" name="full_name" required />
             </div>
-            <small>Password must be at least 8 characters and include an uppercase letter.</small>
-          </div>
 
-          <div class="form-buttons">
-            <button type="button" class="cancel-button" onclick="closeEmployeeModal()">Cancel</button>
-            <button type="submit" class="submit-button">Add Employee</button>
-          </div>
-        </form>
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number:</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                required
+                inputmode="numeric"
+                maxlength="11"
+                pattern="09[0-9]{9}"
+                placeholder="09XXXXXXXXX"
+              />
+              <small>Use a valid PH mobile number in 11-digit format, like 09171234567.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="username">Username:</label>
+              <input type="text" id="username" name="username" required />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password:</label>
+              <div class="password-row">
+                <input type="password" id="password" name="password" />
+                <button type="button" id="togglePassword" class="small-btn">Show</button>
+              </div>
+              <small>Password must be at least 8 characters and include an uppercase letter.</small>
+            </div>
+
+            <div class="form-buttons">
+              <button type="button" class="cancel-button" onclick="closeEmployeeModal()">Cancel</button>
+              <button type="submit" class="submit-button">Add Employee</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="employees-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Employee Code</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employeesTbody"></tbody>
+        </table>
       </div>
     </div>
-
-    <!-- TABLE -->
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Employee Code</th>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Username</th>
-          <th>Password</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="employeesTbody"></tbody>
-    </table>
   </div>
-
 </body>
 </html>

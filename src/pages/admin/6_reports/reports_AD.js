@@ -1,8 +1,39 @@
 ﻿// reports_AD.js (simplified: no threshold inputs; DB-only)
 (function () {
+  let allReportItems = [];
+  let reportSearchTerm = '';
+
   function escapeHtml(s) {
     if (s === null || s === undefined) return '';
     return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  }
+
+  function getFilteredItems() {
+    const term = String(reportSearchTerm || '').trim().toLowerCase();
+    if (!term) return allReportItems || [];
+    return (allReportItems || []).filter((item) => {
+      const productId = String(item.product_id || '').toLowerCase();
+      const productName = String(item.product_name || '').toLowerCase();
+      const category = String(item.category || '').toLowerCase();
+      const status = String(item.status || '').toLowerCase();
+      const currentStock = String(item.current_stock ?? '').toLowerCase();
+      const soldInRange = String(item.sold_in_range ?? '').toLowerCase();
+      return productId.includes(term)
+        || productName.includes(term)
+        || category.includes(term)
+        || status.includes(term)
+        || currentStock.includes(term)
+        || soldInRange.includes(term);
+    });
+  }
+
+  function updateReportSearchClearState() {
+    const searchInput = document.getElementById('reportSearch');
+    const clearBtn = document.getElementById('reportSearchClear');
+    if (!searchInput || !clearBtn) return;
+    clearBtn.style.display = 'inline-flex';
+    clearBtn.style.opacity = '1';
+    clearBtn.style.pointerEvents = 'auto';
   }
 
   async function fetchJSON(url) {
@@ -103,11 +134,11 @@
     return `<button class="view-btn" data-id="${escapeHtml(productId)}" style="border:none;border-radius:999px;padding:8px 16px;background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 8px 18px rgba(234,88,12,0.18);transition:transform 0.18s ease,box-shadow 0.18s ease,opacity 0.18s ease;">View</button>`;
   }
 
-    function render(items) {
+  function render(items) {
         const tbody = document.querySelector('#reportTable tbody');
         if (!tbody) return;
         if (!items || !items.length) {
-            clearTableMessage('No low-stock items found for the selected range.');
+            clearTableMessage(reportSearchTerm ? 'No report rows matched your search.' : 'No low-stock items found for the selected range.');
             return;
         }
         let html = '';
@@ -120,12 +151,12 @@
             else stockColor = '#36993bff';
 
             html += `<tr data-prod="${escapeHtml(it.product_id)}">
-            <td>${escapeHtml(it.product_id)}</td>
-            <td>${escapeHtml(it.product_name)}</td>
-            <td>${escapeHtml(it.category)}</td>
+            <td style="color:#9a3412;font-weight:700;">${escapeHtml(it.product_id)}</td>
+            <td style="color:#7c2d12;font-weight:700;">${escapeHtml(it.product_name)}</td>
+            <td style="color:#0f766e;font-weight:600;">${escapeHtml(it.category)}</td>
             <td style="color:${stockColor}; font-weight:600">${escapeHtml(String(it.current_stock))}</td>
             <td style="white-space:nowrap;">${statusBadgeHtml(it.status)}</td>
-            <td>${escapeHtml(String(it.sold_in_range || 0))}</td>
+            <td style="color:#c2410c;font-weight:700;">${escapeHtml(String(it.sold_in_range || 0))}</td>
             <td>${viewButtonHtml(it.product_id)}</td>
             </tr>`;
         }
@@ -148,12 +179,12 @@
       return;
     }
     body.innerHTML = `
-      <p><strong>Product ID:</strong> ${escapeHtml(prod.product_id)}</p>
-      <p><strong>Name:</strong> ${escapeHtml(prod.product_name)}</p>
-      <p><strong>Category:</strong> ${escapeHtml(prod.category)}</p>
-      <p><strong>Current Stock:</strong> ${escapeHtml(String(prod.current_stock))}</p>
-      <p><strong>Status:</strong> ${escapeHtml(prod.status)}</p>
-      <p><strong>Sold in range:</strong> ${escapeHtml(String(prod.sold_in_range))}</p>
+      <p><strong>Product ID:</strong> <span style="color:#9a3412;font-weight:700;">${escapeHtml(prod.product_id)}</span></p>
+      <p><strong>Name:</strong> <span style="color:#7c2d12;font-weight:700;">${escapeHtml(prod.product_name)}</span></p>
+      <p><strong>Category:</strong> <span style="color:#0f766e;font-weight:600;">${escapeHtml(prod.category)}</span></p>
+      <p><strong>Current Stock:</strong> <span style="color:#6b7280;font-weight:600;">${escapeHtml(String(prod.current_stock))}</span></p>
+      <p><strong>Status:</strong> <span style="color:#6b7280;">${escapeHtml(prod.status)}</span></p>
+      <p><strong>Sold in range:</strong> <span style="color:#c2410c;font-weight:700;">${escapeHtml(String(prod.sold_in_range))}</span></p>
     `;
     modal.style.display = 'flex';
   }
@@ -218,10 +249,11 @@
 
         console.log('[LowStock] built endpoint URL:', url);
         const json = await fetchJSON(url);
-        const items = json.items || [];
-        window.__lastLowStockItems = items;
-        render(items);
-        console.log('[LowStock] rendered', items.length, 'items');
+        allReportItems = json.items || [];
+        window.__lastLowStockItems = allReportItems;
+        render(getFilteredItems());
+        updateReportSearchClearState();
+        console.log('[LowStock] rendered', allReportItems.length, 'items');
     } catch (err) {
         console.error('[LowStock] generate error', err);
         clearTableMessage('Error: ' + err.message);
@@ -233,6 +265,29 @@
     ensureTable();
     setHeaders();
     clearTableMessage('Loading...');
+    const searchInput = document.getElementById('reportSearch');
+    if (searchInput && !searchInput.__init) {
+      searchInput.__init = true;
+      searchInput.addEventListener('input', () => {
+        reportSearchTerm = searchInput.value || '';
+        updateReportSearchClearState();
+        render(getFilteredItems());
+      });
+    }
+    const clearBtn = document.getElementById('reportSearchClear');
+    if (clearBtn && !clearBtn.__init) {
+      clearBtn.__init = true;
+      clearBtn.addEventListener('click', () => {
+        const input = document.getElementById('reportSearch');
+        if (!input) return;
+        input.value = '';
+        reportSearchTerm = '';
+        updateReportSearchClearState();
+        render(getFilteredItems());
+        input.focus();
+      });
+    }
+    updateReportSearchClearState();
     const close = document.getElementById('closeModal');
     if (close) close.onclick = closeModal;
     generate();

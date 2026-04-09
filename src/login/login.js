@@ -1,61 +1,55 @@
-// ========================================
-// FINAL LOGIN.JS (with safeRedirect)
-// ========================================
-
-// Path to login.php
 const LOGIN_PHP_PATH = "login.php";
+const PASSWORD_EYE_ICON = `
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="12" cy="12" r="3" stroke-width="1.8"/>
+  </svg>
+`;
+const PASSWORD_EYE_OFF_ICON = `
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M3 3l18 18" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M10.6 6.3A11.4 11.4 0 0 1 12 6c6.5 0 10 6 10 6a17.6 17.6 0 0 1-4.1 4.6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.2 6.8C3.7 8.6 2 12 2 12s3.5 6 10 6c1.5 0 2.8-.3 4-.8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.9 9.9A3 3 0 0 0 14.1 14.1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+`;
 
-// ----------------------------------------
-// Safe redirect handler
-// ----------------------------------------
 function safeRedirect(redirectPath) {
   console.log("safeRedirect() received:", redirectPath);
 
-  // 1) Absolute path (starts with /)
   if (redirectPath && redirectPath.startsWith("/")) {
-    console.log("Using ABSOLUTE redirect:", redirectPath);
     window.location.href = redirectPath;
     return;
   }
 
-  // 2) Full external URL
   try {
-    const u = new URL(redirectPath);
-    if (u.protocol && u.host) {
-      console.log("Using FULL URL redirect:", redirectPath);
+    const url = new URL(redirectPath);
+    if (url.protocol && url.host) {
       window.location.href = redirectPath;
       return;
     }
-  } catch (e) {}
+  } catch (error) {}
 
-  // 3) Fallback candidate absolute paths
   const candidates = [
-    "/smart-inventory/src/pages/employee/Employee.html",  // correct for your setup
+    "/smart-inventory/src/pages/employee/Employee.html",
     "/src/pages/employee/Employee.html",
     "/Employee.html"
   ];
 
-  console.log("Trying fallback redirect paths...");
-
   (async () => {
-    for (const c of candidates) {
+    for (const candidate of candidates) {
       try {
-        console.log("Testing path:", c);
-        const r = await fetch(c, { method: "GET", credentials: "same-origin" });
-
-        if (r.ok) {
-          console.log("Redirect path FOUND:", c);
-          window.location.href = c;
+        const response = await fetch(candidate, { method: "GET", credentials: "same-origin" });
+        if (response.ok) {
+          window.location.href = candidate;
           return;
         }
-      } catch (err) {
-        console.warn("Failed test:", c, err);
+      } catch (error) {
+        console.warn("Failed test:", candidate, error);
       }
     }
 
-    // If all fail, just try redirectPath directly
     if (redirectPath) {
-      console.warn("Using raw redirect:", redirectPath);
       window.location.href = redirectPath;
     } else {
       alert("Unable to find Employee page after checking multiple paths.");
@@ -63,13 +57,10 @@ function safeRedirect(redirectPath) {
   })();
 }
 
-// ----------------------------------------
-// MAIN LOGIN FUNCTION
-// ----------------------------------------
 async function checkLogin() {
   const userEl = document.getElementById("username");
   const passEl = document.getElementById("password");
-  const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+  const submitBtn = document.querySelector("#loginForm button[type='submit']");
 
   const username = userEl ? userEl.value.trim() : "";
   const password = passEl ? passEl.value : "";
@@ -79,7 +70,6 @@ async function checkLogin() {
     return;
   }
 
-  // disable submit to avoid double requests
   if (submitBtn) submitBtn.disabled = true;
 
   try {
@@ -94,10 +84,11 @@ async function checkLogin() {
     });
 
     const raw = await res.text();
-    console.log("RAW LOGIN RESPONSE:", raw);
-
     let data;
-    try { data = JSON.parse(raw); } catch (e) {
+
+    try {
+      data = JSON.parse(raw);
+    } catch (error) {
       alert("Server returned invalid JSON. Check console for details.");
       console.error("Invalid JSON from server:", raw);
       return;
@@ -109,23 +100,17 @@ async function checkLogin() {
     }
 
     safeRedirect(data.redirect);
-
   } catch (err) {
     console.error("Login network/server error:", err);
-    alert("Login error — check network or server.");
+    alert("Login error - check network or server.");
   } finally {
     if (submitBtn) submitBtn.disabled = false;
   }
 }
 
-
-// ----------------------------------------
-// DOM READY
-// ----------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   console.log("login.js loaded.");
 
-  // Bind form submit
   const form = document.getElementById("loginForm");
   if (form) {
     form.addEventListener("submit", (e) => {
@@ -134,21 +119,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Eye icon toggle
   const password = document.getElementById("password");
   const toggleBtn = document.getElementById("togglePassword");
 
   if (toggleBtn && password) {
+    toggleBtn.innerHTML = PASSWORD_EYE_ICON;
+    toggleBtn.setAttribute("aria-label", "Show password");
+
     toggleBtn.addEventListener("click", () => {
       const hidden = password.type === "password";
       password.type = hidden ? "text" : "password";
-      toggleBtn.textContent = hidden ? "🙈" : "👁";
+      toggleBtn.innerHTML = hidden ? PASSWORD_EYE_OFF_ICON : PASSWORD_EYE_ICON;
+      toggleBtn.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
 
-      // Keep cursor at end
       password.focus();
-      const v = password.value;
+      const value = password.value;
       password.value = "";
-      password.value = v;
+      password.value = value;
     });
   }
 });

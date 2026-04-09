@@ -1,23 +1,19 @@
-﻿// transactions_AD.js â€” JS-only fix: View in Items column + working modal close
+// transactions_AD.js - JS-only fix: View in Items column + working modal close
 (function () {
   'use strict';
 
-  // duplicate guard
-  if (window.__transactionsAD_fixed_v5) {
-    console.log('transactions_AD.js: already loaded (v5).');
+  if (window.__transactionsAD_fixed_v6) {
+    console.log('transactions_AD.js: already loaded (v6).');
     return;
   }
-  window.__transactionsAD_fixed_v5 = true;
+  window.__transactionsAD_fixed_v6 = true;
 
-  // Config
-  var MARKER_ID = 'transactionsPage';
   var TB_ID = 'txBody';
-  var LIST_API = '/smart-inventory/src/pages/employee/4_transactions/get_transactions.php';
-  var DETAILS_API = '/smart-inventory/src/pages/employee/4_transactions/get_transaction_details.php';
+  var LIST_API = '/smart-inventory/src/pages/admin/5_transactions/get_transactions.php';
+  var DETAILS_API = '/smart-inventory/src/pages/admin/5_transactions/get_transaction_details.php';
   var DELETE_API = '/smart-inventory/src/pages/admin/5_transactions/delete_transaction.php';
   var EMPLOYEES_API = '/smart-inventory/src/pages/admin/4_employees/get_employees.php';
 
-  // Helpers
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c];
@@ -30,6 +26,7 @@
     if (!tb) return;
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:' + (color || 'gray') + ';padding:14px">' + esc(msg) + '</td></tr>';
   }
+
   function populateEmployeeFilter(items) {
     var select = document.getElementById('employeeFilter');
     if (!select) return;
@@ -123,13 +120,12 @@
     var label = isView ? 'View' : 'Remove';
     var shadow = isView ? 'rgba(234,88,12,0.18)' : 'rgba(220,38,38,0.18)';
     var background = isView
-      ? 'linear-gradient(135deg,#f97316 0%,#ea580c 100%)'
+      ? '#f97316'
       : 'linear-gradient(135deg,#ef4444 0%,#dc2626 100%)';
 
     return '<button class="' + cls + '" data-txn="' + txn + '" style="border:none;border-radius:999px;padding:8px 16px;background:' + background + ';color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 8px 18px ' + shadow + ';transition:transform 0.18s ease,box-shadow 0.18s ease,opacity 0.18s ease;">' + label + '</button>';
   }
 
-  // Attach handlers for rows
   function attachRowHandlers(tb) {
     if (!tb) tb = getTbody();
     if (!tb) return;
@@ -142,16 +138,22 @@
     });
 
     Array.prototype.forEach.call(tb.querySelectorAll('.remove-btn'), function (btn) {
-      btn.onclick = function () {
+      btn.onclick = async function () {
         var txn = btn.getAttribute('data-txn');
         if (!txn) return;
-        if (!confirm('Delete ' + txn + '?')) return;
+        var confirmed = typeof window.showDeleteConfirm === 'function'
+          ? await window.showDeleteConfirm({
+              title: 'Delete Transaction',
+              message: 'Do you want to permanently delete transaction ' + txn + '? This cannot be undone.',
+              confirmLabel: 'Delete Transaction'
+            })
+          : confirm('Do you want to permanently delete transaction ' + txn + '?\n\nThis cannot be undone.');
+        if (!confirmed) return;
         removeTransaction(txn);
       };
     });
   }
 
-  // Modal show
   function openDetails(txn) {
     fetch(DETAILS_API + '?id=' + encodeURIComponent(txn), { credentials: 'same-origin' })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -161,14 +163,13 @@
           return;
         }
         var tx = j.transaction || j.data || j;
-        // populate modal fields (if exist)
         try {
           var elId = document.getElementById('modalTransactionId');
           if (elId) elId.textContent = tx.transaction_id || tx.txn_id || txn;
           var elDt = document.getElementById('modalTransactionDateTime');
           if (elDt) elDt.textContent = tx.transaction_date || tx.date_time || '';
           var elEmp = document.getElementById('modalEmployee');
-          if (elEmp) elEmp.textContent = tx.employee_name || j.employee_name || 'â€”';
+          if (elEmp) elEmp.textContent = tx.employee_name || j.employee_name || '-';
 
           var body = document.getElementById('modalItemsList');
           if (body) {
@@ -180,14 +181,14 @@
                 var qty = esc(String(it.quantity || it.qty || 0));
                 var price = Number(it.unit_price || it.price || it.amount || 0).toFixed(2);
                 var sub = Number(it.subtotal || ((it.quantity || 0) * (it.unit_price || it.price || 0))).toFixed(2);
-                return '<tr><td style="text-align:left">' + name + '</td><td style="text-align:center">' + qty + '</td><td style="text-align:right">â‚±' + price + '</td><td style="text-align:right">â‚±' + sub + '</td></tr>';
+                return '<tr><td style="text-align:left;color:#7c2d12;font-weight:600;">' + name + '</td><td style="text-align:center;color:#6b7280;">' + qty + '</td><td style="text-align:right;color:#9a3412;font-weight:600;">&#8369;' + price + '</td><td style="text-align:right;color:#c2410c;font-weight:700;">&#8369;' + sub + '</td></tr>';
               }).join('');
             }
           }
 
-          if (document.getElementById('modalSubtotal')) document.getElementById('modalSubtotal').textContent = 'â‚±' + Number(tx.subtotal || 0).toFixed(2);
-          if (document.getElementById('modalTax')) document.getElementById('modalTax').textContent = 'â‚±' + Number(tx.tax !== undefined && tx.tax !== null ? tx.tax : (Number(tx.subtotal || 0) * 0.12)).toFixed(2);
-          if (document.getElementById('modalTotal')) document.getElementById('modalTotal').textContent = 'â‚±' + Number(tx.total || tx.total_amount || 0).toFixed(2);
+          if (document.getElementById('modalSubtotal')) document.getElementById('modalSubtotal').innerHTML = '&#8369;' + Number(tx.subtotal || 0).toFixed(2);
+          if (document.getElementById('modalTax')) document.getElementById('modalTax').innerHTML = '&#8369;' + Number(tx.tax !== undefined && tx.tax !== null ? tx.tax : (Number(tx.subtotal || 0) * 0.12)).toFixed(2);
+          if (document.getElementById('modalTotal')) document.getElementById('modalTotal').innerHTML = '&#8369;' + Number(tx.total || tx.total_amount || 0).toFixed(2);
 
           var modal = document.getElementById('transactionModal');
           if (modal) modal.style.display = 'flex';
@@ -197,17 +198,15 @@
       })
       .catch(function (err) {
         console.error('details fetch error', err);
-        alert('Failed to fetch details â€” see console');
+        alert('Failed to fetch details - see console');
       });
   }
 
-  // Close modal (exposed for HTML button)
   window.closeTransactionModal = function () {
     var modal = document.getElementById('transactionModal');
     if (modal) modal.style.display = 'none';
   };
 
-  // Close modal on overlay click and Esc
   (function modalMisc() {
     document.addEventListener('click', function (ev) {
       var modal = document.getElementById('transactionModal');
@@ -222,7 +221,6 @@
     });
   })();
 
-  // Remove transaction
   function removeTransaction(txn) {
     fetch(DELETE_API, {
       method: 'POST',
@@ -233,19 +231,18 @@
       .then(function (j) {
         if (j && j.success) {
           alert('Deleted');
-          // if original loader exists call it, else fallback
           if (typeof window.__adminLoadTransactions_original === 'function') {
             try { window.__adminLoadTransactions_original(); return; } catch (e) { console.error(e); }
           }
           renderListFallback();
-        } else alert('Delete failed: ' + (j && j.message ? j.message : 'unknown'));
-      }).catch(function (e) { console.error('delete error', e); alert('Delete failed â€” see console'); });
+        } else {
+          alert('Delete failed: ' + (j && j.message ? j.message : 'unknown'));
+        }
+      }).catch(function (e) { console.error('delete error', e); alert('Delete failed - see console'); });
   }
 
-  // Fallback renderer (fetches list and populates tbody)
   function renderListFallback(filters) {
     filters = filters || {};
-    // ensure tbody exists (create one if missing)
     var table = document.querySelector('.data-table');
     var tb = getTbody();
     if (!tb) {
@@ -253,69 +250,63 @@
         console.warn('renderListFallback: .data-table not found; aborting render.');
         return;
       }
-      // create tbody and attach id so future code can find it
       tb = document.createElement('tbody');
       tb.id = TB_ID || 'txBody';
       table.appendChild(tb);
       console.log('renderListFallback: created tbody #' + tb.id);
     }
 
-  setMessage(tb, 'Loading transactions...');
+    setMessage(tb, 'Loading transactions...');
 
     var url = LIST_API;
+    if (filters && (filters.date || filters.employee)) {
+      var params = [];
+      if (filters.date) params.push('date=' + encodeURIComponent(filters.date));
+      if (filters.employee) params.push('employee=' + encodeURIComponent(filters.employee));
+      url += '?' + params.join('&');
+    }
 
-  if (filters && (filters.date || filters.employee)) {
-    var params = [];
-    if (filters.date) params.push("date=" + encodeURIComponent(filters.date));
-    if (filters.employee) params.push("employee=" + encodeURIComponent(filters.employee));
-    url += "?" + params.join("&");
-  }
+    fetch(url, { credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) {
+        var rows = (j && (j.transactions || j.data)) || [];
+        if (!rows.length) { setMessage(tb, 'No transactions found.', 'gray'); return; }
 
-  fetch(url, { credentials: 'same-origin' })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (j) {
-      var rows = (j && (j.transactions || j.data)) || [];
-      if (!rows.length) { setMessage(tb, 'No transactions found.', 'gray'); return; }
+        var out = [];
+        rows.forEach(function (r) {
+          var txn = esc(r.transaction_id || r.txn_id || r.id || '');
+          var date = esc(r.transaction_date || r.date_time || r.date || '');
+          var emp = esc(r.employee_name || r.employee_id || '-');
+          var total = Number(r.total_amount || r.total || r.subtotal || 0).toFixed(2);
 
-      var out = [];
-      rows.forEach(function (r) {
-        var txn = esc(r.transaction_id || r.txn_id || r.id || '');
-        var date = esc(r.transaction_date || r.date_time || r.date || '');
-        var emp = esc(r.employee_name || r.employee_id || 'â€”');
-        var total = Number(r.total_amount || r.total || r.subtotal || 0).toFixed(2);
-        var itemsCount = (r.items && Array.isArray(r.items)) ? r.items.length : (r.items_count || 'â€”');
-
-        out.push(
-          '<tr data-txn="' + txn + '">',
-          '<td>' + txn + '</td>',
-          '<td>' + date + '</td>',
-          '<td>' + emp + '</td>',
-          '<td style="text-align:center">' + actionButtonHtml('view', txn) + '</td>',
-          '<td style="text-align:right">â‚±' + total + '</td>',
-          '<td style="text-align:center">' + actionButtonHtml('remove', txn) + '</td>',
-          '</tr>'
-        );
+          out.push(
+            '<tr data-txn="' + txn + '">',
+            '<td style="color:#9a3412;font-weight:700;">' + txn + '</td>',
+            '<td style="color:#6b7280;">' + date + '</td>',
+            '<td style="color:#7c2d12;font-weight:600;">' + emp + '</td>',
+            '<td style="text-align:center">' + actionButtonHtml('view', txn) + '</td>',
+            '<td style="text-align:right;color:#c2410c;font-weight:700;">&#8369;' + total + '</td>',
+            '<td style="text-align:center">' + actionButtonHtml('remove', txn) + '</td>',
+            '</tr>'
+          );
+        });
+        tb.innerHTML = out.join('');
+        attachRowHandlers(tb);
+      })
+      .catch(function (e) {
+        console.error('list fetch error', e);
+        setMessage(tb, 'Failed to load transactions', 'red');
       });
-      tb.innerHTML = out.join('');
-      attachRowHandlers(tb);
-    })
-    .catch(function (e) {
-      console.error('list fetch error', e);
-      setMessage(tb, 'Failed to load transactions', 'red');
-    });
   }
 
-  // Keep reference to any original loader BEFORE overriding
   if (typeof window.adminLoadTransactions === 'function' && !window.__adminLoadTransactions_original) {
     window.__adminLoadTransactions_original = window.adminLoadTransactions;
   }
 
-  // Expose adminLoadTransactions wrapper
   window.adminLoadTransactions = function (filters) {
-     return renderListFallback(filters || {});
+    return renderListFallback(filters || {});
   };
 
-  // Periodic health-check to ensure table exists; if empty, reload (1s)
   var periodicId = setInterval(function () {
     var tb = getTbody();
     if (!tb || !tb.innerText || tb.innerText.trim() === '' || tb.innerText.toLowerCase().includes('loading')) {
@@ -326,13 +317,11 @@
     }
   }, 1000);
 
-  // Allow cleanup
   window._transactionsAD_cleanup = function () {
     clearInterval(periodicId);
     console.log('transactions_AD: cleaned up');
   };
 
-  // Initial run
   try {
     bindEmployeeFilterMenu();
     loadEmployeeFilterOptions();
@@ -360,5 +349,4 @@
 
     adminLoadTransactions({});
   };
-
 })();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMS â€“ Employee Panel</title>
+    <title>IMS - Employee Panel</title>
 
     <!-- ===== MEDIASESSION SUPPRESSOR (MUST BE FIRST) ===== -->
     <script>
@@ -38,15 +38,93 @@
     <link rel="stylesheet" href="../../styles/sidebar.css">
     <link rel="stylesheet" href="../../styles/content.css">
     <link rel="stylesheet" href="../../styles/logout-popup.css">
-    <link rel="icon" type="image/png" href="../../assets/SIMS.png">
+    <link rel="icon" type="image/png" href="../../assets/main_logo.png">
 
     <style>
+        .employee-topbar {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            right: 0;
+            z-index: 80;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            min-height: auto;
+            padding: 18px 28px 0;
+            transition: left 0.25s ease;
+            pointer-events: none;
+        }
+        .employee-identity {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border: 1px solid rgba(249, 115, 22, 0.16);
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,247,237,0.98) 100%);
+            box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
+            pointer-events: auto;
+        }
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f97316;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+        }
+        .employee-identity-copy {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .employee-identity-label {
+            color: #9ca3af;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .employee-identity-name {
+            color: #7c2d12;
+            font-size: 15px;
+            font-weight: 700;
+        }
         #main-content {
             opacity: 0;
             transition: opacity 0.4s ease;
+            padding-top: 88px;
         }
         #main-content.visible {
             opacity: 1;
+        }
+        .sidebar.collapsed ~ .employee-topbar {
+            left: 88px;
+        }
+        @media (max-width: 900px) {
+            .employee-topbar {
+                left: 0;
+                padding: 18px 18px 0 74px;
+            }
+        }
+        @media (max-width: 560px) {
+            .employee-topbar {
+                justify-content: flex-start;
+            }
+            .employee-identity {
+                width: 100%;
+                border-radius: 18px;
+            }
+            .employee-identity-name {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -79,6 +157,16 @@
         </a>
     </div>
 
+    <div class="employee-topbar">
+        <div class="employee-identity" aria-live="polite">
+            <div class="employee-avatar" id="employeeAvatar">E</div>
+            <div class="employee-identity-copy">
+                <span class="employee-identity-label">Logged In As</span>
+                <span class="employee-identity-name" id="employeeFullName">Employee</span>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN CONTENT -->
     <div class="content" id="main-content"></div>
 
@@ -95,6 +183,36 @@
 
     <!-- JAVASCRIPT: loader + helpers -->
     <script>
+    function buildEmployeeInitials(name) {
+        const parts = String(name || '')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2);
+        if (!parts.length) return 'E';
+        return parts.map(part => part.charAt(0).toUpperCase()).join('');
+    }
+
+    async function loadEmployeeIdentity() {
+        try {
+            const res = await fetch('get_employee_session.php?v=20260409-employee-session-1', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
+            if (!res.ok) return;
+            const data = await res.json().catch(() => null);
+            if (!data || !data.success) return;
+
+            const fullName = String(data.full_name || '').trim() || String(data.username || '').trim() || 'Employee';
+            const nameEl = document.getElementById('employeeFullName');
+            const avatarEl = document.getElementById('employeeAvatar');
+            if (nameEl) nameEl.textContent = fullName;
+            if (avatarEl) avatarEl.textContent = buildEmployeeInitials(fullName);
+        } catch (err) {
+            console.warn('loadEmployeeIdentity failed', err);
+        }
+    }
+
     function notifySidebarLoadFinished() {
         window.dispatchEvent(new CustomEvent("sidebar:loading:end"));
     }
@@ -109,7 +227,8 @@
         content.innerHTML = `<div class="content-section"><h2>Loading ${section}...</h2></div>`;
 
         async function tryLoadHtml(secName) {
-            const res = await fetch(`${folder}/${secName}.html`);
+            const htmlVersion = "20260409-employee-html-16";
+            const res = await fetch(`${folder}/${secName}.html?v=${htmlVersion}`, { cache: "no-store" });
             if (!res.ok) throw new Error(secName);
             return { html: await res.text(), usedSection: secName };
         }
@@ -157,7 +276,7 @@
             document.querySelectorAll("script[data-section]").forEach(s => s.remove());
 
             // Build script path
-            const scriptVersion = "20260409-employee-ui-3";
+            const scriptVersion = "20260409-employee-ui-11";
             const scriptSrc = `${folder}/${result.usedSection}.js?v=${scriptVersion}`;
 
             // Check if script already exists (fixes duplicate loading + redeclare error)
@@ -215,6 +334,7 @@
 
     // Default load
     document.addEventListener("DOMContentLoaded", () => {
+        loadEmployeeIdentity();
         const lastSection = localStorage.getItem("currentSection") || "dashboard";
         const lastFolder = localStorage.getItem("currentFolder") || "1_dashboard";
         loadContent(lastSection, lastFolder);

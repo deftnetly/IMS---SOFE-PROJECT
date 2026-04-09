@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        .dashboard-page-shell {
+            padding: 20px 28px 28px;
+        }
+        .dashboard-page-shell .content-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
         .dashboard-next-button {
             border: none;
             border-radius: 16px;
@@ -24,6 +33,17 @@
         .dashboard-next-button:active {
             transform: translateY(0);
             opacity: 0.94;
+        }
+        .dashboard-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .dashboard-topbar h2 {
+            margin: 0;
         }
         .sales-history-panel {
             margin-top: 34px;
@@ -120,8 +140,12 @@
     </style>
 </head>
 <body>
+    <div class="dashboard-page-shell">
     <div id="dashboard" class="content-section">
-        <h2>Dashboard Overview</h2>
+        <div class="dashboard-topbar">
+            <h2>Dashboard Overview</h2>
+            <button class="dashboard-next-button" id="checkoutBtn">Go next page</button>
+        </div>
 
         <!-- Summary Cards -->
         <div class="dashboard-cards">
@@ -195,11 +219,7 @@
             </div>
         </div>
 
-        <!-- Quick Action -->
-            <div style="margin-top: 30px; text-align: right;">
-                <button class="dashboard-next-button" id="checkoutBtn">Go next page</button>
-            </div>
-
+    </div>
     </div>
 
 

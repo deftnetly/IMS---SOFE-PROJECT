@@ -145,11 +145,11 @@
       const tx = json.transactions || [];
       const total = tx.reduce((sum, t) => sum + (Number(t.total_amount) || 0), 0);
 
-      el.textContent = "â‚±" + total.toFixed(2);
+      el.innerHTML = "&#8369;" + total.toFixed(2);
 
     } catch (err) {
       console.error("Today's sales error:", err);
-      el.textContent = "â‚±0";
+      el.innerHTML = "&#8369;0.00";
     }
   }
 
