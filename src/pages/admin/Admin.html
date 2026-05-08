@@ -471,7 +471,7 @@
 
     async function loadContent(section, folder) {
         const container = document.getElementById("main-content");
-        const htmlVersion = '20260409-admin-html-26';
+        const htmlVersion = '20260409-admin-html-27';
         if (typeof window.showSidebarLoading === "function") {
             window.showSidebarLoading();
         }
@@ -507,7 +507,7 @@
             //  Fixed & safe script loader
             // =============================
 (function loadSectionScript(folder, usedSection) {
-    const scriptVersion = '20260409-admin-ui-26';
+    const scriptVersion = '20260409-admin-ui-27';
 
     // --- SPECIAL CASE: if we loaded the employees_AD HTML, force employees_AD.js ---
     // This is minimal and isolated â€” it won't affect other pages.

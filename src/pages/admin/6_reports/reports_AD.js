@@ -172,7 +172,7 @@
     const title = document.getElementById('modalTitle');
     const body = document.getElementById('modalBody');
     const prod = (items || []).find(x => String(x.product_id) === String(productId));
-    title.textContent = `Product â€” ${productId}`;
+    title.textContent = `Product \u20B1 ${productId}`;
     if (!prod) {
       body.innerHTML = '<p>No details found for this product.</p>';
       modal.style.display = 'flex';
@@ -217,7 +217,7 @@
 
     ensureTable();
     setHeaders();
-    clearTableMessage('Loadingâ€¦');
+    clearTableMessage('Loading...');
 
     function buildReportUrl(pathAndQuery) {
         try {
